@@ -137,6 +137,27 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(83, 119, 69, 0.4);
         }
+        
+        /* ВИРУСНАЯ КНОПКА ХАЛЯВЫ И ЭДРОПА */
+        .viral-btn {
+            background: linear-gradient(135deg, #e0b441 0%, #7c5c1a 100%);
+            border: 2px solid #ffcc00 !important;
+            color: #ffffff !important;
+            font-weight: 700 !important;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+            animation: viralPulse 1.5s infinite alternate;
+        }
+        @keyframes viralPulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 10px rgba(224, 180, 65, 0.5);
+            }
+            100% {
+                transform: scale(1.04);
+                box-shadow: 0 0 25px rgba(224, 180, 65, 0.9), 0 0 10px rgba(255, 204, 0, 0.4);
+            }
+        }
+
         .status-bar {
             position: absolute;
             top: 12px; left: 15px; right: 15px;
@@ -190,7 +211,7 @@
             border-radius: 8px;
             font-size: 11px;
             font-weight: 600;
-            z-index: 20;
+            z-index: 30;
             display: none;
             text-align: center;
             box-shadow: 0 4px 20px rgba(224, 180, 65, 0.3);
@@ -245,6 +266,7 @@
                     </div>
                 </div>
                 <div class="menu-right-panel">
+                    <button class="menu-btn viral-btn" onclick="openAirdropSpin()">КРУТИТЬ КОЛЕСО УДАЧИ & AIRDROP 🎡🪂</button>
                     <button class="menu-btn" onclick="startGame('single')">ПОЛИГОН (ОДИНОЧНАЯ)</button>
                     <button class="menu-btn" id="playSandboxBtn" style="display: none; border-color: #e0b441; color: #f3ce69;" onclick="startCustomSandboxGame()">ИГРАТЬ В СВОЙ УРОВЕНЬ</button>
                     <button class="menu-btn" onclick="openSandboxEditor()">РЕДАКТОР УРОВНЯ</button>
@@ -252,6 +274,54 @@
                     <button class="menu-btn" onclick="claimDailyReward()" style="border-color: #4b8a45; color: #9be68e;">ЕЖЕДНЕВНЫЙ БОНУС 🎁</button>
                     <button class="menu-btn" onclick="openSettings()">НАСТРОЙКИ</button>
                 </div>
+            </div>
+
+            <!-- ОКНО КОЛЕСА УДАЧИ, РЕФЕРАЛОВ И AIRDROP -->
+            <div id="airdropMenu" class="menu-screen" style="display: none; flex-direction: column; justify-content: flex-start; padding: 25px; overflow-y: auto;">
+                <h1>УДАЧА & AIRDROP 🎡🪂</h1>
+                <div class="alpha-badge" style="background:#523e13; color:#f3ce69; border:1px solid #7c5c1a;">РЕФЕРАЛЬНЫЙ БУСТ: АКТИВЕН</div>
+                
+                <div style="display: flex; gap: 30px; align-items: center; width: 100%; max-width: 680px; margin: auto 0; justify-content: center;">
+                    
+                    <!-- Колесо фортуны на CSS/JS -->
+                    <div style="position: relative; width: 200px; height: 200px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <div id="fortuneWheel" style="width: 180px; height: 180px; border-radius: 50%; border: 6px solid #e0b441; background: conic-gradient(#364d2d 0deg 60deg, #1c2619 60deg 120deg, #364d2d 120deg 180deg, #1c2619 180deg 240deg, #364d2d 240deg 300deg, #1c2619 300deg 360deg); transition: transform 4s cubic-bezier(0.1, 0.8, 0.3, 1); box-shadow: 0 0 20px rgba(224,180,65,0.4); display: flex; align-items: center; justify-content: center;">
+                            <div style="position: absolute; font-size: 9px; font-weight: bold; color: #fff; transform: rotate(30deg) translate(0, -55deg);">+50 ⚙️</div>
+                            <div style="position: absolute; font-size: 9px; font-weight: bold; color: #e0b441; transform: rotate(90deg) translate(0, -55deg);">ДЖЕКПОТ</div>
+                            <div style="position: absolute; font-size: 9px; font-weight: bold; color: #fff; transform: rotate(150deg) translate(0, -55deg);">+10 ⚙️</div>
+                            <div style="position: absolute; font-size: 9px; font-weight: bold; color: #fff; transform: rotate(210deg) translate(0, -55deg);">+200 ⚙️</div>
+                            <div style="position: absolute; font-size: 9px; font-weight: bold; color: #ff5555; transform: rotate(270deg) translate(0, -55deg);">ПОВТОР</div>
+                            <div style="position: absolute; font-size: 9px; font-weight: bold; color: #fff; transform: rotate(330deg) translate(0, -55deg);">+100 ⚙️</div>
+                        </div>
+                        <!-- Стрелочка индикатора сверху -->
+                        <div style="position: absolute; top: 0px; width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 20px solid #f3ce69; z-index: 15;"></div>
+                        <!-- Центр колеса -->
+                        <div style="position: absolute; width: 26px; height: 26px; background: #fff; border: 3px solid #e0b441; border-radius: 50%; z-index: 12;"></div>
+                    </div>
+
+                    <!-- Правая колонка с вирусным функционалом -->
+                    <div style="text-align: left; flex-grow: 1; max-width: 320px;">
+                        <h3 style="color:#f3ce69; margin: 0 0 8px 0; font-size: 15px; font-weight: 700;">ВЫБЕЙ ХАЛЯВНЫЕ ДЕТАЛИ</h3>
+                        <p style="font-size: 11px; color:#9cb392; margin: 0 0 14px 0; line-height: 1.4;">
+                            Крутите Колесо каждые 30 секунд или приглашайте друзей по своей ссылке. За каждого игрока вы получите <strong>+250 деталей</strong> мгновенно!
+                        </p>
+                        
+                        <button class="menu-btn viral-btn" id="spinWheelBtn" onclick="spinAirdropWheel()" style="margin-bottom: 12px; width: 100%;">ИСПЫТАТЬ УДАЧУ 🎡</button>
+
+                        <div style="background: rgba(24, 34, 21, 0.9); border: 1px solid #3b5430; padding: 10px; border-radius: 8px;">
+                            <div style="font-size: 9px; color: #9cb392; margin-bottom: 5px; font-weight: bold;">ТВОЯ ССЫЛКА НА AIRDROP (Кликни для копирования):</div>
+                            <input type="text" id="refLinkInput" readonly onclick="copyReferralLink()" style="width: 100%; background: #141b13; border: 1px solid #45633a; color: #9be68e; font-size: 9px; padding: 6px; border-radius: 4px; cursor: pointer; text-align: center; font-family: 'Outfit';">
+                        </div>
+
+                        <div style="display: flex; gap: 8px; margin-top: 10px;">
+                            <button class="menu-btn" onclick="shareToTelegram()" style="background:#229ED9; border:none; font-size: 9px; padding: 8px; flex: 1;">ТЕЛЕГРАМ ✈️</button>
+                            <button class="menu-btn" onclick="shareToVK()" style="background:#4C75A3; border:none; font-size: 9px; padding: 8px; flex: 1;">ВКОНТАКТЕ 📱</button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <button class="menu-btn" onclick="closeAirdrop()" style="margin-top: auto; max-width: 180px;">НАЗАД</button>
             </div>
 
             <!-- МАГАЗИН -->
@@ -445,6 +515,7 @@ function backToMenu() {
     document.getElementById('settingsMenu').style.display = 'none';
     document.getElementById('statusBar').style.display = 'none';
     document.getElementById('sandboxPanel').style.display = 'none';
+    document.getElementById('airdropMenu').style.display = 'none';
     document.exitPointerLock();
     updateCoinDisplays();
 }
@@ -480,6 +551,148 @@ function startCustomSandboxGame() {
     document.getElementById('mainMenu').style.display = 'none';
     document.getElementById('statusBar').style.display = 'flex';
     initGame('sandbox_play');
+}
+
+// ВИРУСНАЯ СИСТЕМА (КОЛЕСО УДАЧИ, РЕФЕРАЛЫ И ЭЙРДРОП)
+let isSpinningWheel = false;
+
+function openAirdropSpin() {
+    document.getElementById('mainMenu').style.display = 'none';
+    document.getElementById('airdropMenu').style.display = 'flex';
+    
+    // Генерируем уникальный реферальный хэш
+    let refId = localStorage.getItem('fropy_ref_id');
+    if (!refId) {
+        refId = 'player_' + Math.floor(Math.random() * 89999 + 10000);
+        localStorage.setItem('fropy_ref_id', refId);
+    }
+    
+    // Строим реферальную ссылку
+    let link = window.location.origin + window.location.pathname + '?ref=' + refId;
+    document.getElementById('refLinkInput').value = link;
+    
+    // Начисление бонуса за переход по чужой ссылке при первом запуске
+    const urlParams = new URLSearchParams(window.location.search);
+    const referral = urlParams.get('ref');
+    if (referral && !localStorage.getItem('fropy_ref_claimed')) {
+        coins += 250;
+        localStorage.setItem('fropy_ref_claimed', 'true');
+        updateCoinDisplays();
+        showNotify('🎁 Вы зашли по реферальной ссылке! Награда: +250 деталей!');
+    }
+}
+
+function closeAirdrop() {
+    document.getElementById('airdropMenu').style.display = 'none';
+    document.getElementById('mainMenu').style.display = 'flex';
+}
+
+function spinAirdropWheel() {
+    if (isSpinningWheel) return;
+    
+    let lastSpinTime = parseInt(localStorage.getItem('fropy_last_airdrop_spin')) || 0;
+    let now = Date.now();
+    let cooldown = 30000; // Кулдаун в 30 секунд для удержания игроков
+    
+    if (now - lastSpinTime < cooldown) {
+        let left = Math.ceil((cooldown - (now - lastSpinTime)) / 1000);
+        showNotify(`Колесо перезаряжается! Подождите ${left} сек.`);
+        return;
+    }
+
+    isSpinningWheel = true;
+    let wheel = document.getElementById('fortuneWheel');
+    
+    // Генерируем случайное вращение
+    let deg = Math.floor(Math.random() * 3600) + 1440; // Минимум 4 полных круга
+    wheel.style.transform = `rotate(${deg}deg)`;
+    
+    // Звуки "тиканья" колеса во время кручения
+    let ticks = 0;
+    let tickInterval = setInterval(() => {
+        if (ticks < 20) {
+            playSound('hit');
+            ticks++;
+        } else {
+            clearInterval(tickInterval);
+        }
+    }, 150);
+
+    setTimeout(() => {
+        isSpinningWheel = false;
+        localStorage.setItem('fropy_last_airdrop_spin', Date.now().toString());
+
+        // Расчет выигрышного сектора (6 секторов по 60 градусов)
+        let normalizedDeg = (deg % 360);
+        let winningIndex = Math.floor((360 - normalizedDeg + 30) / 60) % 6;
+        
+        let reward = 0;
+        let msg = '';
+        
+        switch (winningIndex) {
+            case 0:
+                reward = 100; msg = 'Вы выиграли: +100 ДЕТАЛЕЙ! 🎁';
+                break;
+            case 1:
+                reward = 50; msg = 'Вы выиграли: +50 ДЕТАЛЕЙ! ⚙️';
+                break;
+            case 2:
+                reward = 1000; msg = '🌟 ДЖЕКПОТ! +1000 ДЕТАЛЕЙ! 🌟';
+                break;
+            case 3:
+                reward = 10; msg = 'Вы выиграли: +10 ДЕТАЛЕЙ!';
+                break;
+            case 4:
+                reward = 200; msg = 'Вы выиграли: +200 ДЕТАЛЕЙ! 🚀';
+                break;
+            case 5:
+                reward = 0; msg = 'Сектор ПОВТОР! Крутите еще раз!';
+                break;
+        }
+        
+        if (reward > 0) {
+            coins += reward;
+            updateCoinDisplays();
+            playSound('powerup');
+        } else {
+            localStorage.removeItem('fropy_last_airdrop_spin'); // Позволяет крутить еще раз бесплатно
+            playSound('brick');
+        }
+        
+        showNotify(msg);
+    }, 4000);
+}
+
+function copyReferralLink() {
+    let copyText = document.getElementById('refLinkInput');
+    copyText.select();
+    copyText.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(copyText.value).then(() => {
+        showNotify('Ссылка скопирована! Отправьте её друзьям 🔗');
+        // Поощрительный бонус за клик-копирование
+        if (!localStorage.getItem('fropy_ref_copied_bonus')) {
+            coins += 50;
+            localStorage.setItem('fropy_ref_copied_bonus', 'true');
+            updateCoinDisplays();
+            showNotify('Бонус за шеринг: +50 деталей! ⚙️');
+        }
+    }).catch(err => {
+        showNotify('Ошибка копирования. Выделите ссылку руками.');
+    });
+}
+
+function shareToTelegram() {
+    let link = document.getElementById('refLinkInput').value;
+    let text = encodeURIComponent(`🎮 Забирай секретный AIRDROP деталей в Fropy Arcade! Раздача монет, крутые скины и бесконечные уровни. Моя ссылка на бонус: `);
+    let shareUrl = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${text}`;
+    window.open(shareUrl, '_blank');
+}
+
+function shareToVK() {
+    let link = document.getElementById('refLinkInput').value;
+    let title = encodeURIComponent(`🎮 Играй со мной в Fropy Arcade! Раздача бонусов и динамичный аркадный геймплей прямо в браузере!`);
+    let shareUrl = `https://vk.com/share.php?url=${encodeURIComponent(link)}&title=${title}`;
+    window.open(shareUrl, '_blank');
 }
 
 // ЗВУКОВОЙ ДВИЖОК
