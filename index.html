@@ -1,3 +1,16 @@
+Вот полностью обновленный, визуально и технически доработанный код игры. 
+
+В это обновление были внедрены:
+1. **Эффекты сочности (Juice & FX):** Динамическая система частиц (осколков) при разрушении блоков, тряска экрана (screen shake) при сильных ударах, ретро-эффект CRT-монитора и параллаксная неоновая сетка на фоне.
+2. **Новые геймплейные механики:** 
+   * Полноценный враг — **НЛО (UFO)**, который летает вверху экрана, стреляет плазмой и может отбивать мяч.
+   * Новые супер-бонусы: **Огненный шар** (прожигает блоки насквозь) и **Магнитная платформа** (удерживает мяч).
+   * **Система уровней:** Переход между тремя уникальными картами (уровнями) с нарастающей сложностью.
+3. **Экипировка скинов:** Теперь скины в магазине можно не просто купить, но и полноценно активировать («Экипировать»). Добавлен анимированный неоновый скин.
+4. **Мобильное управление:** Добавлена адаптивная сенсорная зона управления для игры на смартфонах.
+5. **Улучшенное колесо удачи:** Реалистичное вращение с эффектом затухания, конфетти при выигрыше и обновленным дизайном.
+
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -26,11 +39,12 @@
         * {
             box-sizing: border-box;
             user-select: none;
+            -webkit-user-select: none;
         }
         body {
             margin: 0;
             padding: 0;
-            background-color: #141913;
+            background-color: #0c0f0b;
             color: #e2e8df;
             font-family: 'Outfit', sans-serif;
             display: flex;
@@ -41,38 +55,43 @@
             overflow: hidden;
         }
         .arcade-cabinet {
-            background: #1c2619;
-            padding: 24px;
-            border-radius: 16px;
-            border: 2px solid #364d2d;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+            background: linear-gradient(180deg, #1f2d1c 0%, #111a10 100%);
+            padding: 20px;
+            border-radius: 24px;
+            border: 3px solid #3e5933;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), inset 0 0 15px rgba(154, 194, 109, 0.2);
             text-align: center;
+            width: 95vw;
+            max-width: 840px;
         }
         .screen-border {
             position: relative;
-            border-radius: 10px;
-            border: 2px solid #2d4025;
-            background: #182215;
+            border-radius: 14px;
+            border: 4px solid #2d4025;
+            background: #0d140c;
             overflow: hidden;
-            width: 800px;
-            height: 500px;
+            aspect-ratio: 800/500;
+            width: 100%;
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.9);
         }
         canvas {
             display: block;
-            background: linear-gradient(to bottom, #293b22, #121a10);
+            width: 100%;
+            height: 100%;
+            background: #0d140c;
         }
         
         /* СТИЛЬНОЕ МЕНЮ (FROPY STYLE) */
         .menu-screen {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(18, 26, 17, 0.96);
-            backdrop-filter: blur(8px);
+            background: rgba(10, 15, 9, 0.96);
+            backdrop-filter: blur(10px);
             display: flex;
             justify-content: space-between;
             align-items: center;
             z-index: 10;
-            padding: 45px;
+            padding: 40px;
             overflow-y: auto;
         }
         .menu-left-panel {
@@ -85,76 +104,83 @@
             padding-right: 30px;
         }
         .menu-right-panel {
-            width: 50%;
+            width: 52%;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 10px;
         }
         h1 {
-            color: #9ac26d;
-            font-size: 32px;
+            color: #a7d973;
+            font-size: 38px;
             font-weight: 700;
-            margin: 0 0 8px 0;
-            letter-spacing: 1px;
-            text-shadow: 0 2px 10px rgba(154, 194, 109, 0.3);
+            margin: 0 0 4px 0;
+            letter-spacing: 2px;
+            text-shadow: 0 0 15px rgba(167, 217, 115, 0.4);
         }
         .alpha-badge {
-            background: #364d2d;
-            color: #b5e084;
-            font-size: 11px;
-            font-weight: 600;
-            padding: 3px 8px;
+            background: #2b3d24;
+            color: #b9ec88;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 4px 10px;
             border-radius: 6px;
             margin-bottom: 15px;
             display: inline-block;
+            border: 1px solid #48663a;
+            letter-spacing: 1px;
         }
         .menu-desc {
             font-size: 12px;
-            color: #9cb392;
-            margin-bottom: 25px;
-            line-height: 1.5;
+            color: #a5bda1;
+            margin-bottom: 20px;
+            line-height: 1.6;
         }
         .menu-btn {
-            background: #24331e;
-            border: 1px solid #45633a;
-            color: #d6e8cc;
-            padding: 12px 18px;
+            background: #1e2b1a;
+            border: 1px solid #48663a;
+            color: #dfedd6;
+            padding: 11px 18px;
             border-radius: 8px;
             font-family: 'Outfit', sans-serif;
             font-size: 11px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             width: 100%;
             max-width: 320px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         .menu-btn:hover {
-            background: #537745;
+            background: #4e7340;
             color: #ffffff;
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(83, 119, 69, 0.4);
+            box-shadow: 0 6px 20px rgba(78, 115, 64, 0.5);
+            border-color: #72a35f;
+        }
+        .menu-btn:active {
+            transform: translateY(0);
         }
         
         /* ВИРУСНАЯ КНОПКА ХАЛЯВЫ И ЭДРОПА */
         .viral-btn {
-            background: linear-gradient(135deg, #e0b441 0%, #7c5c1a 100%);
-            border: 2px solid #ffcc00 !important;
+            background: linear-gradient(135deg, #f5c443 0%, #946d1b 100%);
+            border: 2px solid #ffe600 !important;
             color: #ffffff !important;
             font-weight: 700 !important;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.6);
-            animation: viralPulse 1.5s infinite alternate;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+            animation: viralPulse 1.2s infinite alternate;
         }
         @keyframes viralPulse {
             0% {
-                transform: scale(1);
-                box-shadow: 0 0 10px rgba(224, 180, 65, 0.5);
+                transform: scale(1) rotate(0deg);
+                box-shadow: 0 0 10px rgba(245, 196, 67, 0.5);
             }
             100% {
-                transform: scale(1.04);
-                box-shadow: 0 0 25px rgba(224, 180, 65, 0.9), 0 0 10px rgba(255, 204, 0, 0.4);
+                transform: scale(1.04) rotate(0.5deg);
+                box-shadow: 0 0 25px rgba(245, 196, 67, 0.9), 0 0 10px rgba(255, 230, 0, 0.4);
             }
         }
 
@@ -163,115 +189,180 @@
             top: 12px; left: 15px; right: 15px;
             display: flex;
             justify-content: space-between;
-            font-size: 12px;
-            font-weight: 600;
+            font-size: 13px;
+            font-weight: 700;
             pointer-events: none;
             color: #fff;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.9);
             z-index: 5;
+            letter-spacing: 0.5px;
         }
         .sandbox-panel {
             position: absolute;
             bottom: 12px; left: 12px; right: 12px;
-            background: rgba(24, 34, 21, 0.95);
-            border: 1px solid #45633a;
-            border-radius: 8px;
-            padding: 10px;
+            background: rgba(15, 22, 13, 0.95);
+            border: 1px solid #4e7340;
+            border-radius: 10px;
+            padding: 8px;
             display: flex;
             justify-content: space-around;
             align-items: center;
             font-size: 10px;
-            font-weight: 600;
+            font-weight: 700;
             z-index: 5;
         }
         .sandbox-btn {
-            background: #141b13;
-            border: 1px solid #45633a;
-            color: #9ac26d;
+            background: #11180f;
+            border: 1px solid #48663a;
+            color: #a7d973;
             padding: 7px 12px;
             border-radius: 6px;
             cursor: pointer;
             font-family: 'Outfit', sans-serif;
             font-size: 10px;
-            font-weight: 600;
+            font-weight: 700;
             transition: 0.15s;
         }
         .sandbox-btn.active, .sandbox-btn:hover {
-            background: #537745;
+            background: #4e7340;
             color: #fff;
         }
         .notification {
             position: absolute;
-            top: 55px; left: 50%;
+            top: 60px; left: 50%;
             transform: translateX(-50%);
-            background: rgba(24, 34, 21, 0.95);
-            border: 2px solid #e0b441;
-            color: #f3ce69;
-            padding: 10px 22px;
+            background: rgba(13, 20, 12, 0.95);
+            border: 2px solid #f5c443;
+            color: #f7d474;
+            padding: 10px 24px;
             border-radius: 8px;
-            font-size: 11px;
-            font-weight: 600;
+            font-size: 12px;
+            font-weight: 700;
             z-index: 30;
             display: none;
             text-align: center;
-            box-shadow: 0 4px 20px rgba(224, 180, 65, 0.3);
+            box-shadow: 0 5px 25px rgba(245, 196, 67, 0.4);
+            animation: slideDown 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+        }
+        @keyframes slideDown {
+            0% { transform: translate(-50%, -20px); opacity: 0; }
+            100% { transform: translate(-50%, 0); opacity: 1; }
         }
         .shop-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
             margin-bottom: 15px;
-            max-width: 540px;
+            max-width: 560px;
             width: 100%;
         }
         .shop-item {
-            background: #1b2718;
-            border: 1px solid #3b5430;
-            border-radius: 8px;
+            background: #141c12;
+            border: 1px solid #354d2e;
+            border-radius: 10px;
             padding: 12px;
             font-size: 10px;
             text-align: center;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            transition: 0.2s;
+        }
+        .shop-item:hover {
+            border-color: #517546;
+            background: #172115;
         }
         .shop-item div { margin-bottom: 6px; }
         .footer-credits {
             margin-top: 14px;
-            font-size: 10px;
-            color: #618055;
-            letter-spacing: 1px;
-            font-weight: 600;
+            font-size: 11px;
+            color: #5c7553;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
         }
+        
+        /* РЕТРО СЕТКА НА КРАЯХ И ЭФФЕКТ ЭКРАНА */
+        .crt-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.05), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.05));
+            background-size: 100% 4px, 6px 100%;
+            z-index: 3;
+            pointer-events: none;
+            opacity: 0.25;
+        }
+
+        /* МОБИЛЬНЫЕ ЗОНЫ НАЖАТИЯ */
+        .mobile-touch-zones {
+            position: absolute;
+            bottom: 0; left: 0; width: 100%; height: 80px;
+            display: none;
+            z-index: 4;
+            pointer-events: none;
+        }
+        .touch-btn {
+            position: absolute;
+            bottom: 10px;
+            width: 65px; height: 65px;
+            background: rgba(255, 255, 255, 0.07);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            pointer-events: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            transition: 0.1s;
+        }
+        .touch-btn:active {
+            background: rgba(255, 255, 255, 0.25);
+            transform: scale(0.9);
+        }
+        #touchLeft { left: 15px; }
+        #touchRight { left: 90px; }
+        #touchAction { right: 15px; width: 80px; border-radius: 12px; font-size: 12px; }
     </style>
 </head>
 <body>
 
     <div class="arcade-cabinet">
-        <div class="screen-border">
+        <div class="screen-border" id="screenContainer">
             
+            <!-- РЕТРО CRT СЛОЙ -->
+            <div class="crt-overlay"></div>
+
             <!-- УВЕДОМЛЕНИЕ -->
             <div id="notificationBox" class="notification">Сообщение</div>
+
+            <!-- ЗОНЫ СЕНСОРНОГО УПРАВЛЕНИЯ НА ТЕЛЕФОНАХ -->
+            <div id="mobileControls" class="mobile-touch-zones">
+                <div id="touchLeft" class="touch-btn">◀</div>
+                <div id="touchRight" class="touch-btn">▶</div>
+                <div id="touchAction" class="touch-btn">ОГОНЬ</div>
+            </div>
 
             <!-- ГЛАВНОЕ МЕНЮ (FROPY) -->
             <div id="mainMenu" class="menu-screen">
                 <div class="menu-left-panel">
                     <h1>Fropy</h1>
-                    <div class="alpha-badge">ALPHA EDITION</div>
+                    <div class="alpha-badge">EVOLUTION UPDATE v1.2</div>
                     <div class="menu-desc">
-                        Аркадный полигон с динамичным разрушением блоков, бонусами, редактором уровней и кастомными апгрейдами платформы.
+                        Испытайте полностью обновленную аркаду! Добавлены зловещие НЛО-соперники, огненные мячи, система прокачки скинов и 3 проработанных уровня!
                     </div>
-                    <div style="font-size: 11px; color: #f3ce69; background: #182215; padding: 12px 18px; border: 1px solid #3b5430; border-radius: 8px; width: 100%;">
-                        БАЛАНС ДЕТАЛЕЙ: <br><span id="coinDisplay" style="font-size: 20px; font-weight: 700;">100</span> ⚙️
+                    <div style="font-size: 11px; color: #f5c443; background: #0f170e; padding: 12px 18px; border: 1px solid #354d2e; border-radius: 8px; width: 100%; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);">
+                        ДЕТАЛИ В НАЛИЧИИ: <br><span id="coinDisplay" style="font-size: 24px; font-weight: 700; color: #fff;">100</span> ⚙️
                     </div>
                 </div>
                 <div class="menu-right-panel">
-                    <button class="menu-btn viral-btn" onclick="openAirdropSpin()">КРУТИТЬ КОЛЕСО УДАЧИ & AIRDROP 🎡🪂</button>
-                    <button class="menu-btn" onclick="startGame('single')">ПОЛИГОН (ОДИНОЧНАЯ)</button>
-                    <button class="menu-btn" id="playSandboxBtn" style="display: none; border-color: #e0b441; color: #f3ce69;" onclick="startCustomSandboxGame()">ИГРАТЬ В СВОЙ УРОВЕНЬ</button>
+                    <button class="menu-btn viral-btn" onclick="openAirdropSpin()">КРУТИТЬ КОЛЕСО & AIRDROP 🎡🪂</button>
+                    <button class="menu-btn" onclick="startGame('single')" style="border-color:#a7d973; background: #1c3016;">ПОЛЕТЕТЬ В БОЙ (АРКАДА)</button>
+                    <button class="menu-btn" id="playSandboxBtn" style="display: none; border-color: #f5c443; color: #f7d474;" onclick="startCustomSandboxGame()">ИГРАТЬ В СВОЙ УРОВЕНЬ</button>
                     <button class="menu-btn" onclick="openSandboxEditor()">РЕДАКТОР УРОВНЯ</button>
-                    <button class="menu-btn" onclick="openShop()">МАГАЗИН</button>
-                    <button class="menu-btn" onclick="claimDailyReward()" style="border-color: #4b8a45; color: #9be68e;">ЕЖЕДНЕВНЫЙ БОНУС 🎁</button>
+                    <button class="menu-btn" onclick="openShop()">КОСМИЧЕСКИЙ МАГАЗИН</button>
+                    <button class="menu-btn" onclick="claimDailyReward()" style="border-color: #4b8a45; color: #9be68e;">ЕЖЕДНЕВНЫЙ ПОДАРОК 🎁</button>
                     <button class="menu-btn" onclick="openSettings()">НАСТРОЙКИ</button>
                 </div>
             </div>
@@ -279,38 +370,38 @@
             <!-- ОКНО КОЛЕСА УДАЧИ, РЕФЕРАЛОВ И AIRDROP -->
             <div id="airdropMenu" class="menu-screen" style="display: none; flex-direction: column; justify-content: flex-start; padding: 25px; overflow-y: auto;">
                 <h1>УДАЧА & AIRDROP 🎡🪂</h1>
-                <div class="alpha-badge" style="background:#523e13; color:#f3ce69; border:1px solid #7c5c1a;">РЕФЕРАЛЬНЫЙ БУСТ: АКТИВЕН</div>
+                <div class="alpha-badge" style="background:#403112; color:#f5c443; border:1px solid #7c5c1a;">РЕФЕРАЛЬНЫЙ БУСТ: АКТИВЕН</div>
                 
                 <div style="display: flex; gap: 30px; align-items: center; width: 100%; max-width: 680px; margin: auto 0; justify-content: center;">
                     
                     <!-- Колесо фортуны на CSS/JS -->
                     <div style="position: relative; width: 200px; height: 200px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                        <div id="fortuneWheel" style="width: 180px; height: 180px; border-radius: 50%; border: 6px solid #e0b441; background: conic-gradient(#364d2d 0deg 60deg, #1c2619 60deg 120deg, #364d2d 120deg 180deg, #1c2619 180deg 240deg, #364d2d 240deg 300deg, #1c2619 300deg 360deg); transition: transform 4s cubic-bezier(0.1, 0.8, 0.3, 1); box-shadow: 0 0 20px rgba(224,180,65,0.4); display: flex; align-items: center; justify-content: center;">
+                        <div id="fortuneWheel" style="width: 180px; height: 180px; border-radius: 50%; border: 6px solid #f5c443; background: conic-gradient(#2b3d24 0deg 60deg, #141c12 60deg 120deg, #2b3d24 120deg 180deg, #141c12 180deg 240deg, #2b3d24 240deg 300deg, #141c12 300deg 360deg); transition: transform 5s cubic-bezier(0.15, 0.85, 0.32, 1); box-shadow: 0 0 25px rgba(245,196,65,0.4); display: flex; align-items: center; justify-content: center;">
                             <div style="position: absolute; font-size: 9px; font-weight: bold; color: #fff; transform: rotate(30deg) translate(0, -55deg);">+50 ⚙️</div>
-                            <div style="position: absolute; font-size: 9px; font-weight: bold; color: #e0b441; transform: rotate(90deg) translate(0, -55deg);">ДЖЕКПОТ</div>
+                            <div style="position: absolute; font-size: 9px; font-weight: bold; color: #f5c443; transform: rotate(90deg) translate(0, -55deg);">ДЖЕКПОТ</div>
                             <div style="position: absolute; font-size: 9px; font-weight: bold; color: #fff; transform: rotate(150deg) translate(0, -55deg);">+10 ⚙️</div>
                             <div style="position: absolute; font-size: 9px; font-weight: bold; color: #fff; transform: rotate(210deg) translate(0, -55deg);">+200 ⚙️</div>
                             <div style="position: absolute; font-size: 9px; font-weight: bold; color: #ff5555; transform: rotate(270deg) translate(0, -55deg);">ПОВТОР</div>
                             <div style="position: absolute; font-size: 9px; font-weight: bold; color: #fff; transform: rotate(330deg) translate(0, -55deg);">+100 ⚙️</div>
                         </div>
                         <!-- Стрелочка индикатора сверху -->
-                        <div style="position: absolute; top: 0px; width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 20px solid #f3ce69; z-index: 15;"></div>
+                        <div style="position: absolute; top: -5px; width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 24px solid #f5c443; z-index: 15; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));"></div>
                         <!-- Центр колеса -->
-                        <div style="position: absolute; width: 26px; height: 26px; background: #fff; border: 3px solid #e0b441; border-radius: 50%; z-index: 12;"></div>
+                        <div style="position: absolute; width: 28px; height: 28px; background: #fff; border: 4px solid #f5c443; border-radius: 50%; z-index: 12; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>
                     </div>
 
                     <!-- Правая колонка с вирусным функционалом -->
                     <div style="text-align: left; flex-grow: 1; max-width: 320px;">
-                        <h3 style="color:#f3ce69; margin: 0 0 8px 0; font-size: 15px; font-weight: 700;">ВЫБЕЙ ХАЛЯВНЫЕ ДЕТАЛИ</h3>
-                        <p style="font-size: 11px; color:#9cb392; margin: 0 0 14px 0; line-height: 1.4;">
-                            Крутите Колесо каждые 30 секунд или приглашайте друзей по своей ссылке. За каждого игрока вы получите <strong>+250 деталей</strong> мгновенно!
+                        <h3 style="color:#f5c443; margin: 0 0 8px 0; font-size: 16px; font-weight: 700;">КРУТИ & ВЫИГРЫВАЙ</h3>
+                        <p style="font-size: 11px; color:#a5bda1; margin: 0 0 14px 0; line-height: 1.5;">
+                            Крутите Колесо каждые 30 секунд или приводите космо-корешей по реф-ссылке. За каждого пилота вы мгновенно заберете <strong>+250 деталей</strong>!
                         </p>
                         
                         <button class="menu-btn viral-btn" id="spinWheelBtn" onclick="spinAirdropWheel()" style="margin-bottom: 12px; width: 100%;">ИСПЫТАТЬ УДАЧУ 🎡</button>
 
-                        <div style="background: rgba(24, 34, 21, 0.9); border: 1px solid #3b5430; padding: 10px; border-radius: 8px;">
-                            <div style="font-size: 9px; color: #9cb392; margin-bottom: 5px; font-weight: bold;">ТВОЯ ССЫЛКА НА AIRDROP (Кликни для копирования):</div>
-                            <input type="text" id="refLinkInput" readonly onclick="copyReferralLink()" style="width: 100%; background: #141b13; border: 1px solid #45633a; color: #9be68e; font-size: 9px; padding: 6px; border-radius: 4px; cursor: pointer; text-align: center; font-family: 'Outfit';">
+                        <div style="background: rgba(13, 20, 12, 0.9); border: 1px solid #354d2e; padding: 10px; border-radius: 8px;">
+                            <div style="font-size: 9px; color: #a5bda1; margin-bottom: 5px; font-weight: bold;">ТВОЯ ССЫЛКА НА БОНУСЫ (Кликни, чтобы скопировать):</div>
+                            <input type="text" id="refLinkInput" readonly onclick="copyReferralLink()" style="width: 100%; background: #0c0f0b; border: 1px solid #48663a; color: #a7d973; font-size: 9px; padding: 7px; border-radius: 4px; cursor: pointer; text-align: center; font-family: 'Outfit';">
                         </div>
 
                         <div style="display: flex; gap: 8px; margin-top: 10px;">
@@ -321,49 +412,51 @@
 
                 </div>
 
-                <button class="menu-btn" onclick="closeAirdrop()" style="margin-top: auto; max-width: 180px;">НАЗАД</button>
+                <button class="menu-btn" onclick="closeAirdrop()" style="margin-top: 15px; max-width: 180px;">НАЗАД</button>
             </div>
 
             <!-- МАГАЗИН -->
             <div id="shopMenu" class="menu-screen" style="display: none; flex-direction: column; justify-content: flex-start; padding: 30px;">
-                <h1>МАГАЗИН</h1>
-                <div style="font-size: 11px; color: #f3ce69; margin-bottom: 12px; font-weight: 600;">БАЛАНС: <span id="shopCoinDisplay">0</span> ⚙️</div>
+                <h1>КОСМИЧЕСКИЙ МАГАЗИН</h1>
+                <div style="font-size: 12px; color: #f5c443; margin-bottom: 12px; font-weight: 700;">ТВОЙ ЗАПАС ДЕТАЛЕЙ: <span id="shopCoinDisplay">0</span> ⚙️</div>
                 <div class="shop-container" id="shopItemsList"></div>
                 <button class="menu-btn" onclick="closeShop()" style="margin-top: auto; max-width: 200px;">НАЗАД</button>
             </div>
 
             <!-- НАСТРОЙКИ -->
             <div id="settingsMenu" class="menu-screen" style="display: none; flex-direction: column; justify-content: center; align-items: center;">
-                <h1>НАСТРОЙКИ</h1>
+                <h1>НАСТРОЙКИ СИСТЕМЫ</h1>
                 <div style="display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 300px; align-items: center; margin-top: 10px;">
-                    <button class="menu-btn" id="soundToggleBtn" onclick="toggleSound()">ЗВУК: ВКЛ</button>
-                    <button class="menu-btn" id="graphicsToggleBtn" onclick="toggleGraphics()">ГРАФИКА: ВЫСОКАЯ (FX)</button>
-                    <button class="menu-btn" onclick="closeSettings()" style="margin-top: 15px;">НАЗАД</button>
+                    <button class="menu-btn" id="soundToggleBtn" onclick="toggleSound()">ЗВУКОВЫЕ ЭФФЕКТЫ: ВКЛ</button>
+                    <button class="menu-btn" id="graphicsToggleBtn" onclick="toggleGraphics()">ЭФФЕКТЫ (FX): ВЫСОКИЕ</button>
+                    <button class="menu-btn" onclick="closeSettings()" style="margin-top: 15px;">НАЗАД В МЕНЮ</button>
                 </div>
             </div>
 
             <!-- ИГРОВОЙ ИНТЕРФЕЙС -->
             <div id="statusBar" class="status-bar" style="display: none;">
-                <div>ОЧКИ: <span id="scoreText" style="color: #9ac26d;">0</span></div>
-                <div>ДЕТАЛИ: <span id="gameCoinText" style="color: #f3ce69;">0</span></div>
-                <div>ПРОЧНОСТЬ: <span id="livesText" style="color: #e86b6b;">3</span></div>
+                <div>УРОВЕНЬ: <span id="levelText" style="color: #a7d973;">1</span></div>
+                <div>ОЧКИ: <span id="scoreText" style="color: #a7d973;">0</span></div>
+                <div>ДЕТАЛИ: <span id="gameCoinText" style="color: #f5c443;">0</span></div>
+                <div>ПРОЧНОСТЬ: <span id="livesText" style="color: #ff6b6b;">3</span></div>
             </div>
 
             <!-- ПАНЕЛЬ РЕДАКТОРА -->
             <div id="sandboxPanel" class="sandbox-panel" style="display: none;">
-                <div style="font-size:10px;">ТИП БЛОКА:</div>
-                <button class="sandbox-btn active" onclick="setSandboxPower('none')" id="sb-none">БАЗОВЫЙ</button>
-                <button class="sandbox-btn" onclick="setSandboxPower('multiball')" id="sb-multiball">МУЛЬТИ (M)</button>
+                <div style="font-size:10px;">БЛОК:</div>
+                <button class="sandbox-btn active" onclick="setSandboxPower('none')" id="sb-none">ОБЫЧНЫЙ</button>
+                <button class="sandbox-btn" onclick="setSandboxPower('multiball')" id="sb-multiball">УДВОИТЕЛЬ (M)</button>
                 <button class="sandbox-btn" onclick="setSandboxPower('wide')" id="sb-wide">ШИРОКИЙ (W)</button>
                 <button class="sandbox-btn" onclick="setSandboxPower('laser')" id="sb-laser">ЛАЗЕР (L)</button>
-                <button class="sandbox-btn" onclick="saveAndExitSandbox()" style="border-color: #e0b441; color: #f3ce69;">СОХРАНИТЬ</button>
+                <button class="sandbox-btn" onclick="setSandboxPower('fireball')" id="sb-fireball">ОГНЕННЫЙ (F)</button>
+                <button class="sandbox-btn" onclick="saveAndExitSandbox()" style="border-color: #f5c443; color: #f7d474;">СОХРАНИТЬ КАРТУ</button>
             </div>
 
             <canvas id="gameCanvas" width="800" height="500"></canvas>
         </div>
 
         <div class="footer-credits">
-            FROPY (ALPHA) &bull; ARCADE EDITION
+            FROPY (ALPHA EVOLUTION) &bull; ARCADE SPECIAL EDITION
         </div>
     </div>
 
@@ -372,9 +465,10 @@ let soundEnabled = true;
 let highGraphics = true;
 
 // СОХРАНЕНИЕ ПРОГРЕССА
-let coins = parseInt(localStorage.getItem('fropy_coins')) || 100;
-let playerSkins = JSON.parse(localStorage.getItem('fropy_skins')) || { gold: false, neon: false };
-let playerUpgrades = JSON.parse(localStorage.getItem('fropy_upgrades')) || { extraLife: false, laserPower: false };
+let coins = parseInt(localStorage.getItem('fropy_coins')) || 150;
+let playerSkins = JSON.parse(localStorage.getItem('fropy_skins')) || { classic: true, gold: false, neon: false };
+let equippedSkin = localStorage.getItem('fropy_equipped_skin') || 'classic';
+let playerUpgrades = JSON.parse(localStorage.getItem('fropy_upgrades')) || { extraLife: false, laserPower: false, magneticStart: false };
 
 let sandboxLevelCreated = localStorage.getItem('fropy_sandbox_exists') === 'true';
 let customSavedBricks = JSON.parse(localStorage.getItem('fropy_sandbox_bricks')) || [];
@@ -386,6 +480,7 @@ if (sandboxLevelCreated) {
 function saveProgress() {
     localStorage.setItem('fropy_coins', coins);
     localStorage.setItem('fropy_skins', JSON.stringify(playerSkins));
+    localStorage.setItem('fropy_equipped_skin', equippedSkin);
     localStorage.setItem('fropy_upgrades', JSON.stringify(playerUpgrades));
     localStorage.setItem('fropy_sandbox_exists', sandboxLevelCreated);
     localStorage.setItem('fropy_sandbox_bricks', JSON.stringify(customSavedBricks));
@@ -405,14 +500,14 @@ function showNotify(text) {
     setTimeout(() => box.style.display = 'none', 3000);
 }
 
-// МАГАЗИН
+// МАГАЗИН И ПРОКАЧКА
 const shopCatalog = [
-    { id: 'gold', name: 'СКИН: ТИТАН', type: 'item', cost: 150, desc: 'Прочная золотая платформа' },
-    { id: 'neon', name: 'СКИН: НЕОН', type: 'item', cost: 250, desc: 'Яркий неоновый стиль' },
-    { id: 'extraLife', name: '+1 ЖИЗНЬ НА СТАРТ', type: 'item', cost: 200, desc: 'Начинать заезд с 4 жизнями' },
-    { id: 'laserPower', name: 'БЫСТРЫЙ ЛАЗЕР', type: 'item', cost: 300, desc: 'Ускоренная стрельба лазером' },
-    { id: 'buyCoins', name: 'ПАКЕТ ДЕТАЛЕЙ (+50)', type: 'action', cost: 50, desc: 'Мгновенная покупка валюты' },
-    { id: 'buyScore', name: '+500 ОЧКОВ', type: 'action', cost: 100, desc: 'Мгновенное добавление очков' }
+    { id: 'gold', name: 'СКИН: ЗОЛОТОЙ ТИТАН', type: 'skin', cost: 150, desc: 'Золотая платформа' },
+    { id: 'neon', name: 'СКИН: КИБЕР-НЕОН', type: 'skin', cost: 250, desc: 'Динамический неоновый градиент' },
+    { id: 'extraLife', name: '+1 ЖИЗНЬ НА СТАРТ', type: 'upgrade', cost: 200, desc: 'Запуск матча с 4 жизнями' },
+    { id: 'laserPower', name: 'БЫСТРЫЙ КВАНТ-ЛАЗЕР', type: 'upgrade', cost: 300, desc: 'Скорострельные плазмо-лучи' },
+    { id: 'magneticStart', name: 'МАГНИТНЫЙ ЗАХВАТ', type: 'upgrade', cost: 220, desc: 'Платформа притягивает первый мяч' },
+    { id: 'buyCoins', name: 'ПАКЕТ ДЕТАЛЕЙ (+100)', type: 'action', cost: 50, desc: 'Экстренный заказ запчастей' }
 ];
 
 function renderShop() {
@@ -420,20 +515,34 @@ function renderShop() {
     list.innerHTML = '';
     shopCatalog.forEach(item => {
         let isPurchased = false;
-        if (item.type === 'item') {
-            if (item.id === 'gold' && playerSkins.gold) isPurchased = true;
-            if (item.id === 'neon' && playerSkins.neon) isPurchased = true;
-            if (item.id === 'extraLife' && playerUpgrades.extraLife) isPurchased = true;
-            if (item.id === 'laserPower' && playerUpgrades.laserPower) isPurchased = true;
+        let isEquipped = false;
+
+        if (item.type === 'skin') {
+            if (playerSkins[item.id]) isPurchased = true;
+            if (equippedSkin === item.id) isEquipped = true;
+        } else if (item.type === 'upgrade') {
+            if (playerUpgrades[item.id]) isPurchased = true;
+        }
+
+        let buttonText = 'КУПИТЬ';
+        let btnStyle = '';
+        if (isPurchased) {
+            if (item.type === 'skin') {
+                buttonText = isEquipped ? 'АКТИВЕН' : 'ЭКИПИРОВАТЬ';
+                btnStyle = isEquipped ? 'background:#4e7340; border-color:#a7d973;' : 'border-color:#f5c443; color:#f7d474;';
+            } else {
+                buttonText = 'КУПЛЕНО';
+                btnStyle = 'border-color:#333; color:#666; pointer-events:none;';
+            }
         }
 
         list.innerHTML += `
             <div class="shop-item">
                 <div><strong>${item.name}</strong></div>
-                <div style="color:#9cb392; font-size:9px;">${item.desc}</div>
-                <div style="color:#f3ce69; font-weight: 600;">${item.cost} ⚙️</div>
-                <button class="sandbox-btn" onclick="buyShopItem('${item.id}', '${item.type}', ${item.cost})" ${isPurchased ? 'style="border-color:#333; color:#666;"' : ''}>
-                    ${isPurchased ? 'КУПЛЕНО' : 'КУПИТЬ'}
+                <div style="color:#a5bda1; font-size:9px;">${item.desc}</div>
+                <div style="color:#f5c443; font-weight: 700; font-size:11px;">${item.cost} ⚙️</div>
+                <button class="sandbox-btn" style="${btnStyle}" onclick="buyShopItem('${item.id}', '${item.type}', ${item.cost})">
+                    ${buttonText}
                 </button>
             </div>
         `;
@@ -441,22 +550,24 @@ function renderShop() {
 }
 
 function buyShopItem(id, type, cost) {
-    if (type === 'item') {
-        if (id === 'gold' && playerSkins.gold) return showNotify('Уже установлено!');
-        if (id === 'neon' && playerSkins.neon) return showNotify('Уже установлено!');
-        if (id === 'extraLife' && playerUpgrades.extraLife) return showNotify('Уже установлено!');
-        if (id === 'laserPower' && playerUpgrades.laserPower) return showNotify('Уже установлено!');
+    if (type === 'skin' && playerSkins[id]) {
+        equippedSkin = id;
+        showNotify('Скин успешно экипирован!');
+        updateCoinDisplays();
+        renderShop();
+        return;
     }
 
     if (coins >= cost) {
         coins -= cost;
-        if (id === 'gold') playerSkins.gold = true;
-        if (id === 'neon') playerSkins.neon = true;
-        if (id === 'extraLife') playerUpgrades.extraLife = true;
-        if (id === 'laserPower') playerUpgrades.laserPower = true;
-        
-        if (id === 'buyCoins') coins += 100;
-        if (id === 'buyScore') showNotify('Очки успешно добавлены!');
+        if (type === 'skin') {
+            playerSkins[id] = true;
+            equippedSkin = id;
+        } else if (type === 'upgrade') {
+            playerUpgrades[id] = true;
+        } else if (id === 'buyCoins') {
+            coins += 100;
+        }
 
         updateCoinDisplays();
         renderShop();
@@ -468,19 +579,18 @@ function buyShopItem(id, type, cost) {
 
 function toggleSound() {
     soundEnabled = !soundEnabled;
-    document.getElementById('soundToggleBtn').innerText = `ЗВУК: ${soundEnabled ? 'ВКЛ' : 'ВЫКЛ'}`;
+    document.getElementById('soundToggleBtn').innerText = `ЗВУКОВЫЕ ЭФФЕКТЫ: ${soundEnabled ? 'ВКЛ' : 'ВЫКЛ'}`;
 }
 
 function toggleGraphics() {
     highGraphics = !highGraphics;
-    document.getElementById('graphicsToggleBtn').innerText = `ГРАФИКА: ${highGraphics ? 'ВЫСОКАЯ (FX)' : 'БАЗОВАЯ'}`;
+    document.getElementById('graphicsToggleBtn').innerText = `ЭФФЕКТЫ (FX): ${highGraphics ? 'ВЫСОКИЕ' : 'БАЗОВЫЕ'}`;
 }
 
 function openShop() {
     document.getElementById('mainMenu').style.display = 'none';
     document.getElementById('shopMenu').style.display = 'flex';
     renderShop();
-    updateCoinDisplays();
 }
 function closeShop() {
     document.getElementById('shopMenu').style.display = 'none';
@@ -491,12 +601,12 @@ function claimDailyReward() {
     let lastClaim = localStorage.getItem('fropy_last_claim');
     let today = new Date().toDateString();
     if (lastClaim === today) {
-        showNotify('Награда за сегодня уже забрана!');
+        showNotify('Награда за сегодня уже получена!');
     } else {
-        coins += 100;
+        coins += 150;
         localStorage.setItem('fropy_last_claim', today);
         updateCoinDisplays();
-        showNotify('🎁 Бонус получен: +100 деталей!');
+        showNotify('🎁 Ежедневный бонус пилота: +150 деталей!');
     }
 }
 
@@ -516,13 +626,17 @@ function backToMenu() {
     document.getElementById('statusBar').style.display = 'none';
     document.getElementById('sandboxPanel').style.display = 'none';
     document.getElementById('airdropMenu').style.display = 'none';
-    document.exitPointerLock();
+    document.getElementById('mobileControls').style.display = 'none';
+    try { document.exitPointerLock(); } catch(e) {}
     updateCoinDisplays();
 }
 
 function startGame(mode) {
     document.getElementById('mainMenu').style.display = 'none';
     document.getElementById('statusBar').style.display = 'flex';
+    if ('ontouchstart' in window) {
+        document.getElementById('mobileControls').style.display = 'block';
+    }
     initGame('single');
 }
 
@@ -539,9 +653,9 @@ function saveAndExitSandbox() {
         sandboxLevelCreated = true;
         document.getElementById('playSandboxBtn').style.display = 'block';
         saveProgress();
-        showNotify('Уровень успешно сохранен!');
+        showNotify('Локация успешно сохранена!');
     } else {
-        showNotify('Разместите хотя бы один блок!');
+        showNotify('Разместите хотя бы один энергоблок!');
         return;
     }
     backToMenu();
@@ -550,35 +664,35 @@ function saveAndExitSandbox() {
 function startCustomSandboxGame() {
     document.getElementById('mainMenu').style.display = 'none';
     document.getElementById('statusBar').style.display = 'flex';
+    if ('ontouchstart' in window) {
+        document.getElementById('mobileControls').style.display = 'block';
+    }
     initGame('sandbox_play');
 }
 
-// ВИРУСНАЯ СИСТЕМА (КОЛЕСО УДАЧИ, РЕФЕРАЛЫ И ЭЙРДРОП)
+// ВИРУСНАЯ СИСТЕМА КОЛЕСА УДАЧИ
 let isSpinningWheel = false;
 
 function openAirdropSpin() {
     document.getElementById('mainMenu').style.display = 'none';
     document.getElementById('airdropMenu').style.display = 'flex';
     
-    // Генерируем уникальный реферальный хэш
     let refId = localStorage.getItem('fropy_ref_id');
     if (!refId) {
-        refId = 'player_' + Math.floor(Math.random() * 89999 + 10000);
+        refId = 'fropy_pilot_' + Math.floor(Math.random() * 89999 + 10000);
         localStorage.setItem('fropy_ref_id', refId);
     }
     
-    // Строим реферальную ссылку
     let link = window.location.origin + window.location.pathname + '?ref=' + refId;
     document.getElementById('refLinkInput').value = link;
     
-    // Начисление бонуса за переход по чужой ссылке при первом запуске
     const urlParams = new URLSearchParams(window.location.search);
     const referral = urlParams.get('ref');
     if (referral && !localStorage.getItem('fropy_ref_claimed')) {
         coins += 250;
         localStorage.setItem('fropy_ref_claimed', 'true');
         updateCoinDisplays();
-        showNotify('🎁 Вы зашли по реферальной ссылке! Награда: +250 деталей!');
+        showNotify('🎁 Активирован промо-код содружества! Награда: +250 деталей!');
     }
 }
 
@@ -592,37 +706,34 @@ function spinAirdropWheel() {
     
     let lastSpinTime = parseInt(localStorage.getItem('fropy_last_airdrop_spin')) || 0;
     let now = Date.now();
-    let cooldown = 30000; // Кулдаун в 30 секунд для удержания игроков
+    let cooldown = 30000;
     
     if (now - lastSpinTime < cooldown) {
         let left = Math.ceil((cooldown - (now - lastSpinTime)) / 1000);
-        showNotify(`Колесо перезаряжается! Подождите ${left} сек.`);
+        showNotify(`Перезарядка гипердвигателя! Подождите ${left} сек.`);
         return;
     }
 
     isSpinningWheel = true;
     let wheel = document.getElementById('fortuneWheel');
     
-    // Генерируем случайное вращение
-    let deg = Math.floor(Math.random() * 3600) + 1440; // Минимум 4 полных круга
+    let deg = Math.floor(Math.random() * 3600) + 1440;
     wheel.style.transform = `rotate(${deg}deg)`;
     
-    // Звуки "тиканья" колеса во время кручения
     let ticks = 0;
     let tickInterval = setInterval(() => {
-        if (ticks < 20) {
+        if (ticks < 25) {
             playSound('hit');
             ticks++;
         } else {
             clearInterval(tickInterval);
         }
-    }, 150);
+    }, 180);
 
     setTimeout(() => {
         isSpinningWheel = false;
         localStorage.setItem('fropy_last_airdrop_spin', Date.now().toString());
 
-        // Расчет выигрышного сектора (6 секторов по 60 градусов)
         let normalizedDeg = (deg % 360);
         let winningIndex = Math.floor((360 - normalizedDeg + 30) / 60) % 6;
         
@@ -631,22 +742,22 @@ function spinAirdropWheel() {
         
         switch (winningIndex) {
             case 0:
-                reward = 100; msg = 'Вы выиграли: +100 ДЕТАЛЕЙ! 🎁';
+                reward = 100; msg = 'КОСМИЧЕСКИЙ ГРУЗ: +100 ДЕТАЛЕЙ! 🎁';
                 break;
             case 1:
-                reward = 50; msg = 'Вы выиграли: +50 ДЕТАЛЕЙ! ⚙️';
+                reward = 50; msg = 'ВЫИГРЫШ: +50 ДЕТАЛЕЙ! ⚙️';
                 break;
             case 2:
-                reward = 1000; msg = '🌟 ДЖЕКПОТ! +1000 ДЕТАЛЕЙ! 🌟';
+                reward = 1000; msg = '🌟 СВЕРХНОВАЯ! ДЖЕКПОТ +1000 ДЕТАЛЕЙ! 🌟';
                 break;
             case 3:
-                reward = 10; msg = 'Вы выиграли: +10 ДЕТАЛЕЙ!';
+                reward = 10; msg = 'ОБЛОМКИ: +10 ДЕТАЛЕЙ!';
                 break;
             case 4:
-                reward = 200; msg = 'Вы выиграли: +200 ДЕТАЛЕЙ! 🚀';
+                reward = 200; msg = 'МЕТЕОРИТНЫЙ ЗАПАС: +200 ДЕТАЛЕЙ! 🚀';
                 break;
             case 5:
-                reward = 0; msg = 'Сектор ПОВТОР! Крутите еще раз!';
+                reward = 0; msg = 'СЕКТОР ПОВТОР! Запуск бесплатного витка!';
                 break;
         }
         
@@ -654,13 +765,27 @@ function spinAirdropWheel() {
             coins += reward;
             updateCoinDisplays();
             playSound('powerup');
+            triggerScreenConfetti();
         } else {
-            localStorage.removeItem('fropy_last_airdrop_spin'); // Позволяет крутить еще раз бесплатно
+            localStorage.removeItem('fropy_last_airdrop_spin');
             playSound('brick');
         }
         
         showNotify(msg);
-    }, 4000);
+    }, 5000);
+}
+
+function triggerScreenConfetti() {
+    for (let i = 0; i < 40; i++) {
+        confettis.push({
+            x: Math.random() * canvas.width,
+            y: -10,
+            color: `hsl(${Math.random() * 360}, 100%, 60%)`,
+            size: Math.random() * 6 + 4,
+            speedY: Math.random() * 3 + 2,
+            speedX: (Math.random() - 0.5) * 2
+        });
+    }
 }
 
 function copyReferralLink() {
@@ -668,34 +793,33 @@ function copyReferralLink() {
     copyText.select();
     copyText.setSelectionRange(0, 99999);
     navigator.clipboard.writeText(copyText.value).then(() => {
-        showNotify('Ссылка скопирована! Отправьте её друзьям 🔗');
-        // Поощрительный бонус за клик-копирование
+        showNotify('Реферальный код скопирован! Делитесь с друзьями 🔗');
         if (!localStorage.getItem('fropy_ref_copied_bonus')) {
             coins += 50;
             localStorage.setItem('fropy_ref_copied_bonus', 'true');
             updateCoinDisplays();
-            showNotify('Бонус за шеринг: +50 деталей! ⚙️');
+            showNotify('Бонус за шеринг ссылки: +50 деталей!');
         }
     }).catch(err => {
-        showNotify('Ошибка копирования. Выделите ссылку руками.');
+        showNotify('Выделите и скопируйте ссылку вручную.');
     });
 }
 
 function shareToTelegram() {
     let link = document.getElementById('refLinkInput').value;
-    let text = encodeURIComponent(`🎮 Забирай секретный AIRDROP деталей в Fropy Arcade! Раздача монет, крутые скины и бесконечные уровни. Моя ссылка на бонус: `);
+    let text = encodeURIComponent(`🎮 Раздача ценных космических деталей в Fropy Arcade! Забирай свой стартовый набор бонусов по моей пилотной ссылке: `);
     let shareUrl = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${text}`;
     window.open(shareUrl, '_blank');
 }
 
 function shareToVK() {
     let link = document.getElementById('refLinkInput').value;
-    let title = encodeURIComponent(`🎮 Играй со мной в Fropy Arcade! Раздача бонусов и динамичный аркадный геймплей прямо в браузере!`);
+    let title = encodeURIComponent(`🎮 Запускай Fropy Arcade! Динамичный геймплей, крутые скины и бесплатная раздача бонусов!`);
     let shareUrl = `https://vk.com/share.php?url=${encodeURIComponent(link)}&title=${title}`;
     window.open(shareUrl, '_blank');
 }
 
-// ЗВУКОВОЙ ДВИЖОК
+// УЛУЧШЕННЫЙ ЗВУКОВОЙ ДВИЖОК С СИНТЕЗОМ ЗВУКОВ
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 function playSound(type) {
     if (!soundEnabled) return;
@@ -707,26 +831,41 @@ function playSound(type) {
     let t = audioCtx.currentTime;
 
     if (type === 'hit') {
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(120, t);
-        osc.frequency.exponentialRampToValueAtTime(40, t + 0.06);
-        gain.gain.setValueAtTime(0.12, t);
-        gain.gain.exponentialRampToValueAtTime(0.01, t + 0.06);
-        osc.start(t); osc.stop(t + 0.06);
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(150, t);
+        osc.frequency.exponentialRampToValueAtTime(70, t + 0.08);
+        gain.gain.setValueAtTime(0.15, t);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + 0.08);
+        osc.start(t); osc.stop(t + 0.08);
     } else if (type === 'brick') {
-        osc.type = 'square';
-        osc.frequency.setValueAtTime(280, t);
-        osc.frequency.exponentialRampToValueAtTime(150, t + 0.09);
-        gain.gain.setValueAtTime(0.1, t);
-        gain.gain.exponentialRampToValueAtTime(0.01, t + 0.09);
-        osc.start(t); osc.stop(t + 0.09);
-    } else if (type === 'powerup') {
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(300, t);
-        osc.frequency.exponentialRampToValueAtTime(700, t + 0.12);
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(320, t);
+        osc.frequency.exponentialRampToValueAtTime(120, t + 0.12);
         gain.gain.setValueAtTime(0.1, t);
         gain.gain.exponentialRampToValueAtTime(0.01, t + 0.12);
         osc.start(t); osc.stop(t + 0.12);
+    } else if (type === 'laser') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(800, t);
+        osc.frequency.exponentialRampToValueAtTime(300, t + 0.15);
+        gain.gain.setValueAtTime(0.08, t);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + 0.15);
+        osc.start(t); osc.stop(t + 0.15);
+    } else if (type === 'powerup') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(250, t);
+        osc.frequency.setValueAtTime(400, t + 0.05);
+        osc.frequency.setValueAtTime(600, t + 0.1);
+        gain.gain.setValueAtTime(0.12, t);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + 0.2);
+        osc.start(t); osc.stop(t + 0.2);
+    } else if (type === 'hurt') {
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(100, t);
+        osc.frequency.linearRampToValueAtTime(20, t + 0.3);
+        gain.gain.setValueAtTime(0.2, t);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + 0.3);
+        osc.start(t); osc.stop(t + 0.3);
     }
 }
 
@@ -736,15 +875,23 @@ const ctx = canvas.getContext('2d');
 
 let gameState = 'MENU';
 let currentMode = 'single';
+let currentLevel = 1;
 
 let score = 0;
 let gameCoins = 0;
 let lives = 3;
-let paddle = { x: 350, y: 460, width: 100, baseWidth: 100, height: 12, speed: 8, laserActive: false, lastShotTime: 0 };
+let paddle = { x: 350, y: 460, width: 100, baseWidth: 100, height: 12, speed: 9, laserActive: false, lastShotTime: 0, magnet: false };
 let balls = [];
 let bricks = [];
 let powerUps = [];
 let bullets = [];
+let alienPlasma = [];
+let particles = [];
+let confettis = [];
+let screenShake = 0;
+
+// Характеристики инопланетного корабля (UFO)
+let ufo = { x: -100, y: 80, width: 55, height: 26, dx: 2, active: false, lives: 3, lastShot: 0 };
 
 let selectedSandboxPower = 'none';
 
@@ -754,135 +901,230 @@ function setSandboxPower(type) {
     document.getElementById('sb-' + type).classList.add('active');
 }
 
-const brickRows = 5;
-const brickCols = 10;
 const brickWidth = 70;
 const brickHeight = 20;
 const brickPadding = 10;
-const brickOffsetTop = 50;
+const brickOffsetTop = 60;
 const brickOffsetLeft = 35;
+
+function buildLevel(levelNum) {
+    bricks = [];
+    ufo.active = false;
+    
+    if (levelNum === 2) {
+        ufo.active = true;
+        ufo.x = 50;
+        ufo.lives = 3;
+    } else if (levelNum === 3) {
+        ufo.active = true;
+        ufo.x = 200;
+        ufo.lives = 5;
+    }
+
+    const blockColors = ['#457b9d', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51'];
+    let powers = ['none', 'none', 'multiball', 'wide', 'laser', 'fireball'];
+
+    for (let r = 0; r < 5; r++) {
+        for (let c = 0; c < 10; c++) {
+            // Различные конфигурации для уровней
+            if (levelNum === 2 && (r + c) % 2 === 0) continue; 
+            if (levelNum === 3 && r % 2 === 1 && c % 2 === 1) continue;
+
+            let randomColor = blockColors[Math.floor(Math.random() * blockColors.length)];
+            let pType = powers[Math.floor(Math.random() * powers.length)];
+            
+            bricks.push({
+                x: c * (brickWidth + brickPadding) + brickOffsetLeft,
+                y: r * (brickHeight + brickPadding) + brickOffsetTop,
+                width: brickWidth,
+                height: brickHeight,
+                status: 1,
+                color: randomColor,
+                power: pType
+            });
+        }
+    }
+}
 
 function initGame(mode) {
     currentMode = mode;
-    if (mode === 'sandbox_edit') gameState = 'SANDBOX_EDIT';
-    else gameState = 'PLAYING';
+    if (mode === 'sandbox_edit') {
+        gameState = 'SANDBOX_EDIT';
+    } else {
+        gameState = 'PLAYING';
+    }
 
     score = 0;
     gameCoins = 0;
+    currentLevel = 1;
     lives = 3 + (playerUpgrades.extraLife ? 1 : 0);
     paddle.x = canvas.width / 2 - 50;
     paddle.width = paddle.baseWidth;
     paddle.laserActive = false;
+    paddle.magnet = playerUpgrades.magneticStart;
     powerUps = [];
     bullets = [];
+    alienPlasma = [];
+    particles = [];
+    confettis = [];
+    screenShake = 0;
     
+    document.getElementById('levelText').innerText = currentLevel;
     document.getElementById('scoreText').innerText = score;
     document.getElementById('gameCoinText').innerText = gameCoins;
     document.getElementById('livesText').innerText = lives;
 
-    bricks = [];
     if (mode === 'sandbox_play') {
         bricks = JSON.parse(JSON.stringify(customSavedBricks));
-    } else {
-        const blockColors = ['#5b7c99', '#4d8c6c', '#9c7c4d', '#8c4d8c', '#4d9c8c'];
-        for (let r = 0; r < brickRows; r++) {
-            for (let c = 0; c < brickCols; c++) {
-                let randomColor = blockColors[Math.floor(Math.random() * blockColors.length)];
-                let powers = ['none', 'none', 'multiball', 'wide', 'laser'];
-                let pType = powers[Math.floor(Math.random() * powers.length)];
+        ufo.active = false;
+    } else if (mode === 'sandbox_edit') {
+        bricks = [];
+        ufo.active = false;
+        // Заполняем сетку пустыми блоками для редактирования
+        for (let r = 0; r < 5; r++) {
+            for (let c = 0; c < 10; c++) {
                 bricks.push({
                     x: c * (brickWidth + brickPadding) + brickOffsetLeft,
                     y: r * (brickHeight + brickPadding) + brickOffsetTop,
                     width: brickWidth,
                     height: brickHeight,
-                    status: mode === 'sandbox_edit' ? 0 : 1,
-                    color: randomColor,
-                    power: pType
+                    status: 0,
+                    color: '#2d4025',
+                    power: 'none'
                 });
             }
         }
+    } else {
+        buildLevel(1);
     }
 
     balls = [{
         x: paddle.x + paddle.width / 2,
         y: paddle.y - 10,
-        radius: 6,
-        dx: 3,
+        radius: 7,
+        dx: 4,
         dy: -4,
-        stuck: true
+        stuck: true,
+        fireball: false
     }];
 
-    if (mode !== 'sandbox_edit') {
+    if (mode !== 'sandbox_edit' && !('ontouchstart' in window)) {
         canvas.requestPointerLock();
-    } else {
-        document.exitPointerLock();
     }
 }
 
-canvas.addEventListener('click', () => {
-    if (gameState === 'SANDBOX_EDIT') return;
-    if (document.pointerLockElement !== canvas) {
-        canvas.requestPointerLock();
-        if (gameState === 'PAUSED') gameState = 'PLAYING';
-    } else if (balls.some(b => b.stuck)) {
-        balls.forEach(b => b.stuck = false);
+// Система спавна частиц (разрушение блоков)
+function createExplosion(x, y, color) {
+    if (!highGraphics) return;
+    for (let i = 0; i < 10; i++) {
+        particles.push({
+            x: x,
+            y: y,
+            vx: (Math.random() - 0.5) * 5,
+            vy: (Math.random() - 0.5) * 5,
+            radius: Math.random() * 3 + 1.5,
+            color: color,
+            alpha: 1,
+            decay: Math.random() * 0.03 + 0.02
+        });
     }
-});
+}
 
-canvas.addEventListener('mousedown', (e) => {
+// Клик по экрану
+canvas.addEventListener('click', (e) => {
     if (gameState === 'SANDBOX_EDIT') {
         const rect = canvas.getBoundingClientRect();
-        let mouseX = e.clientX - rect.left;
-        let mouseY = e.clientY - rect.top;
+        let scaleX = canvas.width / rect.width;
+        let scaleY = canvas.height / rect.height;
+        let mouseX = (e.clientX - rect.left) * scaleX;
+        let mouseY = (e.clientY - rect.top) * scaleY;
 
         for (let b of bricks) {
             if (mouseX >= b.x && mouseX <= b.x + b.width && mouseY >= b.y && mouseY <= b.y + b.height) {
                 b.status = b.status === 1 ? 0 : 1;
                 if (b.status === 1) {
                     b.power = selectedSandboxPower;
-                    const blockColors = ['#5b7c99', '#4d8c6c', '#9c7c4d', '#8c4d8c', '#4d9c8c'];
-                    b.color = blockColors[Math.floor(Math.random() * blockColors.length)];
+                    const colors = ['#457b9d', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51'];
+                    b.color = colors[Math.floor(Math.random() * colors.length)];
+                    playSound('hit');
                 }
                 break;
             }
         }
+    } else if (gameState === 'PLAYING') {
+        releaseBalls();
+    } else if (gameState === 'PAUSED') {
+        gameState = 'PLAYING';
+        if (!('ontouchstart' in window)) canvas.requestPointerLock();
     }
 });
 
+function releaseBalls() {
+    balls.forEach(b => {
+        if (b.stuck) {
+            b.stuck = false;
+            b.dx = (Math.random() - 0.5) * 4;
+            b.dy = -5;
+        }
+    });
+}
+
+// Обработка движения мыши / сенсора
 document.addEventListener('mousemove', (e) => {
-    if (gameState === 'SANDBOX_EDIT') return;
-    if (document.pointerLockElement === canvas && gameState === 'PLAYING') {
+    if (gameState === 'PLAYING' && document.pointerLockElement === canvas) {
         paddle.x += e.movementX;
-        if (paddle.x < 0) paddle.x = 0;
-        if (paddle.x + paddle.width > canvas.width) paddle.x = canvas.width - paddle.width;
+        keepPaddleInBounds();
     }
 });
 
-document.addEventListener('pointerlockchange', () => {
-    if (document.pointerLockElement !== canvas && gameState === 'PLAYING') {
-        gameState = 'PAUSED';
+// Адаптивное сенсорное перемещение на мобилках
+let touchMoveActive = false;
+canvas.addEventListener('touchmove', (e) => {
+    if (gameState === 'PLAYING' && e.touches.length > 0) {
+        const rect = canvas.getBoundingClientRect();
+        let scaleX = canvas.width / rect.width;
+        let touchX = (e.touches[0].clientX - rect.left) * scaleX;
+        paddle.x = touchX - paddle.width / 2;
+        keepPaddleInBounds();
     }
 });
+
+// Дополнительные кнопки на тач-интерфейсе
+const btnLeft = document.getElementById('touchLeft');
+const btnRight = document.getElementById('touchRight');
+const btnAction = document.getElementById('touchAction');
+
+let touchKeys = { left: false, right: false };
+btnLeft.addEventListener('touchstart', (e) => { e.preventDefault(); touchKeys.left = true; });
+btnLeft.addEventListener('touchend', () => { touchKeys.left = false; });
+btnRight.addEventListener('touchstart', (e) => { e.preventDefault(); touchKeys.right = true; });
+btnRight.addEventListener('touchend', () => { touchKeys.right = false; });
+btnAction.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    releaseBalls();
+    fireLaser();
+});
+
+function keepPaddleInBounds() {
+    if (paddle.x < 0) paddle.x = 0;
+    if (paddle.x + paddle.width > canvas.width) paddle.x = canvas.width - paddle.width;
+}
 
 const keys = { left: false, right: false };
 window.addEventListener('keydown', (e) => {
     if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = true;
     if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = true;
 
-    if (e.code === 'ControlLeft' || e.code === 'ControlRight') {
+    if (e.code === 'Space') {
         e.preventDefault();
-        if (gameState === 'PLAYING') { gameState = 'PAUSED'; document.exitPointerLock(); }
-        else if (gameState === 'PAUSED') { gameState = 'PLAYING'; canvas.requestPointerLock(); }
+        releaseBalls();
+        fireLaser();
     }
 
-    if (e.code === 'Space' && gameState === 'PLAYING' && paddle.laserActive) {
-        e.preventDefault();
-        let t = Date.now();
-        let cooldown = playerUpgrades.laserPower ? 150 : 250;
-        if (t - paddle.lastShotTime > cooldown) {
-            bullets.push({ x: paddle.x + 12, y: paddle.y, width: 3, height: 10, dy: -7 });
-            bullets.push({ x: paddle.x + paddle.width - 15, y: paddle.y, width: 3, height: 10, dy: -7 });
-            paddle.lastShotTime = t;
+    if (e.code === 'KeyP' || e.code === 'Escape') {
+        if (gameState === 'PLAYING') {
+            gameState = 'PAUSED';
+            try { document.exitPointerLock(); } catch(err) {}
         }
     }
 });
@@ -892,25 +1134,111 @@ window.addEventListener('keyup', (e) => {
     if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = false;
 });
 
+function fireLaser() {
+    if (gameState === 'PLAYING' && paddle.laserActive) {
+        let t = Date.now();
+        let cooldown = playerUpgrades.laserPower ? 140 : 220;
+        if (t - paddle.lastShotTime > cooldown) {
+            bullets.push({ x: paddle.x + 8, y: paddle.y, width: 4, height: 12, dy: -8 });
+            bullets.push({ x: paddle.x + paddle.width - 12, y: paddle.y, width: 4, height: 12, dy: -8 });
+            paddle.lastShotTime = t;
+            playSound('laser');
+        }
+    }
+}
+
+// ОБНОВЛЕНИЕ ИГРОВОГО КАДРА
 function update() {
     if (gameState !== 'PLAYING') return;
 
-    if (keys.left) paddle.x -= paddle.speed;
-    if (keys.right) paddle.x += paddle.speed;
-    if (paddle.x < 0) paddle.x = 0;
-    if (paddle.x + paddle.width > canvas.width) paddle.x = canvas.width - paddle.width;
+    if (screenShake > 0) screenShake -= 0.1;
 
-    // Пули лазера
+    // Смещение платформы
+    if (keys.left || touchKeys.left) paddle.x -= paddle.speed;
+    if (keys.right || touchKeys.right) paddle.x += paddle.speed;
+    keepPaddleInBounds();
+
+    // Обновление частиц
+    for (let i = particles.length - 1; i >= 0; i--) {
+        let p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.alpha -= p.decay;
+        if (p.alpha <= 0) particles.splice(i, 1);
+    }
+
+    // Обновление конфетти
+    for (let i = confettis.length - 1; i >= 0; i--) {
+        let c = confettis[i];
+        c.y += c.speedY;
+        c.x += c.speedX;
+        if (c.y > canvas.height) confettis.splice(i, 1);
+    }
+
+    // Движение НЛО (UFO)
+    if (ufo.active) {
+        ufo.x += ufo.dx;
+        if (ufo.x + ufo.width > canvas.width || ufo.x < 0) {
+            ufo.dx = -ufo.dx;
+        }
+
+        // Выстрелы НЛО вниз
+        let now = Date.now();
+        if (now - ufo.lastShot > 1600) {
+            alienPlasma.push({ x: ufo.x + ufo.width / 2, y: ufo.y + ufo.height, radius: 4, dy: 3.5 });
+            ufo.lastShot = now;
+        }
+    }
+
+    // Плазма пришельцев
+    for (let i = alienPlasma.length - 1; i >= 0; i--) {
+        let p = alienPlasma[i];
+        p.y += p.dy;
+        if (p.y > canvas.height) {
+            alienPlasma.splice(i, 1);
+            continue;
+        }
+        
+        // Попадание в платформу
+        if (p.x > paddle.x && p.x < paddle.x + paddle.width && p.y + p.radius >= paddle.y && p.y - p.radius <= paddle.y + paddle.height) {
+            alienPlasma.splice(i, 1);
+            screenShake = 3;
+            lives--;
+            document.getElementById('livesText').innerText = lives;
+            playSound('hurt');
+            checkGameOver();
+        }
+    }
+
+    // Стрельба лазером
     for (let i = bullets.length - 1; i >= 0; i--) {
         let bl = bullets[i];
         bl.y += bl.dy;
         if (bl.y < 0) { bullets.splice(i, 1); continue; }
         
+        // Попадание лазера по НЛО
+        if (ufo.active && bl.x > ufo.x && bl.x < ufo.x + ufo.width && bl.y > ufo.y && bl.y < ufo.y + ufo.height) {
+            bullets.splice(i, 1);
+            ufo.lives--;
+            createExplosion(ufo.x + ufo.width/2, ufo.y + ufo.height/2, '#00ffcc');
+            playSound('hit');
+            if (ufo.lives <= 0) {
+                ufo.active = false;
+                score += 250;
+                gameCoins += 30;
+                showNotify('НЛО УНИЧТОЖЕН! +30 деталей');
+                triggerScreenConfetti();
+            }
+            continue;
+        }
+
+        // Попадание лазера по блокам
         for (let b of bricks) {
             if (b.status === 1 && bl.x > b.x && bl.x < b.x + b.width && bl.y > b.y && bl.y < b.y + b.height) {
                 b.status = 0;
-                score += 10;
-                gameCoins += 3;
+                createExplosion(b.x + b.width / 2, b.y + b.height / 2, b.color);
+                score += 15;
+                gameCoins += 2;
                 document.getElementById('scoreText').innerText = score;
                 document.getElementById('gameCoinText').innerText = gameCoins;
                 playSound('brick');
@@ -920,7 +1248,7 @@ function update() {
         }
     }
 
-    // Мяч
+    // Мячи
     for (let i = balls.length - 1; i >= 0; i--) {
         let ball = balls[i];
         if (ball.stuck) {
@@ -932,20 +1260,43 @@ function update() {
         ball.x += ball.dx;
         ball.y += ball.dy;
 
+        // Физика столкновения со стенками
         if (ball.x - ball.radius < 0) { ball.x = ball.radius; ball.dx = -ball.dx; playSound('hit'); }
         if (ball.x + ball.radius > canvas.width) { ball.x = canvas.width - ball.radius; ball.dx = -ball.dx; playSound('hit'); }
         if (ball.y - ball.radius < 0) { ball.y = ball.radius; ball.dy = -ball.dy; playSound('hit'); }
 
-        if (ball.x > paddle.x && ball.x < paddle.x + paddle.width && ball.y + ball.radius >= paddle.y && ball.y - paddle.y <= paddle.height) {
-            let hitPoint = ball.x - (paddle.x + paddle.width / 2);
-            let norm = hitPoint / (paddle.width / 2);
-            let angle = norm * (Math.PI / 2.5);
-            let spd = 6;
-            ball.dx = spd * Math.sin(angle);
-            ball.dy = -Math.abs(spd * Math.cos(angle));
+        // Столкновение с НЛО
+        if (ufo.active && ball.x + ball.radius > ufo.x && ball.x - ball.radius < ufo.x + ufo.width && ball.y + ball.radius > ufo.y && ball.y - ball.radius < ufo.y + ufo.height) {
+            ball.dy = -ball.dy;
+            ufo.lives--;
+            createExplosion(ball.x, ball.y, '#e76f51');
             playSound('hit');
+            if (ufo.lives <= 0) {
+                ufo.active = false;
+                score += 250;
+                gameCoins += 30;
+                showNotify('ВРАЖЕСКИЙ КОРАБЛЬ СБИТ!');
+                triggerScreenConfetti();
+            }
         }
 
+        // Столкновение с платформой
+        if (ball.x > paddle.x && ball.x < paddle.x + paddle.width && ball.y + ball.radius >= paddle.y && ball.y - paddle.y <= paddle.height) {
+            if (paddle.magnet) {
+                ball.stuck = true;
+                playSound('powerup');
+            } else {
+                let hitPoint = ball.x - (paddle.x + paddle.width / 2);
+                let norm = hitPoint / (paddle.width / 2);
+                let angle = norm * (Math.PI / 2.5);
+                let speed = ball.fireball ? 7.5 : 6;
+                ball.dx = speed * Math.sin(angle);
+                ball.dy = -Math.abs(speed * Math.cos(angle));
+                playSound('hit');
+            }
+        }
+
+        // Вылет мяча вниз
         if (ball.y - ball.radius > canvas.height) {
             balls.splice(i, 1);
         }
@@ -953,64 +1304,105 @@ function update() {
 
     if (balls.length === 0) {
         lives--;
+        screenShake = 5;
         document.getElementById('livesText').innerText = lives;
+        playSound('hurt');
+        
         if (lives <= 0) {
-            showNotify('ПОПЫТКИ ИСЧЕРПАНЫ!');
-            coins += gameCoins;
-            updateCoinDisplays();
-            document.exitPointerLock();
-            setTimeout(backToMenu, 2000);
+            checkGameOver();
         } else {
-            balls = [{ x: paddle.x + paddle.width / 2, y: paddle.y - 10, radius: 6, dx: 3, dy: -4, stuck: true }];
+            balls = [{ 
+                x: paddle.x + paddle.width / 2, 
+                y: paddle.y - 10, 
+                radius: 7, 
+                dx: 3.5, 
+                dy: -4, 
+                stuck: true,
+                fireball: false
+            }];
+            paddle.magnet = playerUpgrades.magneticStart;
         }
     }
 
-    // Разрушение блоков и спавн бонусов
+    // Столкновение мячей с блоками
     let activeBricksCount = 0;
     for (let b of bricks) {
         if (b.status === 1) {
             activeBricksCount++;
             for (let ball of balls) {
                 if (ball.x + ball.radius > b.x && ball.x - ball.radius < b.x + b.width && ball.y + ball.radius > b.y && ball.y - ball.radius < b.y + b.height) {
-                    ball.dy = -ball.dy;
+                    
+                    if (!ball.fireball) {
+                        ball.dy = -ball.dy;
+                    } else {
+                        screenShake = 1.5;
+                    }
+
                     b.status = 0;
+                    createExplosion(b.x + b.width/2, b.y + b.height/2, b.color);
                     score += 10;
-                    gameCoins += 5;
+                    gameCoins += 3;
                     document.getElementById('scoreText').innerText = score;
                     document.getElementById('gameCoinText').innerText = gameCoins;
                     playSound('brick');
 
                     if (b.power !== 'none') {
-                        powerUps.push({ x: b.x + b.width/2 - 10, y: b.y, width: 20, height: 20, type: b.power, dy: 2 });
+                        powerUps.push({ x: b.x + b.width/2 - 10, y: b.y, width: 22, height: 22, type: b.power, dy: 2.2 });
                     }
+                    break;
                 }
             }
         }
     }
 
-    if (activeBricksCount === 0) {
-        showNotify('УРОВЕНЬ ПРОЙДЕН!');
+    // Логика победы и перехода по уровням
+    if (activeBricksCount === 0 && currentMode === 'single') {
+        if (currentLevel < 3) {
+            currentLevel++;
+            document.getElementById('levelText').innerText = currentLevel;
+            showNotify(`УРОВЕНЬ ${currentLevel-1} ПРОЙДЕН! Запуск следующего...`);
+            coins += gameCoins + 50;
+            updateCoinDisplays();
+            buildLevel(currentLevel);
+            balls = [{ x: paddle.x + paddle.width / 2, y: paddle.y - 10, radius: 7, dx: 4, dy: -4, stuck: true }];
+        } else {
+            showNotify('АРКАДА ПОЛНОСТЬЮ ПРОЙДЕНА! ПИЛОТ-ЧЕМПИОН!');
+            coins += gameCoins + 150;
+            triggerScreenConfetti();
+            updateCoinDisplays();
+            setTimeout(backToMenu, 3500);
+        }
+    } else if (activeBricksCount === 0 && currentMode === 'sandbox_play') {
+        showNotify('СВОЙ УРОВЕНЬ УСПЕШНО ПРОЙДЕН!');
         coins += gameCoins + 50;
         updateCoinDisplays();
-        document.exitPointerLock();
-        setTimeout(backToMenu, 2000);
+        setTimeout(backToMenu, 2500);
     }
 
-    // Сбор бонусов
+    // Движение и подбор падающих супер-сил
     for (let i = powerUps.length - 1; i >= 0; i--) {
         let p = powerUps[i];
         p.y += p.dy;
+        
+        // Ловим бонус платформой
         if (p.x + p.width > paddle.x && p.x < paddle.x + paddle.width && p.y + p.height > paddle.y && p.y < paddle.y + paddle.height) {
             playSound('powerup');
+            
             if (p.type === 'multiball') {
-                let base = balls[0] || { dx: 3, dy: -4 };
-                balls.push({ x: paddle.x + paddle.width/2, y: paddle.y - 15, radius: 6, dx: -base.dx, dy: base.dy, stuck: false });
+                let first = balls[0] || { x: paddle.x + paddle.width/2, y: paddle.y - 12 };
+                balls.push({ x: first.x, y: first.y, radius: 7, dx: -3, dy: -4, stuck: false, fireball: false });
+                balls.push({ x: first.x, y: first.y, radius: 7, dx: 3, dy: -4, stuck: false, fireball: false });
             } else if (p.type === 'wide') {
-                paddle.width = 140;
-                setTimeout(() => paddle.width = paddle.baseWidth, 8000);
+                paddle.width = 145;
+                setTimeout(() => paddle.width = paddle.baseWidth, 9000);
             } else if (p.type === 'laser') {
                 paddle.laserActive = true;
-                setTimeout(() => paddle.laserActive = false, 6000);
+                setTimeout(() => paddle.laserActive = false, 8000);
+            } else if (p.type === 'fireball') {
+                balls.forEach(b => {
+                    b.fireball = true;
+                    setTimeout(() => b.fireball = false, 7500);
+                });
             }
             powerUps.splice(i, 1);
         } else if (p.y > canvas.height) {
@@ -1019,87 +1411,195 @@ function update() {
     }
 }
 
+function checkGameOver() {
+    if (lives <= 0) {
+        showNotify('КОРАБЛЬ РАЗБИТ! СЕКТОР ПОТЕРЯН');
+        coins += gameCoins;
+        updateCoinDisplays();
+        try { document.exitPointerLock(); } catch(e) {}
+        setTimeout(backToMenu, 2000);
+    }
+}
+
+// РИСОВАНИЕ ВСЕХ КОМПОНЕНТОВ НА CANVAS
 function draw() {
-    let grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    grad.addColorStop(0, '#222e3c');
-    grad.addColorStop(1, '#0f141a');
-    ctx.fillStyle = grad;
+    ctx.save();
+    // Эффект тряски экрана
+    if (screenShake > 0) {
+        let dx = (Math.random() - 0.5) * screenShake * 2;
+        let dy = (Math.random() - 0.5) * screenShake * 2;
+        ctx.translate(dx, dy);
+    }
+
+    // Задний космический фон с параллакс сеткой
+    ctx.fillStyle = '#0a0e09';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    if (gameState === 'MENU') return;
-
-    for (let b of bricks) {
-        if (b.status === 1 || gameState === 'SANDBOX_EDIT') {
-            ctx.fillStyle = b.status === 1 ? b.color : '#151c24';
-            ctx.fillRect(b.x, b.y, b.width, b.height);
-            
-            if (highGraphics) {
-                ctx.strokeStyle = '#0b0f14';
-                ctx.strokeRect(b.x, b.y, b.width, b.height);
-            }
-
-            if (b.power !== 'none' && b.status === 1) {
-                ctx.fillStyle = '#fff';
-                ctx.font = '10px "Outfit"';
-                ctx.fillText(b.power[0].toUpperCase(), b.x + b.width/2 - 4, b.y + b.height/2 + 4);
-            }
-        }
-    }
-
-    for (let p of powerUps) {
-        ctx.fillStyle = '#4c8c6c';
-        ctx.fillRect(p.x, p.y, p.width, p.height);
-        ctx.strokeStyle = '#fff';
-        ctx.strokeRect(p.x, p.y, p.width, p.height);
-        ctx.fillStyle = '#fff';
-        ctx.font = '10px "Outfit"';
-        ctx.fillText(p.type[0].toUpperCase(), p.x + 6, p.y + 14);
-    }
-
-    for (let bl of bullets) {
-        ctx.fillStyle = '#ffcc00';
-        ctx.fillRect(bl.x, bl.y, bl.width, bl.height);
-    }
-
-    if (playerSkins.gold) ctx.fillStyle = '#d4af37';
-    else if (playerSkins.neon) ctx.fillStyle = '#00ffcc';
-    else ctx.fillStyle = paddle.laserActive ? '#ff5533' : '#79a35e';
-    
-    ctx.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
     if (highGraphics) {
-        ctx.strokeStyle = '#141c24';
-        ctx.strokeRect(paddle.x, paddle.y, paddle.width, paddle.height);
-    }
-
-    for (let ball of balls) {
-        ctx.fillStyle = '#e5e5e5';
-        ctx.beginPath();
-        ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
-        ctx.fill();
-        if (highGraphics) {
-            ctx.strokeStyle = '#222';
+        ctx.strokeStyle = '#121a10';
+        ctx.lineWidth = 1;
+        // Эффект двигающейся неоновой сетки на фоне
+        let gridOffset = (Date.now() / 30) % 40;
+        for (let x = gridOffset; x < canvas.width; x += 40) {
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, canvas.height);
+            ctx.stroke();
+        }
+        for (let y = gridOffset; y < canvas.height; y += 40) {
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(canvas.width, y);
             ctx.stroke();
         }
     }
 
-    if (gameState === 'SANDBOX_EDIT') {
-        ctx.fillStyle = '#f3ce69';
-        ctx.font = '11px "Outfit"';
-        ctx.textAlign = 'center';
-        ctx.fillText('РЕДАКТОР УРОВНЯ: Кликайте для расстановки блоков', canvas.width / 2, 25);
+    if (gameState === 'MENU') {
+        ctx.restore();
+        return;
     }
 
-    if (gameState === 'PAUSED') {
-        ctx.fillStyle = 'rgba(18, 26, 17, 0.88)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = '#9ac26d';
-        ctx.font = '18px "Outfit"';
-        ctx.textAlign = 'center';
-        ctx.fillText('ИГРА НА ПАУЗЕ', canvas.width / 2, canvas.height / 2);
-        ctx.font = '11px "Outfit"';
-        ctx.fillStyle = '#b3c7aa';
-        ctx.fillText('Кликните мышкой или нажмите Ctrl для продолжения', canvas.width / 2, canvas.height / 2 + 25);
+    // Отрисовка энергоблоков
+    for (let b of bricks) {
+        if (b.status === 1 || gameState === 'SANDBOX_EDIT') {
+            ctx.fillStyle = b.status === 1 ? b.color : '#151c11';
+            ctx.fillRect(b.x, b.y, b.width, b.height);
+            
+            if (highGraphics && b.status === 1) {
+                // Светящиеся грани блоков
+                ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+                ctx.strokeRect(b.x, b.y, b.width, b.height);
+            }
+
+            if (b.power !== 'none' && b.status === 1) {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+                ctx.font = 'bold 11px "Outfit"';
+                ctx.textAlign = 'center';
+                ctx.fillText(b.power[0].toUpperCase(), b.x + b.width/2, b.y + b.height/2 + 4);
+            }
+        }
     }
+
+    // Вражеский НЛО
+    if (ufo.active) {
+        ctx.fillStyle = '#00ffcc';
+        ctx.beginPath();
+        ctx.ellipse(ufo.x + ufo.width/2, ufo.y + ufo.height/2, ufo.width/2, ufo.height/2, 0, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Кабина НЛО
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(ufo.x + ufo.width/2, ufo.y + ufo.height/3, 8, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    // Снаряды НЛО
+    for (let p of alienPlasma) {
+        ctx.fillStyle = '#ff3366';
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    // Частицы уничтожения блоков
+    for (let p of particles) {
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = p.alpha;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    ctx.globalAlpha = 1.0;
+
+    // Конфетти триумфа
+    for (let c of confettis) {
+        ctx.fillStyle = c.color;
+        ctx.fillRect(c.x, c.y, c.size, c.size);
+    }
+
+    // Падающие супер-бонусы
+    for (let p of powerUps) {
+        ctx.fillStyle = '#1c3016';
+        ctx.fillRect(p.x, p.y, p.width, p.height);
+        ctx.strokeStyle = '#a7d973';
+        ctx.strokeRect(p.x, p.y, p.width, p.height);
+        
+        ctx.fillStyle = '#f5c443';
+        ctx.font = 'bold 11px "Outfit"';
+        ctx.textAlign = 'center';
+        ctx.fillText(p.type[0].toUpperCase(), p.x + p.width/2, p.y + p.height/2 + 4);
+    }
+
+    // Выстрелы лазера игрока
+    for (let bl of bullets) {
+        ctx.fillStyle = '#ffe600';
+        ctx.fillRect(bl.x, bl.y, bl.width, bl.height);
+    }
+
+    // Отрисовка платформы согласно экипированному скину
+    if (equippedSkin === 'gold') {
+        let gradient = ctx.createLinearGradient(paddle.x, paddle.y, paddle.x + paddle.width, paddle.y);
+        gradient.addColorStop(0, '#ffd700');
+        gradient.addColorStop(0.5, '#fff7a3');
+        gradient.addColorStop(1, '#c5a000');
+        ctx.fillStyle = gradient;
+    } else if (equippedSkin === 'neon') {
+        let neonPulse = (Date.now() / 4) % 360;
+        ctx.fillStyle = `hsl(${neonPulse}, 100%, 55%)`;
+    } else {
+        ctx.fillStyle = paddle.laserActive ? '#ff4d4d' : '#4e7340';
+    }
+    
+    ctx.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
+    
+    if (highGraphics) {
+        ctx.strokeStyle = '#fff';
+        ctx.strokeRect(paddle.x, paddle.y, paddle.width, paddle.height);
+    }
+
+    // Мячи на поле
+    for (let ball of balls) {
+        if (ball.fireball) {
+            ctx.fillStyle = '#ff3300';
+            // Огненные искры сзади огненного шара
+            if (highGraphics && Math.random() < 0.4) {
+                createExplosion(ball.x, ball.y, '#f5c443');
+            }
+        } else {
+            ctx.fillStyle = '#f0f0f0';
+        }
+        ctx.beginPath();
+        ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+        ctx.fill();
+        if (highGraphics) {
+            ctx.strokeStyle = '#111';
+            ctx.stroke();
+        }
+    }
+
+    // Подписи для редактора
+    if (gameState === 'SANDBOX_EDIT') {
+        ctx.fillStyle = '#f7d474';
+        ctx.font = 'bold 13px "Outfit"';
+        ctx.textAlign = 'center';
+        ctx.fillText('КОСМИЧЕСКИЙ РЕДАКТОР: Кликайте по сетке для расстановки', canvas.width / 2, 28);
+    }
+
+    // Пауза
+    if (gameState === 'PAUSED') {
+        ctx.fillStyle = 'rgba(10, 15, 9, 0.9)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#a7d973';
+        ctx.font = 'bold 22px "Outfit"';
+        ctx.textAlign = 'center';
+        ctx.fillText('ТРАНСПОРТИРОВКА НА ПАУЗЕ', canvas.width / 2, canvas.height / 2);
+        ctx.font = '12px "Outfit"';
+        ctx.fillStyle = '#a5bda1';
+        ctx.fillText('Кликните по экрану или нажмите Space для старта', canvas.width / 2, canvas.height / 2 + 30);
+    }
+
+    ctx.restore();
 }
 
 function loop() {
