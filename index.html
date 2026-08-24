@@ -12,16 +12,16 @@
     <!-- Иконка сайта -->
     <link rel="icon" type="image/png" href="./favicon.png">
 
-    <!-- Open Graph (для красивых превью в Telegram, Discord, VK) -->
+    <!-- Open Graph -->
     <meta property="og:title" content="Fropy Arcade">
     <meta property="og:description" content="Крутая аркадная игра прямо в твоем браузере!">
     <meta property="og:type" content="website">
     
-    <!-- Для мобильных устройств (скрывает лишние панели браузера) -->
+    <!-- Для мобильных устройств -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap');
 
         * {
             box-sizing: border-box;
@@ -31,7 +31,7 @@
         body {
             margin: 0;
             padding: 0;
-            background-color: #0c0f0b;
+            background-color: #060905;
             color: #e2e8df;
             font-family: 'Outfit', sans-serif;
             display: flex;
@@ -40,40 +40,44 @@
             justify-content: center;
             min-height: 100vh;
             overflow: hidden;
+            background-image: radial-gradient(circle at center, #0e170c 0%, #050804 100%);
         }
         .arcade-cabinet {
-            background: linear-gradient(180deg, #1f2d1c 0%, #111a10 100%);
-            padding: 20px;
-            border-radius: 24px;
-            border: 3px solid #3e5933;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), inset 0 0 15px rgba(154, 194, 109, 0.2);
+            background: linear-gradient(180deg, #182415 0%, #0c120a 100%);
+            padding: 24px;
+            border-radius: 28px;
+            border: 3px solid #456339;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.9), 
+                        inset 0 0 20px rgba(167, 217, 115, 0.15),
+                        0 0 30px rgba(78, 115, 64, 0.2);
             text-align: center;
             width: 95vw;
-            max-width: 840px;
+            max-width: 860px;
+            transition: all 0.3s ease;
         }
         .screen-border {
             position: relative;
-            border-radius: 14px;
-            border: 4px solid #2d4025;
-            background: #0d140c;
+            border-radius: 18px;
+            border: 4px solid #33472b;
+            background: #060a05;
             overflow: hidden;
             aspect-ratio: 800/500;
             width: 100%;
-            box-shadow: inset 0 0 30px rgba(0,0,0,0.9);
+            box-shadow: inset 0 0 40px rgba(0,0,0,0.95), 0 0 20px rgba(0,0,0,0.6);
         }
         canvas {
             display: block;
             width: 100%;
             height: 100%;
-            background: #0d140c;
+            background: #060a05;
         }
         
         /* СТИЛЬНОЕ МЕНЮ (FROPY STYLE) */
         .menu-screen {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(10, 15, 9, 0.96);
-            backdrop-filter: blur(10px);
+            background: rgba(6, 10, 5, 0.97);
+            backdrop-filter: blur(12px);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -87,7 +91,7 @@
             flex-direction: column;
             align-items: flex-start;
             text-align: left;
-            border-right: 2px solid rgba(54, 77, 45, 0.4);
+            border-right: 2px solid rgba(82, 117, 68, 0.25);
             padding-right: 30px;
         }
         .menu-right-panel {
@@ -95,189 +99,204 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
         h1 {
             color: #a7d973;
-            font-size: 38px;
-            font-weight: 700;
+            font-size: 42px;
+            font-weight: 900;
             margin: 0 0 4px 0;
-            letter-spacing: 2px;
-            text-shadow: 0 0 15px rgba(167, 217, 115, 0.4);
+            letter-spacing: 3px;
+            text-shadow: 0 0 20px rgba(167, 217, 115, 0.5);
+            font-style: italic;
         }
         .alpha-badge {
-            background: #2b3d24;
+            background: #25381f;
             color: #b9ec88;
             font-size: 10px;
-            font-weight: 700;
-            padding: 4px 10px;
-            border-radius: 6px;
-            margin-bottom: 15px;
+            font-weight: 800;
+            padding: 5px 12px;
+            border-radius: 8px;
+            margin-bottom: 18px;
             display: inline-block;
-            border: 1px solid #48663a;
-            letter-spacing: 1px;
+            border: 1px solid #436137;
+            letter-spacing: 1.5px;
         }
         .menu-desc {
-            font-size: 12px;
-            color: #a5bda1;
-            margin-bottom: 20px;
+            font-size: 13px;
+            color: #9cb299;
+            margin-bottom: 24px;
             line-height: 1.6;
         }
         .menu-btn {
-            background: #1e2b1a;
+            background: linear-gradient(180deg, #1f2d1c 0%, #152013 100%);
             border: 1px solid #48663a;
-            color: #dfedd6;
-            padding: 11px 18px;
-            border-radius: 8px;
+            color: #e2edd6;
+            padding: 13px 20px;
+            border-radius: 10px;
             font-family: 'Outfit', sans-serif;
-            font-size: 11px;
-            font-weight: 600;
+            font-size: 12px;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             width: 100%;
             max-width: 320px;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            letter-spacing: 1.5px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
         }
         .menu-btn:hover {
-            background: #4e7340;
+            background: linear-gradient(180deg, #517a43 0%, #3e5e32 100%);
             color: #ffffff;
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(78, 115, 64, 0.5);
-            border-color: #72a35f;
+            box-shadow: 0 8px 25px rgba(78, 115, 64, 0.6), inset 0 1px 0 rgba(255,255,255,0.15);
+            border-color: #79ac66;
         }
         .menu-btn:active {
-            transform: translateY(0);
+            transform: translateY(1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.4);
         }
         
         /* ВИРУСНАЯ КНОПКА ХАЛЯВЫ И ЭДРОПА */
         .viral-btn {
-            background: linear-gradient(135deg, #f5c443 0%, #946d1b 100%);
-            border: 2px solid #ffe600 !important;
+            background: linear-gradient(135deg, #f7ce55 0%, #b2851d 100%);
+            border: 2px solid #ffeb3b !important;
             color: #ffffff !important;
-            font-weight: 700 !important;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
-            animation: viralPulse 1.2s infinite alternate;
+            font-weight: 800 !important;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+            animation: viralPulse 1.4s infinite alternate cubic-bezier(0.4, 0, 0.6, 1);
         }
         @keyframes viralPulse {
             0% {
                 transform: scale(1) rotate(0deg);
-                box-shadow: 0 0 10px rgba(245, 196, 67, 0.5);
+                box-shadow: 0 0 12px rgba(247, 206, 85, 0.5);
             }
             100% {
-                transform: scale(1.04) rotate(0.5deg);
-                box-shadow: 0 0 25px rgba(245, 196, 67, 0.9), 0 0 10px rgba(255, 230, 0, 0.4);
+                transform: scale(1.03) rotate(0.5deg);
+                box-shadow: 0 0 28px rgba(247, 206, 85, 0.95), 0 0 15px rgba(255, 235, 59, 0.45);
             }
         }
 
         .status-bar {
             position: absolute;
-            top: 12px; left: 15px; right: 15px;
+            top: 14px; left: 18px; right: 18px;
             display: flex;
             justify-content: space-between;
-            font-size: 13px;
-            font-weight: 700;
+            font-size: 14px;
+            font-weight: 800;
             pointer-events: none;
             color: #fff;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.9);
+            text-shadow: 0 2px 5px rgba(0,0,0,0.95);
             z-index: 5;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.8px;
         }
         .sandbox-panel {
             position: absolute;
             bottom: 12px; left: 12px; right: 12px;
-            background: rgba(15, 22, 13, 0.95);
-            border: 1px solid #4e7340;
-            border-radius: 10px;
-            padding: 8px;
+            background: rgba(10, 16, 9, 0.96);
+            border: 1.5px solid #517a43;
+            border-radius: 12px;
+            padding: 10px;
             display: flex;
             justify-content: space-around;
             align-items: center;
-            font-size: 10px;
-            font-weight: 700;
+            font-size: 11px;
+            font-weight: 800;
             z-index: 5;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
         }
         .sandbox-btn {
-            background: #11180f;
-            border: 1px solid #48663a;
+            background: #0f150e;
+            border: 1px solid #436137;
             color: #a7d973;
-            padding: 7px 12px;
-            border-radius: 6px;
+            padding: 8px 14px;
+            border-radius: 8px;
             cursor: pointer;
             font-family: 'Outfit', sans-serif;
-            font-size: 10px;
+            font-size: 11px;
             font-weight: 700;
-            transition: 0.15s;
+            transition: 0.2s;
         }
         .sandbox-btn.active, .sandbox-btn:hover {
-            background: #4e7340;
+            background: linear-gradient(180deg, #517a43 0%, #3e5e32 100%);
             color: #fff;
+            border-color: #72a35f;
+            box-shadow: 0 0 10px rgba(114, 163, 95, 0.4);
         }
         .notification {
             position: absolute;
-            top: 60px; left: 50%;
+            top: 65px; left: 50%;
             transform: translateX(-50%);
-            background: rgba(13, 20, 12, 0.95);
-            border: 2px solid #f5c443;
-            color: #f7d474;
-            padding: 10px 24px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 700;
+            background: rgba(8, 14, 7, 0.98);
+            border: 2px solid #f7ce55;
+            color: #fae08f;
+            padding: 12px 28px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 800;
             z-index: 30;
             display: none;
             text-align: center;
-            box-shadow: 0 5px 25px rgba(245, 196, 67, 0.4);
-            animation: slideDown 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            box-shadow: 0 8px 30px rgba(247, 206, 85, 0.35);
+            animation: slideDown 0.35s cubic-bezier(0.18, 0.89, 0.32, 1.28);
         }
         @keyframes slideDown {
-            0% { transform: translate(-50%, -20px); opacity: 0; }
+            0% { transform: translate(-50%, -25px); opacity: 0; }
             100% { transform: translate(-50%, 0); opacity: 1; }
         }
         .shop-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            gap: 14px;
             margin-bottom: 15px;
-            max-width: 560px;
+            max-width: 600px;
             width: 100%;
         }
         .shop-item {
-            background: #141c12;
-            border: 1px solid #354d2e;
-            border-radius: 10px;
-            padding: 12px;
-            font-size: 10px;
+            background: linear-gradient(135deg, #131c11 0%, #0a1009 100%);
+            border: 1.5px solid #304729;
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 11px;
             text-align: center;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            transition: 0.2s;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
         .shop-item:hover {
-            border-color: #517546;
-            background: #172115;
+            border-color: #517a43;
+            background: linear-gradient(135deg, #182415 0%, #0d140b 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.5), 0 0 10px rgba(81, 122, 67, 0.1);
         }
-        .shop-item div { margin-bottom: 6px; }
+        .shop-item div { margin-bottom: 8px; }
         .footer-credits {
-            margin-top: 14px;
+            margin-top: 16px;
             font-size: 11px;
-            color: #5c7553;
-            letter-spacing: 1.5px;
-            font-weight: 700;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+            color: #55704c;
+            letter-spacing: 2px;
+            font-weight: 800;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.6);
         }
         
-        /* РЕТРО СЕТКА НА КРАЯХ И ЭФФЕКТ ЭКРАНА */
+        /* РЕТРО ЭКРАННЫЕ СЛОИ */
         .crt-overlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.05), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.05));
-            background-size: 100% 4px, 6px 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.015), rgba(0, 0, 255, 0.04));
+            background-size: 100% 3.5px, 5px 100%;
             z-index: 3;
             pointer-events: none;
-            opacity: 0.25;
+            opacity: 0.3;
+        }
+        .crt-vignette {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, transparent 65%, rgba(0,0,0,0.75) 100%);
+            z-index: 4;
+            pointer-events: none;
         }
 
         /* МОБИЛЬНЫЕ ЗОНЫ НАЖАТИЯ */
@@ -292,8 +311,8 @@
             position: absolute;
             bottom: 10px;
             width: 65px; height: 65px;
-            background: rgba(255, 255, 255, 0.07);
-            border: 2px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(255, 255, 255, 0.25);
             border-radius: 50%;
             pointer-events: auto;
             display: flex;
@@ -303,14 +322,16 @@
             font-size: 24px;
             font-weight: bold;
             transition: 0.1s;
+            backdrop-filter: blur(4px);
         }
         .touch-btn:active {
             background: rgba(255, 255, 255, 0.25);
             transform: scale(0.9);
+            border-color: #a7d973;
         }
         #touchLeft { left: 15px; }
         #touchRight { left: 90px; }
-        #touchAction { right: 15px; width: 80px; border-radius: 12px; font-size: 12px; }
+        #touchAction { right: 15px; width: 85px; border-radius: 14px; font-size: 13px; letter-spacing: 1px; font-weight: 800; }
     </style>
 </head>
 <body>
@@ -318,8 +339,9 @@
     <div class="arcade-cabinet">
         <div class="screen-border" id="screenContainer">
             
-            <!-- РЕТРО CRT СЛОЙ -->
+            <!-- РЕТРО CRT СЛОИ -->
             <div class="crt-overlay"></div>
+            <div class="crt-vignette"></div>
 
             <!-- УВЕДОМЛЕНИЕ -->
             <div id="notificationBox" class="notification">Сообщение</div>
@@ -335,18 +357,18 @@
             <div id="mainMenu" class="menu-screen">
                 <div class="menu-left-panel">
                     <h1>Fropy</h1>
-                    <div class="alpha-badge">EVOLUTION UPDATE v1.2</div>
+                    <div class="alpha-badge">EVOLUTION UPDATE v1.3</div>
                     <div class="menu-desc">
-                        Испытайте полностью обновленную аркаду! Добавлены зловещие НЛО-соперники, огненные мячи, система прокачки скинов и 3 проработанных уровня!
+                        Испытайте полностью обновленную космическую аркаду! Добавлены зловещие НЛО-соперники, огненные мячи, система прокачки скинов и 3 проработанных уровня!
                     </div>
-                    <div style="font-size: 11px; color: #f5c443; background: #0f170e; padding: 12px 18px; border: 1px solid #354d2e; border-radius: 8px; width: 100%; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);">
-                        ДЕТАЛИ В НАЛИЧИИ: <br><span id="coinDisplay" style="font-size: 24px; font-weight: 700; color: #fff;">100</span> ⚙️
+                    <div style="font-size: 11px; color: #f7ce55; background: #080d07; padding: 12px 18px; border: 1.5px solid #304729; border-radius: 10px; width: 100%; box-shadow: inset 0 2px 4px rgba(0,0,0,0.6);">
+                        ДЕТАЛИ В НАЛИЧИИ: <br><span id="coinDisplay" style="font-size: 26px; font-weight: 900; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.2);">100</span> ⚙️
                     </div>
                 </div>
                 <div class="menu-right-panel">
                     <button class="menu-btn viral-btn" onclick="openAirdropSpin()">КРУТИТЬ КОЛЕСО & AIRDROP 🎡🪂</button>
-                    <button class="menu-btn" onclick="startGame('single')" style="border-color:#a7d973; background: #1c3016;">ПОЛЕТЕТЬ В БОЙ (АРКАДА)</button>
-                    <button class="menu-btn" id="playSandboxBtn" style="display: none; border-color: #f5c443; color: #f7d474;" onclick="startCustomSandboxGame()">ИГРАТЬ В СВОЙ УРОВЕНЬ</button>
+                    <button class="menu-btn" onclick="startGame('single')" style="border-color:#a7d973; background: linear-gradient(180deg, #243d1d 0%, #152410 100%);">ПОЛЕТЕТЬ В БОЙ (АРКАДА)</button>
+                    <button class="menu-btn" id="playSandboxBtn" style="display: none; border-color: #f7ce55; color: #fae08f;" onclick="startCustomSandboxGame()">ИГРАТЬ В СВОЙ УРОВЕНЬ</button>
                     <button class="menu-btn" onclick="openSandboxEditor()">РЕДАКТОР УРОВНЯ</button>
                     <button class="menu-btn" onclick="openShop()">КОСМИЧЕСКИЙ МАГАЗИН</button>
                     <button class="menu-btn" onclick="claimDailyReward()" style="border-color: #4b8a45; color: #9be68e;">ЕЖЕДНЕВНЫЙ ПОДАРОК 🎁</button>
@@ -357,43 +379,41 @@
             <!-- ОКНО КОЛЕСА УДАЧИ, РЕФЕРАЛОВ И AIRDROP -->
             <div id="airdropMenu" class="menu-screen" style="display: none; flex-direction: column; justify-content: flex-start; padding: 25px; overflow-y: auto;">
                 <h1>УДАЧА & AIRDROP 🎡🪂</h1>
-                <div class="alpha-badge" style="background:#403112; color:#f5c443; border:1px solid #7c5c1a;">РЕФЕРАЛЬНЫЙ БУСТ: АКТИВЕН</div>
+                <div class="alpha-badge" style="background:#3b2d10; color:#f7ce55; border:1px solid #735515;">РЕФЕРАЛЬНЫЙ БУСТ: АКТИВЕН</div>
                 
                 <div style="display: flex; gap: 30px; align-items: center; width: 100%; max-width: 680px; margin: auto 0; justify-content: center;">
                     
-                    <!-- Колесо фортуны на CSS/JS -->
+                    <!-- Колесо фортуны -->
                     <div style="position: relative; width: 200px; height: 200px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                        <div id="fortuneWheel" style="width: 180px; height: 180px; border-radius: 50%; border: 6px solid #f5c443; background: conic-gradient(#2b3d24 0deg 60deg, #141c12 60deg 120deg, #2b3d24 120deg 180deg, #141c12 180deg 240deg, #2b3d24 240deg 300deg, #141c12 300deg 360deg); transition: transform 5s cubic-bezier(0.15, 0.85, 0.32, 1); box-shadow: 0 0 25px rgba(245,196,65,0.4); display: flex; align-items: center; justify-content: center;">
+                        <div id="fortuneWheel" style="width: 180px; height: 180px; border-radius: 50%; border: 6px solid #f7ce55; background: conic-gradient(#25381f 0deg 60deg, #10180e 60deg 120deg, #25381f 120deg 180deg, #10180e 180deg 240deg, #25381f 240deg 300deg, #10180e 300deg 360deg); transition: transform 5s cubic-bezier(0.15, 0.85, 0.32, 1); box-shadow: 0 0 30px rgba(247,206,85,0.45); display: flex; align-items: center; justify-content: center;">
                             <div style="position: absolute; font-size: 9px; font-weight: bold; color: #fff; transform: rotate(30deg) translate(0, -55deg);">+50 ⚙️</div>
-                            <div style="position: absolute; font-size: 9px; font-weight: bold; color: #f5c443; transform: rotate(90deg) translate(0, -55deg);">ДЖЕКПОТ</div>
+                            <div style="position: absolute; font-size: 9px; font-weight: bold; color: #f7ce55; transform: rotate(90deg) translate(0, -55deg);">ДЖЕКПОТ</div>
                             <div style="position: absolute; font-size: 9px; font-weight: bold; color: #fff; transform: rotate(150deg) translate(0, -55deg);">+10 ⚙️</div>
                             <div style="position: absolute; font-size: 9px; font-weight: bold; color: #fff; transform: rotate(210deg) translate(0, -55deg);">+200 ⚙️</div>
                             <div style="position: absolute; font-size: 9px; font-weight: bold; color: #ff5555; transform: rotate(270deg) translate(0, -55deg);">ПОВТОР</div>
                             <div style="position: absolute; font-size: 9px; font-weight: bold; color: #fff; transform: rotate(330deg) translate(0, -55deg);">+100 ⚙️</div>
                         </div>
-                        <!-- Стрелочка индикатора сверху -->
-                        <div style="position: absolute; top: -5px; width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 24px solid #f5c443; z-index: 15; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));"></div>
-                        <!-- Центр колеса -->
-                        <div style="position: absolute; width: 28px; height: 28px; background: #fff; border: 4px solid #f5c443; border-radius: 50%; z-index: 12; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>
+                        <div style="position: absolute; top: -5px; width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 24px solid #f7ce55; z-index: 15; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));"></div>
+                        <div style="position: absolute; width: 28px; height: 28px; background: #fff; border: 4px solid #f7ce55; border-radius: 50%; z-index: 12; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>
                     </div>
 
                     <!-- Правая колонка с вирусным функционалом -->
                     <div style="text-align: left; flex-grow: 1; max-width: 320px;">
-                        <h3 style="color:#f5c443; margin: 0 0 8px 0; font-size: 16px; font-weight: 700;">КРУТИ & ВЫИГРЫВАЙ</h3>
-                        <p style="font-size: 11px; color:#a5bda1; margin: 0 0 14px 0; line-height: 1.5;">
-                            Крутите Колесо каждые 30 секунд или приводите космо-корешей по реф-ссылке. За каждого пилота вы мгновенно заберете <strong>+250 деталей</strong>!
+                        <h3 style="color:#f7ce55; margin: 0 0 8px 0; font-size: 17px; font-weight: 800; letter-spacing: 0.5px;">КРУТИ & ВЫИГРЫВАЙ</h3>
+                        <p style="font-size: 11px; color:#9cb299; margin: 0 0 14px 0; line-height: 1.55;">
+                            Крутите Колесо каждые 30 секунд или приглашайте друзей по реф-ссылке. За каждого пилота вы мгновенно заберете <strong>+250 деталей</strong>!
                         </p>
                         
                         <button class="menu-btn viral-btn" id="spinWheelBtn" onclick="spinAirdropWheel()" style="margin-bottom: 12px; width: 100%;">ИСПЫТАТЬ УДАЧУ 🎡</button>
 
-                        <div style="background: rgba(13, 20, 12, 0.9); border: 1px solid #354d2e; padding: 10px; border-radius: 8px;">
-                            <div style="font-size: 9px; color: #a5bda1; margin-bottom: 5px; font-weight: bold;">ТВОЯ ССЫЛКА НА БОНУСЫ (Кликни, чтобы скопировать):</div>
-                            <input type="text" id="refLinkInput" readonly onclick="copyReferralLink()" style="width: 100%; background: #0c0f0b; border: 1px solid #48663a; color: #a7d973; font-size: 9px; padding: 7px; border-radius: 4px; cursor: pointer; text-align: center; font-family: 'Outfit';">
+                        <div style="background: rgba(8, 14, 7, 0.95); border: 1.5px solid #304729; padding: 10px; border-radius: 10px;">
+                            <div style="font-size: 9px; color: #9cb299; margin-bottom: 5px; font-weight: bold;">ТВОЯ ССЫЛКА НА БОНУСЫ (Кликни для копирования):</div>
+                            <input type="text" id="refLinkInput" readonly onclick="copyReferralLink()" style="width: 100%; background: #060a05; border: 1px solid #436137; color: #a7d973; font-size: 10px; padding: 8px; border-radius: 6px; cursor: pointer; text-align: center; font-family: 'Outfit'; font-weight: 600;">
                         </div>
 
                         <div style="display: flex; gap: 8px; margin-top: 10px;">
-                            <button class="menu-btn" onclick="shareToTelegram()" style="background:#229ED9; border:none; font-size: 9px; padding: 8px; flex: 1;">ТЕЛЕГРАМ ✈️</button>
-                            <button class="menu-btn" onclick="shareToVK()" style="background:#4C75A3; border:none; font-size: 9px; padding: 8px; flex: 1;">ВКОНТАКТЕ 📱</button>
+                            <button class="menu-btn" onclick="shareToTelegram()" style="background:#229ED9; border:none; font-size: 9px; padding: 9px; flex: 1;">ТЕЛЕГРАМ ✈️</button>
+                            <button class="menu-btn" onclick="shareToVK()" style="background:#4C75A3; border:none; font-size: 9px; padding: 9px; flex: 1;">ВКОНТАКТЕ 📱</button>
                         </div>
                     </div>
 
@@ -405,7 +425,7 @@
             <!-- МАГАЗИН -->
             <div id="shopMenu" class="menu-screen" style="display: none; flex-direction: column; justify-content: flex-start; padding: 30px;">
                 <h1>КОСМИЧЕСКИЙ МАГАЗИН</h1>
-                <div style="font-size: 12px; color: #f5c443; margin-bottom: 12px; font-weight: 700;">ТВОЙ ЗАПАС ДЕТАЛЕЙ: <span id="shopCoinDisplay">0</span> ⚙️</div>
+                <div style="font-size: 13px; color: #f7ce55; margin-bottom: 14px; font-weight: 800; text-shadow: 0 0 10px rgba(247,206,85,0.2);">ТВОЙ ЗАПАС ДЕТАЛЕЙ: <span id="shopCoinDisplay">0</span> ⚙️</div>
                 <div class="shop-container" id="shopItemsList"></div>
                 <button class="menu-btn" onclick="closeShop()" style="margin-top: auto; max-width: 200px;">НАЗАД</button>
             </div>
@@ -424,8 +444,8 @@
             <div id="statusBar" class="status-bar" style="display: none;">
                 <div>УРОВЕНЬ: <span id="levelText" style="color: #a7d973;">1</span></div>
                 <div>ОЧКИ: <span id="scoreText" style="color: #a7d973;">0</span></div>
-                <div>ДЕТАЛИ: <span id="gameCoinText" style="color: #f5c443;">0</span></div>
-                <div>ПРОЧНОСТЬ: <span id="livesText" style="color: #ff6b6b;">3</span></div>
+                <div>ДЕТАЛИ: <span id="gameCoinText" style="color: #f7ce55;">0</span></div>
+                <div>ПРОЧНОСТЬ: <span id="livesText" style="color: #ff5555;">3</span></div>
             </div>
 
             <!-- ПАНЕЛЬ РЕДАКТОРА -->
@@ -436,7 +456,7 @@
                 <button class="sandbox-btn" onclick="setSandboxPower('wide')" id="sb-wide">ШИРОКИЙ (W)</button>
                 <button class="sandbox-btn" onclick="setSandboxPower('laser')" id="sb-laser">ЛАЗЕР (L)</button>
                 <button class="sandbox-btn" onclick="setSandboxPower('fireball')" id="sb-fireball">ОГНЕННЫЙ (F)</button>
-                <button class="sandbox-btn" onclick="saveAndExitSandbox()" style="border-color: #f5c443; color: #f7d474;">СОХРАНИТЬ КАРТУ</button>
+                <button class="sandbox-btn" onclick="saveAndExitSandbox()" style="border-color: #f7ce55; color: #fae08f;">СОХРАНИТЬ КАРТУ</button>
             </div>
 
             <canvas id="gameCanvas" width="800" height="500"></canvas>
@@ -487,14 +507,13 @@ function showNotify(text) {
     setTimeout(() => box.style.display = 'none', 3000);
 }
 
-// МАГАЗИН И ПРОКАЧКА
+// МАГАЗИН И ПРОКАЧКА (БЕЗ БАГАННОЙ КНОПКИ КУПИТЬ МОНЕТЫ)
 const shopCatalog = [
-    { id: 'gold', name: 'СКИН: ЗОЛОТОЙ ТИТАН', type: 'skin', cost: 150, desc: 'Золотая платформа' },
+    { id: 'gold', name: 'СКИН: ЗОЛОТОЙ ТИТАН', type: 'skin', cost: 150, desc: 'Золотая зеркальная платформа' },
     { id: 'neon', name: 'СКИН: КИБЕР-НЕОН', type: 'skin', cost: 250, desc: 'Динамический неоновый градиент' },
     { id: 'extraLife', name: '+1 ЖИЗНЬ НА СТАРТ', type: 'upgrade', cost: 200, desc: 'Запуск матча с 4 жизнями' },
     { id: 'laserPower', name: 'БЫСТРЫЙ КВАНТ-ЛАЗЕР', type: 'upgrade', cost: 300, desc: 'Скорострельные плазмо-лучи' },
-    { id: 'magneticStart', name: 'МАГНИТНЫЙ ЗАХВАТ', type: 'upgrade', cost: 220, desc: 'Платформа притягивает первый мяч' },
-    { id: 'buyCoins', name: 'ПАКЕТ ДЕТАЛЕЙ (+100)', type: 'action', cost: 50, desc: 'Экстренный заказ запчастей' }
+    { id: 'magneticStart', name: 'МАГНИТНЫЙ ЗАХВАТ', type: 'upgrade', cost: 220, desc: 'Платформа притягивает первый мяч' }
 ];
 
 function renderShop() {
@@ -516,7 +535,7 @@ function renderShop() {
         if (isPurchased) {
             if (item.type === 'skin') {
                 buttonText = isEquipped ? 'АКТИВЕН' : 'ЭКИПИРОВАТЬ';
-                btnStyle = isEquipped ? 'background:#4e7340; border-color:#a7d973;' : 'border-color:#f5c443; color:#f7d474;';
+                btnStyle = isEquipped ? 'background:#4e7340; border-color:#a7d973;' : 'border-color:#f7ce55; color:#fae08f;';
             } else {
                 buttonText = 'КУПЛЕНО';
                 btnStyle = 'border-color:#333; color:#666; pointer-events:none;';
@@ -525,10 +544,10 @@ function renderShop() {
 
         list.innerHTML += `
             <div class="shop-item">
-                <div><strong>${item.name}</strong></div>
-                <div style="color:#a5bda1; font-size:9px;">${item.desc}</div>
-                <div style="color:#f5c443; font-weight: 700; font-size:11px;">${item.cost} ⚙️</div>
-                <button class="sandbox-btn" style="${btnStyle}" onclick="buyShopItem('${item.id}', '${item.type}', ${item.cost})">
+                <div><strong style="color: #fff; font-size: 11px;">${item.name}</strong></div>
+                <div style="color:#9cb299; font-size:9.5px; line-height: 1.3;">${item.desc}</div>
+                <div style="color:#f7ce55; font-weight: 800; font-size:12px; margin-top: 4px;">${item.cost} ⚙️</div>
+                <button class="sandbox-btn" style="margin-top: 5px; ${btnStyle}" onclick="buyShopItem('${item.id}', '${item.type}', ${item.cost})">
                     ${buttonText}
                 </button>
             </div>
@@ -552,15 +571,13 @@ function buyShopItem(id, type, cost) {
             equippedSkin = id;
         } else if (type === 'upgrade') {
             playerUpgrades[id] = true;
-        } else if (id === 'buyCoins') {
-            coins += 100;
         }
 
         updateCoinDisplays();
         renderShop();
         showNotify('Успешно приобретено!');
     } else {
-        showNotify('Недостаточно деталей (монет)! ⚙️');
+        showNotify('Недостаточно деталей! ⚙️');
     }
 }
 
@@ -729,7 +746,7 @@ function spinAirdropWheel() {
         
         switch (winningIndex) {
             case 0:
-                reward = 100; msg = 'КОСМИЧЕСКИЙ ГРУЗ: +100 ДЕТАЛЕЙ! 🎁';
+                reward = 100; msg = 'КОСМИЧЕСКИЙ ГРУЗ: +100 ДЕТАЮШЕК! 🎁';
                 break;
             case 1:
                 reward = 50; msg = 'ВЫИГРЫШ: +50 ДЕТАЛЕЙ! ⚙️';
@@ -806,7 +823,7 @@ function shareToVK() {
     window.open(shareUrl, '_blank');
 }
 
-// УЛУЧШЕННЫЙ ЗВУКОВОЙ ДВИЖОК С СИНТЕЗОМ ЗВУКОВ
+// ЗВУКОВОЙ ДВИЖОК С ПОНИЖЕННОЙ ГРОМКОСТЬЮ (БЕЗ ШУМА)
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 function playSound(type) {
     if (!soundEnabled) return;
@@ -821,42 +838,42 @@ function playSound(type) {
         osc.type = 'triangle';
         osc.frequency.setValueAtTime(150, t);
         osc.frequency.exponentialRampToValueAtTime(70, t + 0.08);
-        gain.gain.setValueAtTime(0.15, t);
-        gain.gain.exponentialRampToValueAtTime(0.01, t + 0.08);
+        gain.gain.setValueAtTime(0.03, t); // Тише
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
         osc.start(t); osc.stop(t + 0.08);
     } else if (type === 'brick') {
         osc.type = 'sawtooth';
         osc.frequency.setValueAtTime(320, t);
         osc.frequency.exponentialRampToValueAtTime(120, t + 0.12);
-        gain.gain.setValueAtTime(0.1, t);
-        gain.gain.exponentialRampToValueAtTime(0.01, t + 0.12);
+        gain.gain.setValueAtTime(0.02, t); // Тише
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
         osc.start(t); osc.stop(t + 0.12);
     } else if (type === 'laser') {
         osc.type = 'sawtooth';
         osc.frequency.setValueAtTime(800, t);
         osc.frequency.exponentialRampToValueAtTime(300, t + 0.15);
-        gain.gain.setValueAtTime(0.08, t);
-        gain.gain.exponentialRampToValueAtTime(0.01, t + 0.15);
+        gain.gain.setValueAtTime(0.015, t); // Тише
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
         osc.start(t); osc.stop(t + 0.15);
     } else if (type === 'powerup') {
         osc.type = 'sine';
         osc.frequency.setValueAtTime(250, t);
         osc.frequency.setValueAtTime(400, t + 0.05);
         osc.frequency.setValueAtTime(600, t + 0.1);
-        gain.gain.setValueAtTime(0.12, t);
-        gain.gain.exponentialRampToValueAtTime(0.01, t + 0.2);
+        gain.gain.setValueAtTime(0.025, t); // Тише
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
         osc.start(t); osc.stop(t + 0.2);
     } else if (type === 'hurt') {
         osc.type = 'square';
         osc.frequency.setValueAtTime(100, t);
         osc.frequency.linearRampToValueAtTime(20, t + 0.3);
-        gain.gain.setValueAtTime(0.2, t);
-        gain.gain.exponentialRampToValueAtTime(0.01, t + 0.3);
+        gain.gain.setValueAtTime(0.04, t); // Тише
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
         osc.start(t); osc.stop(t + 0.3);
     }
 }
 
-// ИГРОВЫЕ ПЕРЕМЕННЫЕ
+// ИГРОВЫЕ ПЕРЕМЕННЫЕ И ДВИЖОК
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -875,7 +892,18 @@ let bullets = [];
 let alienPlasma = [];
 let particles = [];
 let confettis = [];
+let stars = [];
 let screenShake = 0;
+
+// Инициализация красивых космических звёзд на фоне
+for (let i = 0; i < 50; i++) {
+    stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        size: Math.random() * 1.5 + 0.5,
+        speed: Math.random() * 0.4 + 0.1
+    });
+}
 
 // Характеристики инопланетного корабля (UFO)
 let ufo = { x: -100, y: 80, width: 55, height: 26, dx: 2, active: false, lives: 3, lastShot: 0 };
@@ -908,12 +936,11 @@ function buildLevel(levelNum) {
         ufo.lives = 5;
     }
 
-    const blockColors = ['#457b9d', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51'];
+    const blockColors = ['#3a86c8', '#10b981', '#fbbf24', '#f97316', '#ef4444'];
     let powers = ['none', 'none', 'multiball', 'wide', 'laser', 'fireball'];
 
     for (let r = 0; r < 5; r++) {
         for (let c = 0; c < 10; c++) {
-            // Различные конфигурации для уровней
             if (levelNum === 2 && (r + c) % 2 === 0) continue; 
             if (levelNum === 3 && r % 2 === 1 && c % 2 === 1) continue;
 
@@ -967,7 +994,6 @@ function initGame(mode) {
     } else if (mode === 'sandbox_edit') {
         bricks = [];
         ufo.active = false;
-        // Заполняем сетку пустыми блоками для редактирования
         for (let r = 0; r < 5; r++) {
             for (let c = 0; c < 10; c++) {
                 bricks.push({
@@ -976,7 +1002,7 @@ function initGame(mode) {
                     width: brickWidth,
                     height: brickHeight,
                     status: 0,
-                    color: '#2d4025',
+                    color: '#1a2618',
                     power: 'none'
                 });
             }
@@ -992,7 +1018,8 @@ function initGame(mode) {
         dx: 4,
         dy: -4,
         stuck: true,
-        fireball: false
+        fireball: false,
+        trail: []
     }];
 
     if (mode !== 'sandbox_edit' && !('ontouchstart' in window)) {
@@ -1000,24 +1027,24 @@ function initGame(mode) {
     }
 }
 
-// Система спавна частиц (разрушение блоков)
+// Эффект разрушения блоков (частицы)
 function createExplosion(x, y, color) {
     if (!highGraphics) return;
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 12; i++) {
         particles.push({
             x: x,
             y: y,
-            vx: (Math.random() - 0.5) * 5,
-            vy: (Math.random() - 0.5) * 5,
-            radius: Math.random() * 3 + 1.5,
+            vx: (Math.random() - 0.5) * 6,
+            vy: (Math.random() - 0.5) * 6,
+            radius: Math.random() * 2.5 + 1.2,
             color: color,
             alpha: 1,
-            decay: Math.random() * 0.03 + 0.02
+            decay: Math.random() * 0.04 + 0.02
         });
     }
 }
 
-// Клик по экрану
+// Клики по экрану
 canvas.addEventListener('click', (e) => {
     if (gameState === 'SANDBOX_EDIT') {
         const rect = canvas.getBoundingClientRect();
@@ -1031,7 +1058,7 @@ canvas.addEventListener('click', (e) => {
                 b.status = b.status === 1 ? 0 : 1;
                 if (b.status === 1) {
                     b.power = selectedSandboxPower;
-                    const colors = ['#457b9d', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51'];
+                    const colors = ['#3a86c8', '#10b981', '#fbbf24', '#f97316', '#ef4444'];
                     b.color = colors[Math.floor(Math.random() * colors.length)];
                     playSound('hit');
                 }
@@ -1056,7 +1083,7 @@ function releaseBalls() {
     });
 }
 
-// Обработка движения мыши / сенсора
+// Управление мышью
 document.addEventListener('mousemove', (e) => {
     if (gameState === 'PLAYING' && document.pointerLockElement === canvas) {
         paddle.x += e.movementX;
@@ -1064,8 +1091,7 @@ document.addEventListener('mousemove', (e) => {
     }
 });
 
-// Адаптивное сенсорное перемещение на мобилках
-let touchMoveActive = false;
+// Сенсорное управление
 canvas.addEventListener('touchmove', (e) => {
     if (gameState === 'PLAYING' && e.touches.length > 0) {
         const rect = canvas.getBoundingClientRect();
@@ -1076,7 +1102,6 @@ canvas.addEventListener('touchmove', (e) => {
     }
 });
 
-// Дополнительные кнопки на тач-интерфейсе
 const btnLeft = document.getElementById('touchLeft');
 const btnRight = document.getElementById('touchRight');
 const btnAction = document.getElementById('touchAction');
@@ -1140,12 +1165,19 @@ function update() {
 
     if (screenShake > 0) screenShake -= 0.1;
 
-    // Смещение платформы
+    // Плавное движение звездного неба
+    for (let s of stars) {
+        s.y += s.speed;
+        if (s.y > canvas.height) {
+            s.y = 0;
+            s.x = Math.random() * canvas.width;
+        }
+    }
+
     if (keys.left || touchKeys.left) paddle.x -= paddle.speed;
     if (keys.right || touchKeys.right) paddle.x += paddle.speed;
     keepPaddleInBounds();
 
-    // Обновление частиц
     for (let i = particles.length - 1; i >= 0; i--) {
         let p = particles[i];
         p.x += p.vx;
@@ -1154,7 +1186,6 @@ function update() {
         if (p.alpha <= 0) particles.splice(i, 1);
     }
 
-    // Обновление конфетти
     for (let i = confettis.length - 1; i >= 0; i--) {
         let c = confettis[i];
         c.y += c.speedY;
@@ -1162,14 +1193,12 @@ function update() {
         if (c.y > canvas.height) confettis.splice(i, 1);
     }
 
-    // Движение НЛО (UFO)
     if (ufo.active) {
         ufo.x += ufo.dx;
         if (ufo.x + ufo.width > canvas.width || ufo.x < 0) {
             ufo.dx = -ufo.dx;
         }
 
-        // Выстрелы НЛО вниз
         let now = Date.now();
         if (now - ufo.lastShot > 1600) {
             alienPlasma.push({ x: ufo.x + ufo.width / 2, y: ufo.y + ufo.height, radius: 4, dy: 3.5 });
@@ -1177,7 +1206,6 @@ function update() {
         }
     }
 
-    // Плазма пришельцев
     for (let i = alienPlasma.length - 1; i >= 0; i--) {
         let p = alienPlasma[i];
         p.y += p.dy;
@@ -1186,7 +1214,6 @@ function update() {
             continue;
         }
         
-        // Попадание в платформу
         if (p.x > paddle.x && p.x < paddle.x + paddle.width && p.y + p.radius >= paddle.y && p.y - p.radius <= paddle.y + paddle.height) {
             alienPlasma.splice(i, 1);
             screenShake = 3;
@@ -1197,13 +1224,11 @@ function update() {
         }
     }
 
-    // Стрельба лазером
     for (let i = bullets.length - 1; i >= 0; i--) {
         let bl = bullets[i];
         bl.y += bl.dy;
         if (bl.y < 0) { bullets.splice(i, 1); continue; }
         
-        // Попадание лазера по НЛО
         if (ufo.active && bl.x > ufo.x && bl.x < ufo.x + ufo.width && bl.y > ufo.y && bl.y < ufo.y + ufo.height) {
             bullets.splice(i, 1);
             ufo.lives--;
@@ -1219,7 +1244,6 @@ function update() {
             continue;
         }
 
-        // Попадание лазера по блокам
         for (let b of bricks) {
             if (b.status === 1 && bl.x > b.x && bl.x < b.x + b.width && bl.y > b.y && bl.y < b.y + b.height) {
                 b.status = 0;
@@ -1235,28 +1259,33 @@ function update() {
         }
     }
 
-    // Мячи
+    // Обработка мячей
     for (let i = balls.length - 1; i >= 0; i--) {
         let ball = balls[i];
         if (ball.stuck) {
             ball.x = paddle.x + paddle.width / 2;
             ball.y = paddle.y - ball.radius - 2;
+            ball.trail = [];
             continue;
         }
 
         ball.x += ball.dx;
         ball.y += ball.dy;
 
-        // Физика столкновения со стенками
+        // Плавный след мяча
+        if (highGraphics) {
+            ball.trail.push({ x: ball.x, y: ball.y });
+            if (ball.trail.length > 8) ball.trail.shift();
+        }
+
         if (ball.x - ball.radius < 0) { ball.x = ball.radius; ball.dx = -ball.dx; playSound('hit'); }
         if (ball.x + ball.radius > canvas.width) { ball.x = canvas.width - ball.radius; ball.dx = -ball.dx; playSound('hit'); }
         if (ball.y - ball.radius < 0) { ball.y = ball.radius; ball.dy = -ball.dy; playSound('hit'); }
 
-        // Столкновение с НЛО
         if (ufo.active && ball.x + ball.radius > ufo.x && ball.x - ball.radius < ufo.x + ufo.width && ball.y + ball.radius > ufo.y && ball.y - ball.radius < ufo.y + ufo.height) {
             ball.dy = -ball.dy;
             ufo.lives--;
-            createExplosion(ball.x, ball.y, '#e76f51');
+            createExplosion(ball.x, ball.y, '#ef4444');
             playSound('hit');
             if (ufo.lives <= 0) {
                 ufo.active = false;
@@ -1267,7 +1296,6 @@ function update() {
             }
         }
 
-        // Столкновение с платформой
         if (ball.x > paddle.x && ball.x < paddle.x + paddle.width && ball.y + ball.radius >= paddle.y && ball.y - paddle.y <= paddle.height) {
             if (paddle.magnet) {
                 ball.stuck = true;
@@ -1283,7 +1311,6 @@ function update() {
             }
         }
 
-        // Вылет мяча вниз
         if (ball.y - ball.radius > canvas.height) {
             balls.splice(i, 1);
         }
@@ -1305,13 +1332,13 @@ function update() {
                 dx: 3.5, 
                 dy: -4, 
                 stuck: true,
-                fireball: false
+                fireball: false,
+                trail: []
             }];
             paddle.magnet = playerUpgrades.magneticStart;
         }
     }
 
-    // Столкновение мячей с блоками
     let activeBricksCount = 0;
     for (let b of bricks) {
         if (b.status === 1) {
@@ -1342,7 +1369,6 @@ function update() {
         }
     }
 
-    // Логика победы и перехода по уровням
     if (activeBricksCount === 0 && currentMode === 'single') {
         if (currentLevel < 3) {
             currentLevel++;
@@ -1351,7 +1377,7 @@ function update() {
             coins += gameCoins + 50;
             updateCoinDisplays();
             buildLevel(currentLevel);
-            balls = [{ x: paddle.x + paddle.width / 2, y: paddle.y - 10, radius: 7, dx: 4, dy: -4, stuck: true }];
+            balls = [{ x: paddle.x + paddle.width / 2, y: paddle.y - 10, radius: 7, dx: 4, dy: -4, stuck: true, trail: [] }];
         } else {
             showNotify('АРКАДА ПОЛНОСТЬЮ ПРОЙДЕНА! ПИЛОТ-ЧЕМПИОН!');
             coins += gameCoins + 150;
@@ -1366,19 +1392,17 @@ function update() {
         setTimeout(backToMenu, 2500);
     }
 
-    // Движение и подбор падающих супер-сил
     for (let i = powerUps.length - 1; i >= 0; i--) {
         let p = powerUps[i];
         p.y += p.dy;
         
-        // Ловим бонус платформой
         if (p.x + p.width > paddle.x && p.x < paddle.x + paddle.width && p.y + p.height > paddle.y && p.y < paddle.y + paddle.height) {
             playSound('powerup');
             
             if (p.type === 'multiball') {
                 let first = balls[0] || { x: paddle.x + paddle.width/2, y: paddle.y - 12 };
-                balls.push({ x: first.x, y: first.y, radius: 7, dx: -3, dy: -4, stuck: false, fireball: false });
-                balls.push({ x: first.x, y: first.y, radius: 7, dx: 3, dy: -4, stuck: false, fireball: false });
+                balls.push({ x: first.x, y: first.y, radius: 7, dx: -3, dy: -4, stuck: false, fireball: false, trail: [] });
+                balls.push({ x: first.x, y: first.y, radius: 7, dx: 3, dy: -4, stuck: false, fireball: false, trail: [] });
             } else if (p.type === 'wide') {
                 paddle.width = 145;
                 setTimeout(() => paddle.width = paddle.baseWidth, 9000);
@@ -1408,25 +1432,39 @@ function checkGameOver() {
     }
 }
 
-// РИСОВАНИЕ ВСЕХ КОМПОНЕНТОВ НА CANVAS
+// Помощник регулирования яркости
+function adjustColor(hex, percent) {
+    let num = parseInt(hex.replace("#",""),16),
+    amt = Math.round(2.55 * percent),
+    R = (num >> 16) + amt,
+    G = (num >> 8 & 0x00FF) + amt,
+    B = (num & 0x0000FF) + amt;
+    return "#" + (0x1000000 + (R<255?R<0?0:R:255)*0x10000 + (G<255?G<0?0:G:255)*0x100 + (B<255?B<0?0:B:255)).toString(16).slice(1);
+}
+
+// ОТРИСОВКА КОМПОНЕНТОВ
 function draw() {
     ctx.save();
-    // Эффект тряски экрана
     if (screenShake > 0) {
-        let dx = (Math.random() - 0.5) * screenShake * 2;
-        let dy = (Math.random() - 0.5) * screenShake * 2;
+        let dx = (Math.random() - 0.5) * screenShake * 2.5;
+        let dy = (Math.random() - 0.5) * screenShake * 2.5;
         ctx.translate(dx, dy);
     }
 
-    // Задний космический фон с параллакс сеткой
-    ctx.fillStyle = '#0a0e09';
+    // Отрисовка глубокого космического пространства
+    ctx.fillStyle = '#060a05';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+    // Звезды
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+    for (let s of stars) {
+        ctx.fillRect(s.x, s.y, s.size, s.size);
+    }
+
     if (highGraphics) {
-        ctx.strokeStyle = '#121a10';
+        ctx.strokeStyle = '#0e170c';
         ctx.lineWidth = 1;
-        // Эффект двигающейся неоновой сетки на фоне
-        let gridOffset = (Date.now() / 30) % 40;
+        let gridOffset = (Date.now() / 40) % 40;
         for (let x = gridOffset; x < canvas.width; x += 40) {
             ctx.beginPath();
             ctx.moveTo(x, 0);
@@ -1446,20 +1484,40 @@ function draw() {
         return;
     }
 
-    // Отрисовка энергоблоков
+    // Энергоблоки
     for (let b of bricks) {
         if (b.status === 1 || gameState === 'SANDBOX_EDIT') {
-            ctx.fillStyle = b.status === 1 ? b.color : '#151c11';
-            ctx.fillRect(b.x, b.y, b.width, b.height);
+            if (b.status === 1) {
+                let grad = ctx.createLinearGradient(b.x, b.y, b.x, b.y + b.height);
+                grad.addColorStop(0, b.color);
+                grad.addColorStop(1, adjustColor(b.color, -25));
+                ctx.fillStyle = grad;
+            } else {
+                ctx.fillStyle = '#111b0e';
+            }
+            
+            // Скругленные плитки
+            ctx.beginPath();
+            if (ctx.roundRect) {
+                ctx.roundRect(b.x, b.y, b.width, b.height, 4);
+            } else {
+                ctx.rect(b.x, b.y, b.width, b.height);
+            }
+            ctx.fill();
             
             if (highGraphics && b.status === 1) {
-                // Светящиеся грани блоков
-                ctx.strokeStyle = 'rgba(255,255,255,0.2)';
-                ctx.strokeRect(b.x, b.y, b.width, b.height);
+                ctx.strokeStyle = 'rgba(255,255,255,0.22)';
+                ctx.stroke();
+                // Блик на верхней грани
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+                ctx.beginPath();
+                ctx.moveTo(b.x + 2, b.y + 1);
+                ctx.lineTo(b.x + b.width - 2, b.y + 1);
+                ctx.stroke();
             }
 
             if (b.power !== 'none' && b.status === 1) {
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
                 ctx.font = 'bold 11px "Outfit"';
                 ctx.textAlign = 'center';
                 ctx.fillText(b.power[0].toUpperCase(), b.x + b.width/2, b.y + b.height/2 + 4);
@@ -1474,14 +1532,12 @@ function draw() {
         ctx.ellipse(ufo.x + ufo.width/2, ufo.y + ufo.height/2, ufo.width/2, ufo.height/2, 0, 0, Math.PI * 2);
         ctx.fill();
         
-        // Кабина НЛО
         ctx.fillStyle = '#fff';
         ctx.beginPath();
         ctx.arc(ufo.x + ufo.width/2, ufo.y + ufo.height/3, 8, 0, Math.PI * 2);
         ctx.fill();
     }
 
-    // Снаряды НЛО
     for (let p of alienPlasma) {
         ctx.fillStyle = '#ff3366';
         ctx.beginPath();
@@ -1489,7 +1545,6 @@ function draw() {
         ctx.fill();
     }
 
-    // Частицы уничтожения блоков
     for (let p of particles) {
         ctx.fillStyle = p.color;
         ctx.globalAlpha = p.alpha;
@@ -1499,91 +1554,122 @@ function draw() {
     }
     ctx.globalAlpha = 1.0;
 
-    // Конфетти триумфа
     for (let c of confettis) {
         ctx.fillStyle = c.color;
         ctx.fillRect(c.x, c.y, c.size, c.size);
     }
 
-    // Падающие супер-бонусы
+    // Бонусы капсулы
     for (let p of powerUps) {
-        ctx.fillStyle = '#1c3016';
-        ctx.fillRect(p.x, p.y, p.width, p.height);
-        ctx.strokeStyle = '#a7d973';
-        ctx.strokeRect(p.x, p.y, p.width, p.height);
+        let pGrad = ctx.createLinearGradient(p.x, p.y, p.x, p.y + p.height);
+        pGrad.addColorStop(0, '#1c3d14');
+        pGrad.addColorStop(1, '#0e1d0a');
+        ctx.fillStyle = pGrad;
         
-        ctx.fillStyle = '#f5c443';
+        ctx.beginPath();
+        if (ctx.roundRect) ctx.roundRect(p.x, p.y, p.width, p.height, 8);
+        else ctx.rect(p.x, p.y, p.width, p.height);
+        ctx.fill();
+        
+        ctx.strokeStyle = '#a7d973';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        
+        ctx.fillStyle = '#f7ce55';
         ctx.font = 'bold 11px "Outfit"';
         ctx.textAlign = 'center';
         ctx.fillText(p.type[0].toUpperCase(), p.x + p.width/2, p.y + p.height/2 + 4);
     }
 
-    // Выстрелы лазера игрока
     for (let bl of bullets) {
         ctx.fillStyle = '#ffe600';
         ctx.fillRect(bl.x, bl.y, bl.width, bl.height);
     }
 
-    // Отрисовка платформы согласно экипированному скину
+    // Платформа (скины)
+    let padGrad;
     if (equippedSkin === 'gold') {
-        let gradient = ctx.createLinearGradient(paddle.x, paddle.y, paddle.x + paddle.width, paddle.y);
-        gradient.addColorStop(0, '#ffd700');
-        gradient.addColorStop(0.5, '#fff7a3');
-        gradient.addColorStop(1, '#c5a000');
-        ctx.fillStyle = gradient;
+        padGrad = ctx.createLinearGradient(paddle.x, paddle.y, paddle.x + paddle.width, paddle.y);
+        padGrad.addColorStop(0, '#ffe57f');
+        padGrad.addColorStop(0.5, '#ffd700');
+        padGrad.addColorStop(1, '#b29600');
     } else if (equippedSkin === 'neon') {
-        let neonPulse = (Date.now() / 4) % 360;
-        ctx.fillStyle = `hsl(${neonPulse}, 100%, 55%)`;
+        let hue = (Date.now() / 4) % 360;
+        padGrad = `hsl(${hue}, 100%, 60%)`;
     } else {
-        ctx.fillStyle = paddle.laserActive ? '#ff4d4d' : '#4e7340';
+        padGrad = ctx.createLinearGradient(paddle.x, paddle.y, paddle.x, paddle.y + paddle.height);
+        padGrad.addColorStop(0, paddle.laserActive ? '#ff5555' : '#5b894c');
+        padGrad.addColorStop(1, paddle.laserActive ? '#990000' : '#334e29');
     }
     
-    ctx.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
+    ctx.fillStyle = padGrad;
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(paddle.x, paddle.y, paddle.width, paddle.height, 6);
+    else ctx.rect(paddle.x, paddle.y, paddle.width, paddle.height);
+    ctx.fill();
     
     if (highGraphics) {
-        ctx.strokeStyle = '#fff';
-        ctx.strokeRect(paddle.x, paddle.y, paddle.width, paddle.height);
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Огонь из боковых сопел
+        ctx.fillStyle = 'rgba(247, 206, 85, 0.7)';
+        ctx.beginPath();
+        ctx.arc(paddle.x + 8, paddle.y + paddle.height, Math.random() * 4 + 3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(paddle.x + paddle.width - 8, paddle.y + paddle.height, Math.random() * 4 + 3, 0, Math.PI * 2);
+        ctx.fill();
     }
 
-    // Мячи на поле
+    // Мячи и их следы
     for (let ball of balls) {
+        if (highGraphics && ball.trail) {
+            for (let j = 0; j < ball.trail.length; j++) {
+                let pt = ball.trail[j];
+                ctx.fillStyle = ball.fireball ? `rgba(255, 85, 0, ${0.12 * j / ball.trail.length})` : `rgba(167, 217, 115, ${0.1 * j / ball.trail.length})`;
+                ctx.beginPath();
+                ctx.arc(pt.x, pt.y, ball.radius * (0.3 + 0.7 * j / ball.trail.length), 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
         if (ball.fireball) {
-            ctx.fillStyle = '#ff3300';
-            // Огненные искры сзади огненного шара
-            if (highGraphics && Math.random() < 0.4) {
-                createExplosion(ball.x, ball.y, '#f5c443');
+            ctx.fillStyle = '#ff4500';
+            if (highGraphics && Math.random() < 0.3) {
+                createExplosion(ball.x, ball.y, '#ffaa00');
             }
         } else {
-            ctx.fillStyle = '#f0f0f0';
+            ctx.fillStyle = '#f8fdf6';
         }
         ctx.beginPath();
         ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
         ctx.fill();
         if (highGraphics) {
-            ctx.strokeStyle = '#111';
+            ctx.strokeStyle = '#050a04';
+            ctx.lineWidth = 1;
             ctx.stroke();
         }
     }
 
-    // Подписи для редактора
     if (gameState === 'SANDBOX_EDIT') {
-        ctx.fillStyle = '#f7d474';
-        ctx.font = 'bold 13px "Outfit"';
+        ctx.fillStyle = '#fae08f';
+        ctx.font = 'bold 14px "Outfit"';
         ctx.textAlign = 'center';
-        ctx.fillText('КОСМИЧЕСКИЙ РЕДАКТОР: Кликайте по сетке для расстановки', canvas.width / 2, 28);
+        ctx.fillText('РЕДАКТОР СЕКТОРА: Кликайте по сетке для дизайна', canvas.width / 2, 28);
     }
 
-    // Пауза
     if (gameState === 'PAUSED') {
-        ctx.fillStyle = 'rgba(10, 15, 9, 0.9)';
+        ctx.fillStyle = 'rgba(6, 10, 5, 0.92)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = '#a7d973';
-        ctx.font = 'bold 22px "Outfit"';
+        ctx.font = 'bold 24px "Outfit"';
         ctx.textAlign = 'center';
         ctx.fillText('ТРАНСПОРТИРОВКА НА ПАУЗЕ', canvas.width / 2, canvas.height / 2);
-        ctx.font = '12px "Outfit"';
-        ctx.fillStyle = '#a5bda1';
-        ctx.fillText('Кликните по экрану или нажмите Space для старта', canvas.width / 2, canvas.height / 2 + 30);
+        ctx.font = '13px "Outfit"';
+        ctx.fillStyle = '#9cb299';
+        ctx.fillText('Кликните по экрану или нажмите Space для продолжения', canvas.width / 2, canvas.height / 2 + 35);
     }
 
     ctx.restore();
