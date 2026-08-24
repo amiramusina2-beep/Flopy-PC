@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Fropy (ALPHA)</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap');
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #141913;
+            color: #e2e8df;
+            font-family: 'Outfit', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        .arcade-cabinet {
+            background: #1c2619;
+            padding: 24px;
+            border-radius: 16px;
+            border: 2px solid #364d2d;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+            text-align: center;
+        }
+        .screen-border {
+            position: relative;
+            border-radius: 10px;
+            border: 2px solid #2d4025;
+            background: #182215;
+            overflow: hidden;
+            width: 800px;
+            height: 500px;
+        }
+        canvas {
+            display: block;
+            background: linear-gradient(to bottom, #293b22, #121a10);
+        }
+        
+        /* СТИЛЬНОЕ МЕНЮ (FROPY STYLE) */
+        .menu-screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(18, 26, 17, 0.96);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+            padding: 45px;
+            overflow-y: auto;
+        }
+        .menu-left-panel {
+            width: 44%;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: left;
+            border-right: 2px solid rgba(54, 77, 45, 0.4);
+            padding-right: 30px;
+        }
+        .menu-right-panel {
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        h1 {
+            color: #9ac26d;
+            font-size: 32px;
+            font-weight: 700;
+            margin: 0 0 8px 0;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 10px rgba(154, 194, 109, 0.3);
+        }
+        .alpha-badge {
+            background: #364d2d;
+            color: #b5e084;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+        .menu-desc {
+            font-size: 12px;
+            color: #9cb392;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+        .menu-btn {
+            background: #24331e;
+            border: 1px solid #45633a;
+            color: #d6e8cc;
+            padding: 12px 18px;
+            border-radius: 8px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+            max-width: 320px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .menu-btn:hover {
+            background: #537745;
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(83, 119, 69, 0.4);
+        }
+        .status-bar {
+            position: absolute;
+            top: 12px; left: 15px; right: 15px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            font-weight: 600;
+            pointer-events: none;
+            color: #fff;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+            z-index: 5;
+        }
+        .sandbox-panel {
+            position: absolute;
+            bottom: 12px; left: 12px; right: 12px;
+            background: rgba(24, 34, 21, 0.95);
+            border: 1px solid #45633a;
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            font-size: 10px;
+            font-weight: 600;
+            z-index: 5;
+        }
+        .sandbox-btn {
+            background: #141b13;
+            border: 1px solid #45633a;
+            color: #9ac26d;
+            padding: 7px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+            font-size: 10px;
+            font-weight: 600;
+            transition: 0.15s;
+        }
+        .sandbox-btn.active, .sandbox-btn:hover {
+            background: #537745;
+            color: #fff;
+        }
+        .notification {
+            position: absolute;
+            top: 55px; left: 50%;
+            transform: translateX(-50%);
+            background: rgba(24, 34, 21, 0.95);
+            border: 2px solid #e0b441;
+            color: #f3ce69;
+            padding: 10px 22px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            z-index: 20;
+            display: none;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(224, 180, 65, 0.3);
+        }
+        .shop-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 15px;
+            max-width: 540px;
+            width: 100%;
+        }
+        .shop-item {
+            background: #1b2718;
+            border: 1px solid #3b5430;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 10px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .shop-item div { margin-bottom: 6px; }
+        .footer-credits {
+            margin-top: 14px;
+            font-size: 10px;
+            color: #618055;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="arcade-cabinet">
+        <div class="screen-border">
+            
+            <!-- УВЕДОМЛЕНИЕ -->
+            <div id="notificationBox" class="notification">Сообщение</div>
+
+            <!-- ГЛАВНОЕ МЕНЮ (FROPY) -->
+            <div id="mainMenu" class="menu-screen">
+                <div class="menu-left-panel">
+                    <h1>Fropy</h1>
+                    <div class="alpha-badge">ALPHA EDITION</div>
+                    <div class="menu-desc">
+                        Аркадный полигон с динамичным разрушением блоков, бонусами, редактором уровней и кастомными апгрейдами платформы.
+                    </div>
+                    <div style="font-size: 11px; color: #f3ce69; background: #182215; padding: 12px 18px; border: 1px solid #3b5430; border-radius: 8px; width: 100%;">
+                        БАЛАНС ДЕТАЛЕЙ: <br><span id="coinDisplay" style="font-size: 20px; font-weight: 700;">100</span> ⚙️
+                    </div>
+                </div>
+                <div class="menu-right-panel">
+                    <button class="menu-btn" onclick="startGame('single')">ПОЛИГОН (ОДИНОЧНАЯ)</button>
+                    <button class="menu-btn" id="playSandboxBtn" style="display: none; border-color: #e0b441; color: #f3ce69;" onclick="startCustomSandboxGame()">ИГРАТЬ В СВОЙ УРОВЕНЬ</button>
+                    <button class="menu-btn" onclick="openSandboxEditor()">РЕДАКТОР УРОВНЯ</button>
+                    <button class="menu-btn" onclick="openShop()">МАГАЗИН</button>
+                    <button class="menu-btn" onclick="claimDailyReward()" style="border-color: #4b8a45; color: #9be68e;">ЕЖЕДНЕВНЫЙ БОНУС 🎁</button>
+                    <button class="menu-btn" onclick="openSettings()">НАСТРОЙКИ</button>
+                </div>
+            </div>
+
+            <!-- МАГАЗИН -->
+            <div id="shopMenu" class="menu-screen" style="display: none; flex-direction: column; justify-content: flex-start; padding: 30px;">
+                <h1>МАГАЗИН</h1>
+                <div style="font-size: 11px; color: #f3ce69; margin-bottom: 12px; font-weight: 600;">БАЛАНС: <span id="shopCoinDisplay">0</span> ⚙️</div>
+                <div class="shop-container" id="shopItemsList"></div>
+                <button class="menu-btn" onclick="closeShop()" style="margin-top: auto; max-width: 200px;">НАЗАД</button>
+            </div>
+
+            <!-- НАСТРОЙКИ -->
+            <div id="settingsMenu" class="menu-screen" style="display: none; flex-direction: column; justify-content: center; align-items: center;">
+                <h1>НАСТРОЙКИ</h1>
+                <div style="display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 300px; align-items: center; margin-top: 10px;">
+                    <button class="menu-btn" id="soundToggleBtn" onclick="toggleSound()">ЗВУК: ВКЛ</button>
+                    <button class="menu-btn" id="graphicsToggleBtn" onclick="toggleGraphics()">ГРАФИКА: ВЫСОКАЯ (FX)</button>
+                    <button class="menu-btn" onclick="closeSettings()" style="margin-top: 15px;">НАЗАД</button>
+                </div>
+            </div>
+
+            <!-- ИГРОВОЙ ИНТЕРФЕЙС -->
+            <div id="statusBar" class="status-bar" style="display: none;">
+                <div>ОЧКИ: <span id="scoreText" style="color: #9ac26d;">0</span></div>
+                <div>ДЕТАЛИ: <span id="gameCoinText" style="color: #f3ce69;">0</span></div>
+                <div>ПРОЧНОСТЬ: <span id="livesText" style="color: #e86b6b;">3</span></div>
+            </div>
+
+            <!-- ПАНЕЛЬ РЕДАКТОРА -->
+            <div id="sandboxPanel" class="sandbox-panel" style="display: none;">
+                <div style="font-size:10px;">ТИП БЛОКА:</div>
+                <button class="sandbox-btn active" onclick="setSandboxPower('none')" id="sb-none">БАЗОВЫЙ</button>
+                <button class="sandbox-btn" onclick="setSandboxPower('multiball')" id="sb-multiball">МУЛЬТИ (M)</button>
+                <button class="sandbox-btn" onclick="setSandboxPower('wide')" id="sb-wide">ШИРОКИЙ (W)</button>
+                <button class="sandbox-btn" onclick="setSandboxPower('laser')" id="sb-laser">ЛАЗЕР (L)</button>
+                <button class="sandbox-btn" onclick="saveAndExitSandbox()" style="border-color: #e0b441; color: #f3ce69;">СОХРАНИТЬ</button>
+            </div>
+
+            <canvas id="gameCanvas" width="800" height="500"></canvas>
+        </div>
+
+        <div class="footer-credits">
+            FROPY (ALPHA) &bull; ARCADE EDITION
+        </div>
+    </div>
+
+<script>
+let soundEnabled = true;
+let highGraphics = true;
+
+// СОХРАНЕНИЕ ПРОГРЕССА
+let coins = parseInt(localStorage.getItem('fropy_coins')) || 100;
+let playerSkins = JSON.parse(localStorage.getItem('fropy_skins')) || { gold: false, neon: false };
+let playerUpgrades = JSON.parse(localStorage.getItem('fropy_upgrades')) || { extraLife: false, laserPower: false };
+
+let sandboxLevelCreated = localStorage.getItem('fropy_sandbox_exists') === 'true';
+let customSavedBricks = JSON.parse(localStorage.getItem('fropy_sandbox_bricks')) || [];
+
+if (sandboxLevelCreated) {
+    document.getElementById('playSandboxBtn').style.display = 'block';
+}
+
+function saveProgress() {
+    localStorage.setItem('fropy_coins', coins);
+    localStorage.setItem('fropy_skins', JSON.stringify(playerSkins));
+    localStorage.setItem('fropy_upgrades', JSON.stringify(playerUpgrades));
+    localStorage.setItem('fropy_sandbox_exists', sandboxLevelCreated);
+    localStorage.setItem('fropy_sandbox_bricks', JSON.stringify(customSavedBricks));
+}
+
+function updateCoinDisplays() {
+    document.getElementById('coinDisplay').innerText = coins;
+    document.getElementById('shopCoinDisplay').innerText = coins;
+    saveProgress();
+}
+updateCoinDisplays();
+
+function showNotify(text) {
+    let box = document.getElementById('notificationBox');
+    box.innerText = text;
+    box.style.display = 'block';
+    setTimeout(() => box.style.display = 'none', 3000);
+}
+
+// МАГАЗИН
+const shopCatalog = [
+    { id: 'gold', name: 'СКИН: ТИТАН', type: 'item', cost: 150, desc: 'Прочная золотая платформа' },
+    { id: 'neon', name: 'СКИН: НЕОН', type: 'item', cost: 250, desc: 'Яркий неоновый стиль' },
+    { id: 'extraLife', name: '+1 ЖИЗНЬ НА СТАРТ', type: 'item', cost: 200, desc: 'Начинать заезд с 4 жизнями' },
+    { id: 'laserPower', name: 'БЫСТРЫЙ ЛАЗЕР', type: 'item', cost: 300, desc: 'Ускоренная стрельба лазером' },
+    { id: 'buyCoins', name: 'ПАКЕТ ДЕТАЛЕЙ (+50)', type: 'action', cost: 50, desc: 'Мгновенная покупка валюты' },
+    { id: 'buyScore', name: '+500 ОЧКОВ', type: 'action', cost: 100, desc: 'Мгновенное добавление очков' }
+];
+
+function renderShop() {
+    let list = document.getElementById('shopItemsList');
+    list.innerHTML = '';
+    shopCatalog.forEach(item => {
+        let isPurchased = false;
+        if (item.type === 'item') {
+            if (item.id === 'gold' && playerSkins.gold) isPurchased = true;
+            if (item.id === 'neon' && playerSkins.neon) isPurchased = true;
+            if (item.id === 'extraLife' && playerUpgrades.extraLife) isPurchased = true;
+            if (item.id === 'laserPower' && playerUpgrades.laserPower) isPurchased = true;
+        }
+
+        list.innerHTML += `
+            <div class="shop-item">
+                <div><strong>${item.name}</strong></div>
+                <div style="color:#9cb392; font-size:9px;">${item.desc}</div>
+                <div style="color:#f3ce69; font-weight: 600;">${item.cost} ⚙️</div>
+                <button class="sandbox-btn" onclick="buyShopItem('${item.id}', '${item.type}', ${item.cost})" ${isPurchased ? 'style="border-color:#333; color:#666;"' : ''}>
+                    ${isPurchased ? 'КУПЛЕНО' : 'КУПИТЬ'}
+                </button>
+            </div>
+        `;
+    });
+}
+
+function buyShopItem(id, type, cost) {
+    if (type === 'item') {
+        if (id === 'gold' && playerSkins.gold) return showNotify('Уже установлено!');
+        if (id === 'neon' && playerSkins.neon) return showNotify('Уже установлено!');
+        if (id === 'extraLife' && playerUpgrades.extraLife) return showNotify('Уже установлено!');
+        if (id === 'laserPower' && playerUpgrades.laserPower) return showNotify('Уже установлено!');
+    }
+
+    if (coins >= cost) {
+        coins -= cost;
+        if (id === 'gold') playerSkins.gold = true;
+        if (id === 'neon') playerSkins.neon = true;
+        if (id === 'extraLife') playerUpgrades.extraLife = true;
+        if (id === 'laserPower') playerUpgrades.laserPower = true;
+        
+        if (id === 'buyCoins') coins += 100;
+        if (id === 'buyScore') showNotify('Очки успешно добавлены!');
+
+        updateCoinDisplays();
+        renderShop();
+        showNotify('Успешно приобретено!');
+    } else {
+        showNotify('Недостаточно деталей (монет)! ⚙️');
+    }
+}
+
+function toggleSound() {
+    soundEnabled = !soundEnabled;
+    document.getElementById('soundToggleBtn').innerText = `ЗВУК: ${soundEnabled ? 'ВКЛ' : 'ВЫКЛ'}`;
+}
+
+function toggleGraphics() {
+    highGraphics = !highGraphics;
+    document.getElementById('graphicsToggleBtn').innerText = `ГРАФИКА: ${highGraphics ? 'ВЫСОКАЯ (FX)' : 'БАЗОВАЯ'}`;
+}
+
+function openShop() {
+    document.getElementById('mainMenu').style.display = 'none';
+    document.getElementById('shopMenu').style.display = 'flex';
+    renderShop();
+    updateCoinDisplays();
+}
+function closeShop() {
+    document.getElementById('shopMenu').style.display = 'none';
+    document.getElementById('mainMenu').style.display = 'flex';
+}
+
+function claimDailyReward() {
+    let lastClaim = localStorage.getItem('fropy_last_claim');
+    let today = new Date().toDateString();
+    if (lastClaim === today) {
+        showNotify('Награда за сегодня уже забрана!');
+    } else {
+        coins += 100;
+        localStorage.setItem('fropy_last_claim', today);
+        updateCoinDisplays();
+        showNotify('🎁 Бонус получен: +100 деталей!');
+    }
+}
+
+function openSettings() {
+    document.getElementById('mainMenu').style.display = 'none';
+    document.getElementById('settingsMenu').style.display = 'flex';
+}
+function closeSettings() {
+    document.getElementById('settingsMenu').style.display = 'none';
+    document.getElementById('mainMenu').style.display = 'flex';
+}
+function backToMenu() {
+    gameState = 'MENU';
+    document.getElementById('mainMenu').style.display = 'flex';
+    document.getElementById('shopMenu').style.display = 'none';
+    document.getElementById('settingsMenu').style.display = 'none';
+    document.getElementById('statusBar').style.display = 'none';
+    document.getElementById('sandboxPanel').style.display = 'none';
+    document.exitPointerLock();
+    updateCoinDisplays();
+}
+
+function startGame(mode) {
+    document.getElementById('mainMenu').style.display = 'none';
+    document.getElementById('statusBar').style.display = 'flex';
+    initGame('single');
+}
+
+function openSandboxEditor() {
+    document.getElementById('mainMenu').style.display = 'none';
+    document.getElementById('statusBar').style.display = 'flex';
+    document.getElementById('sandboxPanel').style.display = 'flex';
+    initGame('sandbox_edit');
+}
+
+function saveAndExitSandbox() {
+    customSavedBricks = JSON.parse(JSON.stringify(bricks.filter(b => b.status === 1)));
+    if (customSavedBricks.length > 0) {
+        sandboxLevelCreated = true;
+        document.getElementById('playSandboxBtn').style.display = 'block';
+        saveProgress();
+        showNotify('Уровень успешно сохранен!');
+    } else {
+        showNotify('Разместите хотя бы один блок!');
+        return;
+    }
+    backToMenu();
+}
+
+function startCustomSandboxGame() {
+    document.getElementById('mainMenu').style.display = 'none';
+    document.getElementById('statusBar').style.display = 'flex';
+    initGame('sandbox_play');
+}
+
+// ЗВУКОВОЙ ДВИЖОК
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function playSound(type) {
+    if (!soundEnabled) return;
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    let t = audioCtx.currentTime;
+
+    if (type === 'hit') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(120, t);
+        osc.frequency.exponentialRampToValueAtTime(40, t + 0.06);
+        gain.gain.setValueAtTime(0.12, t);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + 0.06);
+        osc.start(t); osc.stop(t + 0.06);
+    } else if (type === 'brick') {
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(280, t);
+        osc.frequency.exponentialRampToValueAtTime(150, t + 0.09);
+        gain.gain.setValueAtTime(0.1, t);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + 0.09);
+        osc.start(t); osc.stop(t + 0.09);
+    } else if (type === 'powerup') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(300, t);
+        osc.frequency.exponentialRampToValueAtTime(700, t + 0.12);
+        gain.gain.setValueAtTime(0.1, t);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + 0.12);
+        osc.start(t); osc.stop(t + 0.12);
+    }
+}
+
+// ИГРОВЫЕ ПЕРЕМЕННЫЕ
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+let gameState = 'MENU';
+let currentMode = 'single';
+
+let score = 0;
+let gameCoins = 0;
+let lives = 3;
+let paddle = { x: 350, y: 460, width: 100, baseWidth: 100, height: 12, speed: 8, laserActive: false, lastShotTime: 0 };
+let balls = [];
+let bricks = [];
+let powerUps = [];
+let bullets = [];
+
+let selectedSandboxPower = 'none';
+
+function setSandboxPower(type) {
+    selectedSandboxPower = type;
+    document.querySelectorAll('.sandbox-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('sb-' + type).classList.add('active');
+}
+
+const brickRows = 5;
+const brickCols = 10;
+const brickWidth = 70;
+const brickHeight = 20;
+const brickPadding = 10;
+const brickOffsetTop = 50;
+const brickOffsetLeft = 35;
+
+function initGame(mode) {
+    currentMode = mode;
+    if (mode === 'sandbox_edit') gameState = 'SANDBOX_EDIT';
+    else gameState = 'PLAYING';
+
+    score = 0;
+    gameCoins = 0;
+    lives = 3 + (playerUpgrades.extraLife ? 1 : 0);
+    paddle.x = canvas.width / 2 - 50;
+    paddle.width = paddle.baseWidth;
+    paddle.laserActive = false;
+    powerUps = [];
+    bullets = [];
+    
+    document.getElementById('scoreText').innerText = score;
+    document.getElementById('gameCoinText').innerText = gameCoins;
+    document.getElementById('livesText').innerText = lives;
+
+    bricks = [];
+    if (mode === 'sandbox_play') {
+        bricks = JSON.parse(JSON.stringify(customSavedBricks));
+    } else {
+        const blockColors = ['#5b7c99', '#4d8c6c', '#9c7c4d', '#8c4d8c', '#4d9c8c'];
+        for (let r = 0; r < brickRows; r++) {
+            for (let c = 0; c < brickCols; c++) {
+                let randomColor = blockColors[Math.floor(Math.random() * blockColors.length)];
+                let powers = ['none', 'none', 'multiball', 'wide', 'laser'];
+                let pType = powers[Math.floor(Math.random() * powers.length)];
+                bricks.push({
+                    x: c * (brickWidth + brickPadding) + brickOffsetLeft,
+                    y: r * (brickHeight + brickPadding) + brickOffsetTop,
+                    width: brickWidth,
+                    height: brickHeight,
+                    status: mode === 'sandbox_edit' ? 0 : 1,
+                    color: randomColor,
+                    power: pType
+                });
+            }
+        }
+    }
+
+    balls = [{
+        x: paddle.x + paddle.width / 2,
+        y: paddle.y - 10,
+        radius: 6,
+        dx: 3,
+        dy: -4,
+        stuck: true
+    }];
+
+    if (mode !== 'sandbox_edit') {
+        canvas.requestPointerLock();
+    } else {
+        document.exitPointerLock();
+    }
+}
+
+canvas.addEventListener('click', () => {
+    if (gameState === 'SANDBOX_EDIT') return;
+    if (document.pointerLockElement !== canvas) {
+        canvas.requestPointerLock();
+        if (gameState === 'PAUSED') gameState = 'PLAYING';
+    } else if (balls.some(b => b.stuck)) {
+        balls.forEach(b => b.stuck = false);
+    }
+});
+
+canvas.addEventListener('mousedown', (e) => {
+    if (gameState === 'SANDBOX_EDIT') {
+        const rect = canvas.getBoundingClientRect();
+        let mouseX = e.clientX - rect.left;
+        let mouseY = e.clientY - rect.top;
+
+        for (let b of bricks) {
+            if (mouseX >= b.x && mouseX <= b.x + b.width && mouseY >= b.y && mouseY <= b.y + b.height) {
+                b.status = b.status === 1 ? 0 : 1;
+                if (b.status === 1) {
+                    b.power = selectedSandboxPower;
+                    const blockColors = ['#5b7c99', '#4d8c6c', '#9c7c4d', '#8c4d8c', '#4d9c8c'];
+                    b.color = blockColors[Math.floor(Math.random() * blockColors.length)];
+                }
+                break;
+            }
+        }
+    }
+});
+
+document.addEventListener('mousemove', (e) => {
+    if (gameState === 'SANDBOX_EDIT') return;
+    if (document.pointerLockElement === canvas && gameState === 'PLAYING') {
+        paddle.x += e.movementX;
+        if (paddle.x < 0) paddle.x = 0;
+        if (paddle.x + paddle.width > canvas.width) paddle.x = canvas.width - paddle.width;
+    }
+});
+
+document.addEventListener('pointerlockchange', () => {
+    if (document.pointerLockElement !== canvas && gameState === 'PLAYING') {
+        gameState = 'PAUSED';
+    }
+});
+
+const keys = { left: false, right: false };
+window.addEventListener('keydown', (e) => {
+    if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = true;
+    if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = true;
+
+    if (e.code === 'ControlLeft' || e.code === 'ControlRight') {
+        e.preventDefault();
+        if (gameState === 'PLAYING') { gameState = 'PAUSED'; document.exitPointerLock(); }
+        else if (gameState === 'PAUSED') { gameState = 'PLAYING'; canvas.requestPointerLock(); }
+    }
+
+    if (e.code === 'Space' && gameState === 'PLAYING' && paddle.laserActive) {
+        e.preventDefault();
+        let t = Date.now();
+        let cooldown = playerUpgrades.laserPower ? 150 : 250;
+        if (t - paddle.lastShotTime > cooldown) {
+            bullets.push({ x: paddle.x + 12, y: paddle.y, width: 3, height: 10, dy: -7 });
+            bullets.push({ x: paddle.x + paddle.width - 15, y: paddle.y, width: 3, height: 10, dy: -7 });
+            paddle.lastShotTime = t;
+        }
+    }
+});
+
+window.addEventListener('keyup', (e) => {
+    if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = false;
+    if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = false;
+});
+
+function update() {
+    if (gameState !== 'PLAYING') return;
+
+    if (keys.left) paddle.x -= paddle.speed;
+    if (keys.right) paddle.x += paddle.speed;
+    if (paddle.x < 0) paddle.x = 0;
+    if (paddle.x + paddle.width > canvas.width) paddle.x = canvas.width - paddle.width;
+
+    // Пули лазера
+    for (let i = bullets.length - 1; i >= 0; i--) {
+        let bl = bullets[i];
+        bl.y += bl.dy;
+        if (bl.y < 0) { bullets.splice(i, 1); continue; }
+        
+        for (let b of bricks) {
+            if (b.status === 1 && bl.x > b.x && bl.x < b.x + b.width && bl.y > b.y && bl.y < b.y + b.height) {
+                b.status = 0;
+                score += 10;
+                gameCoins += 3;
+                document.getElementById('scoreText').innerText = score;
+                document.getElementById('gameCoinText').innerText = gameCoins;
+                playSound('brick');
+                bullets.splice(i, 1);
+                break;
+            }
+        }
+    }
+
+    // Мяч
+    for (let i = balls.length - 1; i >= 0; i--) {
+        let ball = balls[i];
+        if (ball.stuck) {
+            ball.x = paddle.x + paddle.width / 2;
+            ball.y = paddle.y - ball.radius - 2;
+            continue;
+        }
+
+        ball.x += ball.dx;
+        ball.y += ball.dy;
+
+        if (ball.x - ball.radius < 0) { ball.x = ball.radius; ball.dx = -ball.dx; playSound('hit'); }
+        if (ball.x + ball.radius > canvas.width) { ball.x = canvas.width - ball.radius; ball.dx = -ball.dx; playSound('hit'); }
+        if (ball.y - ball.radius < 0) { ball.y = ball.radius; ball.dy = -ball.dy; playSound('hit'); }
+
+        if (ball.x > paddle.x && ball.x < paddle.x + paddle.width && ball.y + ball.radius >= paddle.y && ball.y - paddle.y <= paddle.height) {
+            let hitPoint = ball.x - (paddle.x + paddle.width / 2);
+            let norm = hitPoint / (paddle.width / 2);
+            let angle = norm * (Math.PI / 2.5);
+            let spd = 6;
+            ball.dx = spd * Math.sin(angle);
+            ball.dy = -Math.abs(spd * Math.cos(angle));
+            playSound('hit');
+        }
+
+        if (ball.y - ball.radius > canvas.height) {
+            balls.splice(i, 1);
+        }
+    }
+
+    if (balls.length === 0) {
+        lives--;
+        document.getElementById('livesText').innerText = lives;
+        if (lives <= 0) {
+            showNotify('ПОПЫТКИ ИСЧЕРПАНЫ!');
+            coins += gameCoins;
+            updateCoinDisplays();
+            document.exitPointerLock();
+            setTimeout(backToMenu, 2000);
+        } else {
+            balls = [{ x: paddle.x + paddle.width / 2, y: paddle.y - 10, radius: 6, dx: 3, dy: -4, stuck: true }];
+        }
+    }
+
+    // Разрушение блоков и спавн бонусов
+    let activeBricksCount = 0;
+    for (let b of bricks) {
+        if (b.status === 1) {
+            activeBricksCount++;
+            for (let ball of balls) {
+                if (ball.x + ball.radius > b.x && ball.x - ball.radius < b.x + b.width && ball.y + ball.radius > b.y && ball.y - ball.radius < b.y + b.height) {
+                    ball.dy = -ball.dy;
+                    b.status = 0;
+                    score += 10;
+                    gameCoins += 5;
+                    document.getElementById('scoreText').innerText = score;
+                    document.getElementById('gameCoinText').innerText = gameCoins;
+                    playSound('brick');
+
+                    if (b.power !== 'none') {
+                        powerUps.push({ x: b.x + b.width/2 - 10, y: b.y, width: 20, height: 20, type: b.power, dy: 2 });
+                    }
+                }
+            }
+        }
+    }
+
+    if (activeBricksCount === 0) {
+        showNotify('УРОВЕНЬ ПРОЙДЕН!');
+        coins += gameCoins + 50;
+        updateCoinDisplays();
+        document.exitPointerLock();
+        setTimeout(backToMenu, 2000);
+    }
+
+    // Сбор бонусов
+    for (let i = powerUps.length - 1; i >= 0; i--) {
+        let p = powerUps[i];
+        p.y += p.dy;
+        if (p.x + p.width > paddle.x && p.x < paddle.x + paddle.width && p.y + p.height > paddle.y && p.y < paddle.y + paddle.height) {
+            playSound('powerup');
+            if (p.type === 'multiball') {
+                let base = balls[0] || { dx: 3, dy: -4 };
+                balls.push({ x: paddle.x + paddle.width/2, y: paddle.y - 15, radius: 6, dx: -base.dx, dy: base.dy, stuck: false });
+            } else if (p.type === 'wide') {
+                paddle.width = 140;
+                setTimeout(() => paddle.width = paddle.baseWidth, 8000);
+            } else if (p.type === 'laser') {
+                paddle.laserActive = true;
+                setTimeout(() => paddle.laserActive = false, 6000);
+            }
+            powerUps.splice(i, 1);
+        } else if (p.y > canvas.height) {
+            powerUps.splice(i, 1);
+        }
+    }
+}
+
+function draw() {
+    let grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    grad.addColorStop(0, '#222e3c');
+    grad.addColorStop(1, '#0f141a');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    if (gameState === 'MENU') return;
+
+    for (let b of bricks) {
+        if (b.status === 1 || gameState === 'SANDBOX_EDIT') {
+            ctx.fillStyle = b.status === 1 ? b.color : '#151c24';
+            ctx.fillRect(b.x, b.y, b.width, b.height);
+            
+            if (highGraphics) {
+                ctx.strokeStyle = '#0b0f14';
+                ctx.strokeRect(b.x, b.y, b.width, b.height);
+            }
+
+            if (b.power !== 'none' && b.status === 1) {
+                ctx.fillStyle = '#fff';
+                ctx.font = '10px "Outfit"';
+                ctx.fillText(b.power[0].toUpperCase(), b.x + b.width/2 - 4, b.y + b.height/2 + 4);
+            }
+        }
+    }
+
+    for (let p of powerUps) {
+        ctx.fillStyle = '#4c8c6c';
+        ctx.fillRect(p.x, p.y, p.width, p.height);
+        ctx.strokeStyle = '#fff';
+        ctx.strokeRect(p.x, p.y, p.width, p.height);
+        ctx.fillStyle = '#fff';
+        ctx.font = '10px "Outfit"';
+        ctx.fillText(p.type[0].toUpperCase(), p.x + 6, p.y + 14);
+    }
+
+    for (let bl of bullets) {
+        ctx.fillStyle = '#ffcc00';
+        ctx.fillRect(bl.x, bl.y, bl.width, bl.height);
+    }
+
+    if (playerSkins.gold) ctx.fillStyle = '#d4af37';
+    else if (playerSkins.neon) ctx.fillStyle = '#00ffcc';
+    else ctx.fillStyle = paddle.laserActive ? '#ff5533' : '#79a35e';
+    
+    ctx.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
+    if (highGraphics) {
+        ctx.strokeStyle = '#141c24';
+        ctx.strokeRect(paddle.x, paddle.y, paddle.width, paddle.height);
+    }
+
+    for (let ball of balls) {
+        ctx.fillStyle = '#e5e5e5';
+        ctx.beginPath();
+        ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+        ctx.fill();
+        if (highGraphics) {
+            ctx.strokeStyle = '#222';
+            ctx.stroke();
+        }
+    }
+
+    if (gameState === 'SANDBOX_EDIT') {
+        ctx.fillStyle = '#f3ce69';
+        ctx.font = '11px "Outfit"';
+        ctx.textAlign = 'center';
+        ctx.fillText('РЕДАКТОР УРОВНЯ: Кликайте для расстановки блоков', canvas.width / 2, 25);
+    }
+
+    if (gameState === 'PAUSED') {
+        ctx.fillStyle = 'rgba(18, 26, 17, 0.88)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#9ac26d';
+        ctx.font = '18px "Outfit"';
+        ctx.textAlign = 'center';
+        ctx.fillText('ИГРА НА ПАУЗЕ', canvas.width / 2, canvas.height / 2);
+        ctx.font = '11px "Outfit"';
+        ctx.fillStyle = '#b3c7aa';
+        ctx.fillText('Кликните мышкой или нажмите Ctrl для продолжения', canvas.width / 2, canvas.height / 2 + 25);
+    }
+}
+
+function loop() {
+    update();
+    draw();
+    requestAnimationFrame(loop);
+}
+
+requestAnimationFrame(loop);
+</script>
+
+</body>
+</html>
