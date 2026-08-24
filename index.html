@@ -1,3 +1,6 @@
+Вот полное обновление кода игры `index.html`. В функцию запуска мяча `releaseBalls()` добавлено отключение магнитного захвата (`paddle.magnet = false`) после первого запуска. Теперь при наличии улучшения «Магнитный захват» мяч будет удерживаться на платформе только при старте раунда/новой жизни, а при последующих падениях во время игры будет корректно отскакивать от нее.
+
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -644,6 +647,7 @@ function startGame(mode) {
     initGame('single');
 }
 
+// РЕДАКТОР САНДБОКСА
 function openSandboxEditor() {
     document.getElementById('mainMenu').style.display = 'none';
     document.getElementById('statusBar').style.display = 'flex';
@@ -895,7 +899,7 @@ let confettis = [];
 let stars = [];
 let screenShake = 0;
 
-// Инициализация красивых космических звёзд на фоне
+// Инициализация космических звёзд на фоне
 for (let i = 0; i < 50; i++) {
     stars.push({
         x: Math.random() * canvas.width,
@@ -905,7 +909,7 @@ for (let i = 0; i < 50; i++) {
     });
 }
 
-// Характеристики инопланетного корабля (UFO)
+// Характеристики UFO
 let ufo = { x: -100, y: 80, width: 55, height: 26, dx: 2, active: false, lives: 3, lastShot: 0 };
 
 let selectedSandboxPower = 'none';
@@ -1081,6 +1085,8 @@ function releaseBalls() {
             b.dy = -5;
         }
     });
+    // Отключаем магнитный захват после первого запуска, чтобы мяч отскакивал при падениях
+    paddle.magnet = false;
 }
 
 // Управление мышью
