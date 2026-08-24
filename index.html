@@ -1,6 +1,3 @@
-Вот полное обновление кода игры `index.html`. В функцию запуска мяча `releaseBalls()` добавлено отключение магнитного захвата (`paddle.magnet = false`) после первого запуска. Теперь при наличии улучшения «Магнитный захват» мяч будет удерживаться на платформе только при старте раунда/новой жизни, а при последующих падениях во время игры будет корректно отскакивать от нее.
-
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -474,8 +471,17 @@
 let soundEnabled = true;
 let highGraphics = true;
 
+// ОДНОКРАТНОЕ ОБНУЛЕНИЕ ДЕТАЛЕЙ (ЗАПУСКАЕТСЯ ОДИН РАЗ)
+if (!localStorage.getItem('fropy_coins_reset_once_v2')) {
+    localStorage.setItem('fropy_coins', '0');
+    localStorage.setItem('fropy_coins_reset_once_v2', 'true');
+}
+
 // СОХРАНЕНИЕ ПРОГРЕССА
-let coins = parseInt(localStorage.getItem('fropy_coins')) || 150;
+let coins = parseInt(localStorage.getItem('fropy_coins'));
+if (isNaN(coins)) {
+    coins = 0;
+}
 let playerSkins = JSON.parse(localStorage.getItem('fropy_skins')) || { classic: true, gold: false, neon: false };
 let equippedSkin = localStorage.getItem('fropy_equipped_skin') || 'classic';
 let playerUpgrades = JSON.parse(localStorage.getItem('fropy_upgrades')) || { extraLife: false, laserPower: false, magneticStart: false };
@@ -1063,7 +1069,7 @@ canvas.addEventListener('click', (e) => {
                 if (b.status === 1) {
                     b.power = selectedSandboxPower;
                     const colors = ['#3a86c8', '#10b981', '#fbbf24', '#f97316', '#ef4444'];
-                    b.color = colors[Math.floor(Math.random() * colors.length)];
+                    b.color = colors[Math.floor(Math.random() * blockColors.length)];
                     playSound('hit');
                 }
                 break;
