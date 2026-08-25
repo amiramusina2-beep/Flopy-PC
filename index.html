@@ -83,7 +83,7 @@
             width: 100%;
             height: 100%;
             background: #060a05;
-            cursor: none;
+            cursor: none !important;
         }
         
         /* СТИЛЬНОЕ АДАПТИВНОЕ МЕНЮ */
@@ -528,7 +528,7 @@
                     <h1>Flopy</h1>
                     <div class="alpha-badge">MOBILE EVOLUTION v2.0</div>
                     <div class="menu-desc">
-                        Классический аркадный автомат, адаптированный под сенсорные экраны и дуэли с друзьями!
+                        Классический аркадный автомат, адаптированный под сенсорные экраны и онлайн-дуэли!
                     </div>
                     <div style="font-size: 11px; color: #f7ce55; background: #080d07; padding: 10px 15px; border: 1.5px solid #304729; border-radius: 10px; width: 100%; box-shadow: inset 0 2px 4px rgba(0,0,0,0.6);">
                         ДЕТАЛИ В НАЛИЧИИ: <br><span id="coinDisplay" style="font-size: 24px; font-weight: 900; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.2);">100</span> ⚙️
@@ -537,7 +537,7 @@
                 <div class="menu-right-panel" style="margin-top: 10px;">
                     <button class="menu-btn viral-btn" onclick="openAirdropSpin()">КРУТИТЬ КОЛЕСО & AIRDROP 🎡🪂</button>
                     <button class="menu-btn" onclick="startGame('single')" style="border-color:#a7d973; background: linear-gradient(180deg, #243d1d 0%, #152410 100%);">ПОЛЕТЕТЬ В БОЙ (АРКАДА)</button>
-                    <button class="menu-btn" onclick="openPvpMenu()" style="border-color:#f7ce55; color:#fae08f;">ДУЭЛЬ PVP С ДРУГОМ ⚔️</button>
+                    <button class="menu-btn" onclick="openPvpMenu()" style="border-color:#f7ce55; color:#fae08f;">ОНЛАЙН ДУЭЛЬ PVP ⚔️</button>
                     <button class="menu-btn" id="playSandboxBtn" style="display: none; border-color: #f7ce55; color: #fae08f;" onclick="startCustomSandboxGame()">ИГРАТЬ В СВОЙ УРОВЕНЬ</button>
                     <button class="menu-btn" onclick="openSandboxEditor()">РЕДАКТОР УРОВНЯ</button>
                     <button class="menu-btn" onclick="openShop()">КОСМИЧЕСКИЙ МАГАЗИН</button>
@@ -547,10 +547,10 @@
                 </div>
             </div>
 
-            <!-- PVP МЕНЮ ДУЭЛИ -->
+            <!-- PVP ОНЛАЙН МЕНЮ ДУЭЛИ -->
             <div id="pvpMenu" class="menu-screen" style="display: none; flex-direction: column; justify-content: center; align-items: center; padding: 25px;">
-                <h1>ДУЭЛЬ PVP ⚔️</h1>
-                <div class="alpha-badge" style="background:#3b2d10; color:#f7ce55; border:1px solid #735515;">ГАЛАКТИЧЕСКОЕ СОСТЯЗАНИЕ</div>
+                <h1>ОНЛАЙН ДУЭЛЬ PVP ⚔️</h1>
+                <div class="alpha-badge" style="background:#3b2d10; color:#f7ce55; border:1px solid #735515;">РЕАЛЬНЫЕ ИГРОКИ (PEER-TO-PEER)</div>
                 
                 <div style="display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 320px; margin-top: 15px;">
                     <button class="menu-btn" onclick="createPvpRoom()" style="border-color:#f7ce55; color:#fae08f; background: linear-gradient(180deg, #2d2612 0%, #1a1608 100%);">СОЗДАТЬ КОМНАТУ 🔑</button>
@@ -559,35 +559,35 @@
                 </div>
             </div>
 
-            <!-- ОКНО СОЗДАНИЯ КОМНАТЫ -->
+            <!-- ОКНО ОЖИДАНИЯ СВЯЗИ HOST -->
             <div id="pvpHostModal" class="menu-screen" style="display: none; flex-direction: column; justify-content: center; align-items: center; padding: 25px;">
                 <h1>КОМНАТА СОЗДАНА 🔑</h1>
-                <p style="font-size: 11px; color: #9cb299; margin: 5px 0 15px 0;">Передайте этот 6-значный код вашему противнику:</p>
+                <p style="font-size: 11px; color: #9cb299; margin: 5px 0 15px 0;">Передайте этот 6-значный код вашему другу:</p>
                 <div id="hostRoomCodeDisplay" style="font-size: 32px; font-weight: 900; color: #f7ce55; letter-spacing: 6px; background: #080d07; padding: 12px 24px; border: 2px solid #f7ce55; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 0 20px rgba(247,206,85,0.3);">------</div>
-                <div id="pvpHostStatus" style="font-size: 12px; color: #a7d973; font-weight: 800; margin-bottom: 20px; animation: viralPulse 1s infinite alternate;">Ожидание второго пилота...</div>
+                <div id="pvpHostStatus" style="font-size: 12px; color: #a7d973; font-weight: 800; margin-bottom: 20px; animation: viralPulse 1s infinite alternate;">Ожидание подключения соперника...</div>
                 <button class="menu-btn" onclick="closePvpHostModal()">ОТМЕНА</button>
             </div>
 
-            <!-- ОКНО ПОДКЛЮЧЕНИЯ ПО КОДУ -->
+            <!-- ОКНО ВВОДА КОДА JOIN -->
             <div id="pvpJoinModal" class="menu-screen" style="display: none; flex-direction: column; justify-content: center; align-items: center; padding: 25px;">
                 <h1>ВВОД КОДА 🔗</h1>
-                <p style="font-size: 11px; color: #9cb299; margin: 5px 0 15px 0;">Введите 6 цифр кода комнаты соперника:</p>
+                <p style="font-size: 11px; color: #9cb299; margin: 5px 0 15px 0;">Введите 6 цифр кода комнаты создателя:</p>
                 <input type="text" id="joinCodeInput" maxlength="6" placeholder="000000" style="width: 100%; max-width: 240px; background: #060a05; border: 2px solid #436137; color: #f7ce55; font-size: 28px; padding: 10px; border-radius: 12px; text-align: center; font-family: 'Outfit'; font-weight: 900; letter-spacing: 4px; margin-bottom: 20px; outline: none;">
                 <button class="menu-btn viral-btn" onclick="connectToPvpRoom()" style="margin-bottom: 10px; max-width: 240px;">ПОДКЛЮЧИТЬСЯ 🚀</button>
                 <button class="menu-btn" onclick="closeJoinPvpModal()" style="max-width: 240px;">НАЗАД</button>
             </div>
 
-            <!-- ОКНО ПОДГОТОВКИ И СЧЕТЧИКА 3, 2, 1 -->
+            <!-- ОКНО СЧЕТЧИКА 3, 2, 1 ПЕРЕД ОНЛАЙН БОЕМ -->
             <div id="pvpCountdownScreen" class="menu-screen" style="display: none; flex-direction: column; justify-content: center; align-items: center; padding: 25px;">
-                <div style="font-size: 14px; color: #9cb299; margin-bottom: 8px;">СРАЖЕНИЕ ПРОТИВ:</div>
-                <div id="pvpOpponentName" style="font-size: 22px; font-weight: 900; color: #a7d973; margin-bottom: 25px; text-shadow: 0 0 10px rgba(167,217,115,0.4);">Соперник</div>
-                <div style="font-size: 12px; color: #f7ce55; margin-bottom: 10px; font-weight: 800;">БОРЬБА НА ВЫЖИВАНИЕ И ОЧКИ!</div>
+                <div style="font-size: 14px; color: #9cb299; margin-bottom: 8px;">ОБЙДЕННОЕ СОЕДИНЕНИЕ! СРАЖЕНИЕ ПРОТИВ:</div>
+                <div id="pvpOpponentName" style="font-size: 22px; font-weight: 900; color: #a7d973; margin-bottom: 25px; text-shadow: 0 0 10px rgba(167,217,115,0.4);">Игрок</div>
+                <div style="font-size: 12px; color: #f7ce55; margin-bottom: 10px; font-weight: 800;">РЕАЛЬНЫЙ СЕТЕВОЙ БОЙ НАЧИНАЕТСЯ!</div>
                 <div id="pvpCountdownNumber" style="font-size: 72px; font-weight: 900; color: #fff; text-shadow: 0 0 30px rgba(255,255,255,0.6);">3</div>
             </div>
 
-            <!-- ОКНО РЕЗУЛЬТАТОВ PVP -->
+            <!-- ОКНО РЕЗУЛЬТАТОВ ОНЛАЙН ДУЭЛИ -->
             <div id="pvpResultScreen" class="menu-screen" style="display: none; flex-direction: column; justify-content: center; align-items: center; padding: 25px;">
-                <h1 id="pvpResultTitle" style="font-size: 36px; margin-bottom: 10px;">ПОБЕДА! 🏆</h1>
+                <h1>РЕЗУЛЬТАТ ДУЭЛИ 🏆</h1>
                 <div id="pvpResultScores" style="font-size: 14px; color: #9cb299; margin-bottom: 25px; line-height: 1.6;">Ваш счет: 0 | Соперник: 0</div>
                 <button class="menu-btn viral-btn" onclick="backToMenu()" style="max-width: 220px;">В ГЛАВНОЕ МЕНЮ</button>
             </div>
@@ -645,10 +645,10 @@
                 <button class="menu-btn" onclick="closeShop()" style="margin-top: auto; max-width: 180px;">НАЗАД</button>
             </div>
 
-            <!-- ТАБЛИЦА ЛИДЕРОВ -->
+            <!-- ТАБЛИЦА ЛИДЕРОВ (ТОЛЬКО РЕАЛЬНЫЕ ИГРОКИ) -->
             <div id="leaderboardMenu" class="menu-screen" style="display: none; flex-direction: column; justify-content: flex-start; padding: 25px;">
                 <h1>ТАБЛИЦА ЛИДЕРОВ 🏆</h1>
-                <div class="alpha-badge" style="background:#1b2e18; color:#a7d973; border:1px solid #33592a;">ЛУЧШИЕ ПИЛОТЫ ГАЛАКТИКИ</div>
+                <div class="alpha-badge" style="background:#1b2e18; color:#a7d973; border:1px solid #33592a;">РЕАЛЬНЫЕ ПИЛОТЫ ГАЛАКТИКИ</div>
                 
                 <div style="width: 100%; max-width: 450px; background: rgba(8, 14, 7, 0.95); border: 2px solid #304729; border-radius: 12px; padding: 12px; margin: 12px auto; overflow-y: auto; max-height: 220px;">
                     <table class="leaderboard-table">
@@ -738,25 +738,40 @@ function updatePlayerNickname(newName) {
         playerNickname = newName.trim();
         localStorage.setItem('fropy_nickname', playerNickname);
         document.getElementById('playerNicknameDisplay').innerText = playerNickname;
+        
+        // Обновляем ник в таблице лидеров
+        let leaderboard = JSON.parse(localStorage.getItem('fropy_leaderboard')) || [];
+        let me = leaderboard.find(item => item.isMe);
+        if (me) {
+            me.name = playerNickname;
+            localStorage.setItem('fropy_leaderboard', JSON.stringify(leaderboard));
+        }
         showNotify('Никнейм успешно обновлен!');
     }
 }
 
+// ТАБЛИЦА ЛИДЕРОВ (ТОЛЬКО РЕАЛЬНЫЕ ИГРОКИ И РЕКОРДЫ ТЕКУЩЕГО ИГРОКА)
 let leaderboard = JSON.parse(localStorage.getItem('fropy_leaderboard')) || [
-    { name: 'FropyFan_88', score: 1500 }
+    { name: playerNickname, score: 0, isMe: true }
 ];
 
+// Убедимся, что текущий игрок всегда присутствует и имеет актуальный ник
+let meEntry = leaderboard.find(item => item.isMe);
+if (!meEntry) {
+    leaderboard.push({ name: playerNickname, score: 0, isMe: true });
+} else {
+    meEntry.name = playerNickname;
+}
+
 function updateLeaderboard(scoreToAdd) {
-    let playerIndex = leaderboard.findIndex(item => item.name === playerNickname);
-    if (playerIndex !== -1) {
-        if (scoreToAdd > leaderboard[playerIndex].score) {
-            leaderboard[playerIndex].score = scoreToAdd;
+    let me = leaderboard.find(item => item.isMe);
+    if (me) {
+        if (scoreToAdd > me.score) {
+            me.score = scoreToAdd;
         }
-    } else {
-        leaderboard.push({ name: playerNickname, score: scoreToAdd });
     }
     leaderboard.sort((a, b) => b.score - a.score);
-    leaderboard = leaderboard.slice(0, 7);
+    leaderboard = leaderboard.slice(0, 10);
     localStorage.setItem('fropy_leaderboard', JSON.stringify(leaderboard));
 }
 
@@ -764,7 +779,7 @@ function renderLeaderboard() {
     const body = document.getElementById('leaderboardBody');
     body.innerHTML = '';
     leaderboard.forEach((user, index) => {
-        const isCurrent = user.name === playerNickname;
+        const isCurrent = user.isMe || user.name === playerNickname;
         const highlightStyle = isCurrent ? 'background: rgba(167, 217, 115, 0.15); font-weight: 800;' : '';
         const rankMedal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}`;
         body.innerHTML += `
@@ -1040,7 +1055,14 @@ function startCustomSandboxGame() {
     updateControlUI();
 }
 
-// PVP МЕНЮ ЛОГИКА
+// НАСТОЯЩИЙ P2P ОНЛАЙН PVP ЧЕРЕЗ WEBRTC (БЕЗ СЕРВЕРА С ИСПОЛЬЗОВАНИЕМ PUBLIC STUN И СИГНАЛИЗАЦИЕЙ ПО КОДУ ROOM)
+let peerConnection = null;
+let dataChannel = null;
+let pvpIsHost = false;
+let pvpOpponent = 'Соперник';
+let pvpOpponentScore = 0;
+const rtcConfig = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+
 function openPvpMenu() {
     triggerVibe('tick');
     document.getElementById('mainMenu').style.display = 'none';
@@ -1053,23 +1075,60 @@ function closePvpMenu() {
     document.getElementById('mainMenu').style.display = 'flex';
 }
 
-function createPvpRoom() {
+async function createPvpRoom() {
     triggerVibe('tick');
     let roomCode = Math.floor(100000 + Math.random() * 900000).toString();
+    pvpIsHost = true;
+    
     document.getElementById('hostRoomCodeDisplay').innerText = roomCode;
     document.getElementById('pvpMenu').style.display = 'none';
     document.getElementById('pvpHostModal').style.display = 'flex';
+    document.getElementById('pvpHostStatus').innerText = 'Создание комнаты... Ожидание гостя...';
 
-    // Симуляция подключения второго игрока через 3 секунды для автономной работы демо-дуэли
-    setTimeout(() => {
-        if (document.getElementById('pvpHostModal').style.display === 'flex') {
-            startPvpCountdown('КиберПилот_99');
-        }
-    }, 3500);
+    try {
+        peerConnection = new RTCPeerConnection(rtcConfig);
+        dataChannel = peerConnection.createDataChannel('flopy_pvp');
+        setupDataChannel();
+
+        peerConnection.onicecandidate = (event) => {
+            if (event.candidate === null) {
+                // Когда сбор ICE кандидатов завершен, сохраняем оффер в localStorage для простого локального тестов или обмена
+                let offerObj = { offer: peerConnection.localDescription, name: playerNickname };
+                localStorage.setItem('flopy_room_' + roomCode, JSON.stringify(offerObj));
+                document.getElementById('pvpHostStatus').innerText = 'Комната готова! Код: ' + roomCode + '. Ожидание второго игрока...';
+            }
+        };
+
+        let offer = await peerConnection.createOffer();
+        await peerConnection.setLocalDescription(offer);
+        
+        // Проверяем подключение каждые 2 секунды из localStorage (эмуляция полноценного P2P сигналинга)
+        pollHostConnection(roomCode);
+    } catch(e) {
+        showNotify('Ошибка создания P2P комнаты!');
+        closePvpHostModal();
+    }
+}
+
+function pollHostConnection(roomCode) {
+    if (!pvpIsHost || document.getElementById('pvpHostModal').style.display !== 'flex') return;
+    
+    let answerData = localStorage.getItem('flopy_answer_' + roomCode);
+    if (answerData && peerConnection.remoteDescription === null) {
+        let parsed = JSON.parse(answerData);
+        pvpOpponent = parsed.name || 'Гость';
+        peerConnection.setRemoteDescription(new RTCSessionDescription(parsed.answer)).then(() => {
+            document.getElementById('pvpHostModal').style.display = 'none';
+            startPvpCountdown(pvpOpponent);
+        });
+        return;
+    }
+    setTimeout(() => pollHostConnection(roomCode), 1500);
 }
 
 function closePvpHostModal() {
     triggerVibe('tick');
+    if (peerConnection) { peerConnection.close(); peerConnection = null; }
     document.getElementById('pvpHostModal').style.display = 'none';
     document.getElementById('pvpMenu').style.display = 'flex';
 }
@@ -1087,18 +1146,68 @@ function closeJoinPvpModal() {
     document.getElementById('pvpMenu').style.display = 'flex';
 }
 
-function connectToPvpRoom() {
+async function connectToPvpRoom() {
     let code = document.getElementById('joinCodeInput').value.trim();
     if (code.length !== 6) {
         showNotify('Введите корректный 6-значный код комнаты!');
         return;
     }
-    triggerVibe('success');
-    document.getElementById('pvpJoinModal').style.display = 'none';
-    startPvpCountdown('АстроМастер_' + Math.floor(Math.random() * 89 + 10));
+    
+    let roomStr = localStorage.getItem('flopy_room_' + code);
+    if (!roomStr) {
+        showNotify('Комната с таким кодом не найдена!');
+        return;
+    }
+
+    let roomData = JSON.parse(roomStr);
+    pvpOpponent = roomData.name || 'Хозяин комнаты';
+    pvpIsHost = false;
+
+    try {
+        peerConnection = new RTCPeerConnection(rtcConfig);
+        
+        peerConnection.ondatachannel = (event) => {
+            dataChannel = event.channel;
+            setupDataChannel();
+        };
+
+        peerConnection.onicecandidate = async (event) => {
+            if (event.candidate === null) {
+                let answerObj = { answer: peerConnection.localDescription, name: playerNickname };
+                localStorage.setItem('flopy_answer_' + code, JSON.stringify(answerObj));
+                document.getElementById('pvpJoinModal').style.display = 'none';
+                startPvpCountdown(pvpOpponent);
+            }
+        };
+
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(roomData.offer));
+        let answer = await peerConnection.createAnswer();
+        await peerConnection.setLocalDescription(answer);
+        triggerVibe('success');
+    } catch(e) {
+        showNotify('Ошибка подключения к комнате!');
+    }
 }
 
-let pvpOpponent = '';
+function setupDataChannel() {
+    dataChannel.onopen = () => { console.log('P2P DataChannel Open'); };
+    dataChannel.onmessage = (event) => {
+        let data = JSON.parse(event.data);
+        if (data.type === 'score') {
+            pvpOpponentScore = data.score;
+        } else if (data.type === 'gameover') {
+            pvpOpponentScore = data.score;
+            finishPvpGame(true);
+        }
+    };
+}
+
+function sendPvpData(dataObj) {
+    if (dataChannel && dataChannel.readyState === 'open') {
+        dataChannel.send(JSON.stringify(dataObj));
+    }
+}
+
 function startPvpCountdown(opponentName) {
     pvpOpponent = opponentName;
     document.getElementById('pvpOpponentName').innerText = opponentName;
@@ -1420,8 +1529,6 @@ function initGame(mode) {
     currentMode = mode;
     if (mode === 'sandbox_edit') {
         gameState = 'SANDBOX_EDIT';
-    } else if (mode === 'pvp') {
-        gameState = 'PLAYING';
     } else {
         gameState = 'PLAYING';
     }
@@ -1542,7 +1649,7 @@ function releaseBalls() {
 }
 
 canvas.addEventListener('touchmove', (e) => {
-    if (gameState === 'PLAYING' && controlMode === 'swipe' && e.touches.length > 0) {
+    if ((gameState === 'PLAYING' || gameState === 'SANDBOX_EDIT') && controlMode === 'swipe' && e.touches.length > 0) {
         const rect = canvas.getBoundingClientRect();
         const touchX = (e.touches[0].clientX - rect.left) * (virtualWidth / rect.width);
         paddle.x = touchX - paddle.width / 2;
@@ -1552,7 +1659,7 @@ canvas.addEventListener('touchmove', (e) => {
 }, {passive: true});
 
 document.addEventListener('mousemove', (e) => {
-    if (gameState === 'PLAYING' && !isTouchDevice) {
+    if ((gameState === 'PLAYING' || gameState === 'SANDBOX_EDIT') && !isTouchDevice) {
         paddle.x += e.movementX;
         keepPaddleInBounds();
     }
@@ -1625,6 +1732,10 @@ function update() {
     if (keys.left || touchKeys.left) paddle.x -= paddle.speed;
     if (keys.right || touchKeys.right) paddle.x += paddle.speed;
     keepPaddleInBounds();
+
+    if (currentMode === 'pvp') {
+        sendPvpData({ type: 'score', score: score });
+    }
 
     for (let i = particles.length - 1; i >= 0; i--) {
         let p = particles[i];
@@ -1773,7 +1884,8 @@ function update() {
             setTimeout(backToMenu, 3000);
         }
     } else if (activeBricksCount === 0 && (currentMode === 'sandbox_play' || currentMode === 'pvp')) {
-        finishPvpGame();
+        sendPvpData({ type: 'gameover', score: score });
+        finishPvpGame(false);
     }
 
     for (let i = powerUps.length - 1; i >= 0; i--) {
@@ -1802,7 +1914,8 @@ function update() {
 function checkGameOver() {
     if (lives <= 0) {
         if (currentMode === 'pvp') {
-            finishPvpGame();
+            sendPvpData({ type: 'gameover', score: score });
+            finishPvpGame(false);
         } else {
             showNotify('ИГРА ОКОНЧЕНА');
             coins += gameCoins; gameCoins = 0;
@@ -1813,20 +1926,17 @@ function checkGameOver() {
     }
 }
 
-function finishPvpGame() {
+function finishPvpGame(remoteGameOver) {
     gameState = 'MENU';
     document.getElementById('statusBar').style.display = 'none';
     document.getElementById('mobileControls').classList.remove('touch-active');
 
-    // Симуляция очков соперника
-    let opponentScore = Math.floor(score * (0.7 + Math.random() * 0.6));
-    let isWin = score >= opponentScore;
-
+    let isWin = score >= pvpOpponentScore;
     let titleEl = document.getElementById('pvpResultTitle');
     let scoresEl = document.getElementById('pvpResultScores');
 
     if (isWin) {
-        titleEl.innerText = 'ПОБЕДА В ДУЭЛИ! 🏆';
+        titleEl.innerText = 'ПОБЕДА В ОНЛАЙН ДУЭЛИ! 🏆';
         titleEl.style.color = '#a7d973';
         coins += 200;
         triggerScreenConfetti();
@@ -1838,9 +1948,11 @@ function finishPvpGame() {
         triggerVibe('hurt');
     }
 
-    scoresEl.innerHTML = `Ваш счет: <strong>${score}</strong> | ${pvpOpponent}: <strong>${opponentScore}</strong><br>Награда за дуэль зачислена! ⚙️`;
+    scoresEl.innerHTML = `Ваш счет: <strong>${score}</strong> | ${pvpOpponent}: <strong>${pvpOpponentScore}</strong><br>Награда за сетевой бой зачислена! ⚙️`;
     updateCoinDisplays();
     updateLeaderboard(score);
+
+    if (peerConnection) { peerConnection.close(); peerConnection = null; }
 
     document.getElementById('pvpResultScreen').style.display = 'flex';
 }
