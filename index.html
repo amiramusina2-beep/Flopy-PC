@@ -760,7 +760,7 @@
                         <!-- Выбор и установка количества жизней в админ-панели -->
                         <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 4px; gap: 4px; border: 1px dashed #ff5555; padding: 6px; border-radius: 8px; background: rgba(0, 0, 0, 0.25);">
                             <span style="font-size: 10px; color: #ffa0a0; font-weight: 800; white-space: nowrap;">❤️ ЖИЗНИ:</span>
-                            <input type="number" id="adminSelfLivesInput" value="3" min="1" max="99" style="width: 50px; background: #060a05; border: 1.5px solid #ff5555; color: #fff; border-radius: 6px; padding: 2px; text-align: center; font-family: 'Outfit'; font-size: 11px; font-weight: 900; outline: none;">
+                            <input type="number" id="adminSelfLivesInput" value="3" min="1" max="999" style="width: 50px; background: #060a05; border: 1.5px solid #ff5555; color: #fff; border-radius: 6px; padding: 2px; text-align: center; font-family: 'Outfit'; font-size: 11px; font-weight: 900; outline: none;">
                             <button class="sandbox-btn" onclick="setSelfLives(document.getElementById('adminSelfLivesInput').value)" style="border-color:#ff5555; font-size: 10px; padding: 3px 8px; margin: 0; font-weight: 800;">ЗАДАТЬ</button>
                         </div>
 
@@ -821,7 +821,7 @@ let highGraphics = true;
 let hapticEnabled = true;
 let controlMode = localStorage.getItem('fropy_control_mode') || 'dpad';
 let isAdmin = localStorage.getItem('fropy_admin_verified') === 'true';
-let adminLivesOverride = null;
+let adminLivesOverride = localStorage.getItem('fropy_admin_lives_override') !== null ? parseInt(localStorage.getItem('fropy_admin_lives_override')) : null;
 
 const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
 
@@ -870,7 +870,7 @@ function updatePlayerNickname(newName) {
                 }
             }
         } else {
-            // Если игрок уходит с OiyresPro, снимаем статус админа
+            // Если игрок уходит с OiyresPro, снимаем статус админа и сбрасываем кастомные жизни
             if (trimmed.toLowerCase().includes('oiyrespro')) {
                 showNotify('Защищенный никнейм! Имя не изменено.');
                 document.getElementById('settingsNicknameInput').value = playerNickname;
@@ -878,6 +878,8 @@ function updatePlayerNickname(newName) {
             }
             isAdmin = false;
             localStorage.removeItem('fropy_admin_verified');
+            localStorage.removeItem('fropy_admin_lives_override');
+            adminLivesOverride = null;
         }
 
         playerNickname = trimmed;
@@ -1625,6 +1627,7 @@ function setSelfLives(amount) {
     let val = parseInt(amount);
     if (!isNaN(val) && val >= 0) {
         adminLivesOverride = val;
+        localStorage.setItem('fropy_admin_lives_override', val.toString());
         lives = val;
         let livesTextEl = document.getElementById('livesText');
         if (livesTextEl) {
@@ -2052,11 +2055,12 @@ function initGame(mode) {
     score = 0;
     gameCoins = 0; 
     currentLevel = 1;
-    lives = (mode === 'pvp') ? 1 : (3 + (playerUpgrades.extraLife ? 1 : 0));
     
-    // Применение оверрайда жизней от администратора
-    if (isAdmin && adminLivesOverride !== null) {
+    // Применение оверрайда жизней от администратора или стандартное значение
+    if (adminLivesOverride !== null) {
         lives = adminLivesOverride;
+    } else {
+        lives = (mode === 'pvp') ? 1 : (3 + (playerUpgrades.extraLife ? 1 : 0));
     }
     
     paddle.x = virtualWidth / 2 - 50;
