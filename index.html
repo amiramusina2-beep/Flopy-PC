@@ -756,6 +756,14 @@
                         <strong style="color: #fff; font-size: 12px; border-bottom: 1px solid #f7ce55; padding-bottom: 4px;">СОБСТВЕННЫЕ РЕСУРСЫ</strong>
                         <button class="sandbox-btn" onclick="giveSelfResources('coins', 1000)" style="border-color:#f7ce55;">💰 ДЕТАЛИ СЕБЕ (+1000)</button>
                         <button class="sandbox-btn" onclick="giveSelfResources('score', 5000)" style="border-color:#a7d973;">⭐ ОЧКИ СЕБЕ (+5000)</button>
+                        
+                        <!-- Выбор и установка количества жизней в админ-панели -->
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 4px; gap: 4px; border: 1px dashed #ff5555; padding: 6px; border-radius: 8px; background: rgba(0, 0, 0, 0.25);">
+                            <span style="font-size: 10px; color: #ffa0a0; font-weight: 800; white-space: nowrap;">❤️ ЖИЗНИ:</span>
+                            <input type="number" id="adminSelfLivesInput" value="3" min="1" max="99" style="width: 50px; background: #060a05; border: 1.5px solid #ff5555; color: #fff; border-radius: 6px; padding: 2px; text-align: center; font-family: 'Outfit'; font-size: 11px; font-weight: 900; outline: none;">
+                            <button class="sandbox-btn" onclick="setSelfLives(document.getElementById('adminSelfLivesInput').value)" style="border-color:#ff5555; font-size: 10px; padding: 3px 8px; margin: 0; font-weight: 800;">ЗАДАТЬ</button>
+                        </div>
+
                         <button class="sandbox-btn" onclick="clearLeaderboardAdmin()" style="border-color:#ff5555; color:#ffb0b0;">🗑️ СБРОСИТЬ ТАБЛИЦУ ЛИДЕРОВ</button>
                     </div>
 
@@ -1516,6 +1524,12 @@ function openAdminPanel() {
         targetEl.innerText = 'Соперник (Нет связи)';
     }
 
+    // Инициализируем поле ввода жизней текущим значением
+    const livesInput = document.getElementById('adminSelfLivesInput');
+    if (livesInput) {
+        livesInput.value = lives;
+    }
+
     renderAdminBans();
 }
 
@@ -1603,6 +1617,22 @@ function giveSelfResources(type, value) {
         showNotify(`⭐ Вы выдали себе +${value} очков топа!`);
     }
     triggerVibe('success');
+}
+
+function setSelfLives(amount) {
+    if (!isAdmin) return;
+    let val = parseInt(amount);
+    if (!isNaN(val) && val >= 0) {
+        lives = val;
+        let livesTextEl = document.getElementById('livesText');
+        if (livesTextEl) {
+            livesTextEl.innerText = lives;
+        }
+        showNotify(`❤️ Установлено жизней: ${lives}`);
+        triggerVibe('success');
+    } else {
+        showNotify('Введите корректное число жизней!');
+    }
 }
 
 function clearLeaderboardAdmin() {
@@ -1934,7 +1964,7 @@ let screenShake = 0;
 // ДИНАМИЧЕСКИЙ КОМБО МУЛЬТИПЛИКАТОР И СИСТЕМА БОССА
 let comboCount = 0;
 let boss = { active: false, x: 250, y: 50, width: 300, height: 50, maxHp: 50, hp: 50, dx: 1.5, shieldAngle: 0, lastAttackTime: 0 };
-let bossShields = []; // Орбитальные энергетические блоки щита
+let bossShields = []; // Orbit elements
 
 const blockColors = ['#3a86c8', '#10b981', '#fbbf24', '#f97316', '#ef4444'];
 
@@ -1973,16 +2003,16 @@ function buildLevel(levelNum) {
     if (levelNum === 2) { ufo.active = true; ufo.x = 50; ufo.lives = 4; }
     else if (levelNum === 3) { ufo.active = true; ufo.x = 200; ufo.lives = 6; }
     else if (levelNum === 4) {
-        // УРОВЕНЬ БОССА
+        // BOSS LEVEL
         boss.active = true;
         boss.hp = boss.maxHp;
         boss.x = 250;
         boss.dx = 1.5;
-        // Создаем орбитальные щиты
+        // Create boss shields
         for (let i = 0; i < 6; i++) {
             bossShields.push({ angle: (Math.PI * 2 / 6) * i, hp: 3, radius: 95 });
         }
-        return; // Пропускаем генерацию обычных кирпичей
+        return; // Skip brick generation
     }
 
     let powers = ['none', 'none', 'multiball', 'wide', 'laser', 'fireball', 'shield'];
@@ -2025,7 +2055,7 @@ function initGame(mode) {
     paddle.width = paddle.baseWidth;
     paddle.laserActive = false;
     paddle.magnet = playerUpgrades.magneticStart;
-    paddle.shieldActive = playerUpgrades.shieldUpgrade; // Предустановленный щит, если куплен
+    paddle.shieldActive = playerUpgrades.shieldUpgrade; 
     powerUps = [];
     bullets = [];
     alienPlasma = [];
@@ -2154,7 +2184,6 @@ document.addEventListener('mousemove', (e) => {
     if ((gameState === 'PLAYING' || gameState === 'SANDBOX_EDIT') && !isTouchDevice) {
         if (controlMode === 'swipe') {
             const rect = canvas.getBoundingClientRect();
-            // Получаем точные виртуальные координаты мыши
             const mouseX = (e.clientX - rect.left) * (virtualWidth / rect.width);
             paddle.x = mouseX - paddle.width / 2;
         } else {
@@ -2236,21 +2265,21 @@ function update() {
         sendPvpData({ type: 'score', score: score });
     }
 
-    // Обновление частиц
+    // Particles update
     for (let i = particles.length - 1; i >= 0; i--) {
         let p = particles[i];
         p.x += p.vx; p.y += p.vy; p.alpha -= p.decay;
         if (p.alpha <= 0) particles.splice(i, 1);
     }
 
-    // Обновление конфетти
+    // Confetti update
     for (let i = confettis.length - 1; i >= 0; i--) {
         let c = confettis[i];
         c.y += c.speedY; c.x += c.speedX;
         if (c.y > virtualHeight) confettis.splice(i, 1);
     }
 
-    // Обновление парящих текстов очков
+    // Text pops update
     for (let i = scorePopups.length - 1; i >= 0; i--) {
         let sp = scorePopups[i];
         sp.y -= 0.8;
@@ -2269,31 +2298,28 @@ function update() {
         }
     }
 
-    // ЛОГИКА ДЕЙСТВИЙ БОССА VOID MASTER
+    // BOSS LOGIC
     if (boss.active) {
         boss.x += boss.dx;
         if (boss.x + boss.width > virtualWidth - 30 || boss.x < 30) boss.dx = -boss.dx;
 
-        boss.shieldAngle += 0.02; // вращение орбитальных щитов
+        boss.shieldAngle += 0.02; 
 
         let now = Date.now();
         if (now - boss.lastAttackTime > 1900) {
             boss.lastAttackTime = now;
             let pattern = Math.floor(Math.random() * 2);
             if (pattern === 0) {
-                // Тройная плазма
                 alienPlasma.push({ x: boss.x + 30, y: boss.y + boss.height, radius: 5, dy: 3.2 });
                 alienPlasma.push({ x: boss.x + boss.width / 2, y: boss.y + boss.height, radius: 6, dy: 3.8 });
                 alienPlasma.push({ x: boss.x + boss.width - 30, y: boss.y + boss.height, radius: 5, dy: 3.2 });
                 playSound('laser');
             } else {
-                // Самонаводящаяся ракета
                 alienPlasma.push({ x: boss.x + boss.width / 2, y: boss.y + boss.height, radius: 6, dy: 2, homing: true });
                 playSound('hurt');
             }
         }
 
-        // Обновление и коллизия орбитальных щитов
         let bCenterX = boss.x + boss.width / 2;
         let bCenterY = boss.y + boss.height / 2;
         for (let i = bossShields.length - 1; i >= 0; i--) {
@@ -2301,7 +2327,6 @@ function update() {
             let shX = bCenterX + Math.cos(boss.shieldAngle + sh.angle) * sh.radius;
             let shY = bCenterY + Math.sin(boss.shieldAngle + sh.angle) * sh.radius;
 
-            // Коллизия щита босса с нашими снарядами (пулями)
             for (let j = bullets.length - 1; j >= 0; j--) {
                 let bl = bullets[j];
                 let dist = Math.hypot(bl.x - shX, bl.y - shY);
@@ -2391,21 +2416,18 @@ function update() {
             continue;
         }
 
-        // Обновление шлейфа мяча
         ball.trail.push({ x: ball.x, y: ball.y });
         if (ball.trail.length > 8) ball.trail.shift();
 
         ball.x += ball.dx;
         ball.y += ball.dy;
 
-        // Фиксация минимальной вертикальной скорости для предотвращения горизонтального зацикливания
         if (Math.abs(ball.dy) < 1.8) ball.dy = ball.dy < 0 ? -1.8 : 1.8;
 
         if (ball.x - ball.radius < 0) { ball.x = ball.radius; ball.dx = -ball.dx; playSound('hit'); }
         if (ball.x + ball.radius > virtualWidth) { ball.x = virtualWidth - ball.radius; ball.dx = -ball.dx; playSound('hit'); }
         if (ball.y - ball.radius < 0) { ball.y = ball.radius; ball.dy = -ball.dy; playSound('hit'); }
 
-        // Прямое столкновение с телом босса
         if (boss.active && ball.x + ball.radius > boss.x && ball.x - ball.radius < boss.x + boss.width &&
             ball.y + ball.radius > boss.y && ball.y - ball.radius < boss.y + boss.height) {
             
@@ -2418,7 +2440,6 @@ function update() {
             checkBossDefeat();
         }
 
-        // Прямое столкновение с орбитальными щитами босса
         if (boss.active) {
             let bCenterX = boss.x + boss.width / 2;
             let bCenterY = boss.y + boss.height / 2;
@@ -2446,8 +2467,8 @@ function update() {
             if (comboCount >= 5) {
                 playSound('shield_hit');
             }
-            comboCount = 0; // Сброс комбо при возврате мяча на ракетку
-            balls.forEach(b => b.fireball = false); // сброс гипер-режима
+            comboCount = 0; 
+            balls.forEach(b => b.fireball = false); 
 
             if (paddle.magnet) {
                 ball.stuck = true;
@@ -2463,9 +2484,8 @@ function update() {
             }
         }
 
-        // Спасение Квантовым Щитом в самом низу экрана
         if (ball.y - ball.radius > virtualHeight - 12 && paddle.shieldActive) {
-            paddle.shieldActive = false; // Тратим щит
+            paddle.shieldActive = false; 
             ball.dy = -Math.abs(ball.dy);
             screenShake = 6;
             playSound('shield_hit');
@@ -2496,7 +2516,6 @@ function update() {
             for (let ball of balls) {
                 if (ball.x + ball.radius > b.x && ball.x - ball.radius < b.x + b.width && ball.y + ball.radius > b.y && ball.y - ball.radius < b.y + b.height) {
                     if (!ball.fireball) {
-                        // Точное определение стороны соударения для реалистичного отскока
                         let overlapLeft = (ball.x + ball.radius) - b.x;
                         let overlapRight = (b.x + b.width) - (ball.x - ball.radius);
                         let overlapTop = (ball.y + ball.radius) - b.y;
@@ -2513,10 +2532,10 @@ function update() {
                     b.status = 0;
                     score += 10;
                     gameCoins += 1;
-                    comboCount++; // Увеличение комбо
+                    comboCount++; 
                     
                     if (comboCount >= 5) {
-                        balls.forEach(bl => bl.fireball = true); // Включаем гипер-режим огненного шара при комбо >= 5
+                        balls.forEach(bl => bl.fireball = true); 
                     }
 
                     document.getElementById('scoreText').innerText = score;
@@ -2668,7 +2687,6 @@ function draw() {
         ctx.translate((Math.random() - 0.5) * screenShake * 2, (Math.random() - 0.5) * screenShake * 2);
     }
 
-    // Красивый градиентный фон с эффектом космической туманности (изменяется со временем)
     let time = Date.now() * 0.0005;
     let nebulaGlow = ctx.createRadialGradient(
         virtualWidth / 2 + Math.sin(time) * 120, 
@@ -2684,7 +2702,7 @@ function draw() {
     ctx.fillStyle = nebulaGlow;
     ctx.fillRect(0, 0, virtualWidth, virtualHeight);
 
-    // Звезды
+    // Stars
     ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
     for (let s of stars) {
         ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
@@ -2693,7 +2711,6 @@ function draw() {
 
     if (gameState === 'MENU') { ctx.restore(); return; }
 
-    // Отрисовка квантового щита на самом дне экрана, если он активен
     if (paddle.shieldActive) {
         ctx.strokeStyle = 'rgba(167, 217, 115, 0.7)';
         ctx.lineWidth = 3;
@@ -2703,7 +2720,7 @@ function draw() {
         ctx.moveTo(0, virtualHeight - 10);
         ctx.lineTo(virtualWidth, virtualHeight - 10);
         ctx.stroke();
-        ctx.shadowBlur = 0; // Сбрасываем свечение
+        ctx.shadowBlur = 0; 
     }
 
     for (let b of bricks) {
@@ -2711,7 +2728,6 @@ function draw() {
             ctx.fillStyle = b.status === 1 ? b.color : '#111b0e';
             ctx.beginPath();
             
-            // Защищенный вызов скругления углов roundRect
             if (ctx.roundRect) {
                 ctx.roundRect(b.x, b.y, b.width, b.height, 4);
             } else {
@@ -2719,7 +2735,6 @@ function draw() {
             }
             ctx.fill();
             
-            // Внутренний блик для ретро-объема
             if (b.status === 1) {
                 ctx.fillStyle = 'rgba(255,255,255,0.15)';
                 ctx.fillRect(b.x, b.y, b.width, 3);
@@ -2743,16 +2758,14 @@ function draw() {
         ctx.ellipse(ufo.x + ufo.width/2, ufo.y + ufo.height/2, ufo.width/2, ufo.height/2, 0, 0, Math.PI * 2);
         ctx.fill();
         
-        // Кабина НЛО
         ctx.fillStyle = '#fff';
         ctx.beginPath();
         ctx.arc(ufo.x + ufo.width/2, ufo.y + 6, 8, 0, Math.PI, true);
         ctx.fill();
     }
 
-    // ОТРИСОВКА БОССА VOID MASTER
+    // BOSS DRAW
     if (boss.active) {
-        // Тело босса
         ctx.fillStyle = '#ef4444';
         ctx.beginPath();
         if (ctx.roundRect) {
@@ -2762,7 +2775,6 @@ function draw() {
         }
         ctx.fill();
 
-        // Световой индикатор уязвимости босса
         ctx.fillStyle = '#fff';
         ctx.beginPath();
         ctx.arc(boss.x + boss.width / 2, boss.y + boss.height / 2, 14, 0, Math.PI * 2);
@@ -2773,13 +2785,11 @@ function draw() {
         ctx.textAlign = 'center';
         ctx.fillText('VOID', boss.x + boss.width / 2, boss.y + boss.height / 2 + 3);
 
-        // Индикатор ХП Босса
         ctx.fillStyle = 'rgba(255, 85, 85, 0.15)';
         ctx.fillRect(boss.x, boss.y - 15, boss.width, 6);
         ctx.fillStyle = '#ef4444';
         ctx.fillRect(boss.x, boss.y - 15, boss.width * (boss.hp / boss.maxHp), 6);
 
-        // Отрисовка орбитальных блоков щита
         let bCenterX = boss.x + boss.width / 2;
         let bCenterY = boss.y + boss.height / 2;
         bossShields.forEach(sh => {
@@ -2836,9 +2846,7 @@ function draw() {
     else ctx.rect(paddle.x, paddle.y, paddle.width, paddle.height);
     ctx.fill();
 
-    // Шлейф и Отрисовка мяча
     for (let ball of balls) {
-        // Отрисовка шлейфа
         if (highGraphics && ball.trail) {
             for (let t = 0; t < ball.trail.length; t++) {
                 let opacity = (t + 1) / (ball.trail.length + 1) * 0.35;
@@ -2853,7 +2861,6 @@ function draw() {
         ctx.beginPath(); ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2); ctx.fill();
     }
 
-    // Тексты всплывающих очков
     for (let sp of scorePopups) {
         ctx.fillStyle = sp.color;
         ctx.globalAlpha = sp.alpha;
@@ -2863,7 +2870,6 @@ function draw() {
     }
     ctx.globalAlpha = 1.0;
 
-    // Отрисовка комбо на экране
     if (comboCount > 0) {
         ctx.fillStyle = comboCount >= 5 ? '#f7ce55' : '#9cb299';
         ctx.font = comboCount >= 5 ? '900 16px "Outfit"' : '700 12px "Outfit"';
