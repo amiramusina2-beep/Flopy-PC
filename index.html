@@ -221,13 +221,42 @@
             top: 14px; left: 18px; right: 18px;
             display: flex;
             justify-content: space-between;
-            font-size: clamp(10px, 2.5vw, 14px);
+            align-items: center;
+            font-size: clamp(9px, 2.2vw, 13px);
             font-weight: 800;
             pointer-events: none;
             color: #fff;
             text-shadow: 0 2px 5px rgba(0,0,0,0.95);
             z-index: 5;
             letter-spacing: 0.8px;
+        }
+
+        .energy-bar-container {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid #436137;
+            padding: 3px 8px;
+            border-radius: 20px;
+        }
+
+        .energy-bar-fill {
+            width: 50px;
+            height: 8px;
+            background: #142010;
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid #334e28;
+            position: relative;
+        }
+
+        .energy-bar-inner {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #a7d973 0%, #517a43 100%);
+            box-shadow: 0 0 8px #a7d973;
+            transition: width 0.2s ease;
         }
 
         .sandbox-panel {
@@ -570,9 +599,9 @@
 
                 <div class="menu-left-panel">
                     <h1>Flopy</h1>
-                    <div class="alpha-badge">BOSS INVASION v3.0</div>
+                    <div class="alpha-badge">QUANTUM OVERDRIVE v4.0</div>
                     <div class="menu-desc">
-                        Аркадный автомат с квантовой защитой! Уничтожьте космическую угрозу Void Master на 4-м уровне и активируйте мега-комбо!
+                        Аркадный космо-автомат! Заряжайте квантовое ядро, уклоняйтесь от метеоритного дождя и активируйте разрушительный режим Овердрайва!
                     </div>
                     <div style="font-size: 11px; color: #f7ce55; background: #080d07; padding: 10px 15px; border: 1.5px solid #304729; border-radius: 10px; width: 100%; box-shadow: inset 0 2px 4px rgba(0,0,0,0.6);">
                         ДЕТАЛИ В НАЛИЧИИ: <br><span id="coinDisplay" style="font-size: 24px; font-weight: 900; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.2);">100</span> ⚙️
@@ -784,6 +813,12 @@
                 <div>УРОВЕНЬ: <span id="levelText" style="color: #a7d973;">1</span></div>
                 <div>ОЧКИ: <span id="scoreText" style="color: #a7d973;">0</span></div>
                 <div>ДЕТАЛИ: <span id="gameCoinText" style="color: #f7ce55;">0</span></div>
+                <div class="energy-bar-container">
+                    <span style="color:#a7d973; font-size:10px;">ЯДРО:</span>
+                    <div class="energy-bar-fill">
+                        <div class="energy-bar-inner" id="energyFill"></div>
+                    </div>
+                </div>
                 <div>ПРОЧНОСТЬ: <span id="livesText" style="color: #ff5555;">3</span></div>
             </div>
 
@@ -832,6 +867,18 @@ let ufoDefeatCoins = 10;
 let levelWinBonus = 30;
 let bossDefeatCoins = 100;
 let bossWinBonus = 300;
+
+// НОВЫЕ МЕХАНИКИ: QUANTUM OVERDRIVE & METEOR SHOWER
+let overdriveEnergy = 0;
+let overdriveActive = false;
+let overdriveDuration = 0;
+let meteors = [];
+let shootingStars = [];
+let screenGlitch = 0;
+
+function triggerGlitch(duration) {
+    screenGlitch = duration;
+}
 
 function toggleDifficulty() {
     if (difficulty === 'easy') {
@@ -999,7 +1046,7 @@ let coins = parseInt(localStorage.getItem('fropy_coins'));
 if (isNaN(coins)) { coins = 0; }
 let playerSkins = JSON.parse(localStorage.getItem('fropy_skins')) || { classic: true, gold: false, neon: false };
 let equippedSkin = localStorage.getItem('fropy_equipped_skin') || 'classic';
-let playerUpgrades = JSON.parse(localStorage.getItem('fropy_upgrades')) || { extraLife: false, laserPower: false, magneticStart: false, shieldUpgrade: false };
+let playerUpgrades = JSON.parse(localStorage.getItem('fropy_upgrades')) || { extraLife: false, laserPower: false, magneticStart: false, shieldUpgrade: false, overdriveBooster: false };
 
 let sandboxLevelCreated = localStorage.getItem('fropy_sandbox_exists') === 'true';
 let customSavedBricks = JSON.parse(localStorage.getItem('fropy_sandbox_bricks')) || [];
@@ -1037,7 +1084,8 @@ const shopCatalog = [
     { id: 'extraLife', name: '+1 ЖИЗНЬ НА СТАРТ', type: 'upgrade', cost: 200, desc: 'Запуск с 4 жизнями' },
     { id: 'laserPower', name: 'КВАНТ-ЛАЗЕР', type: 'upgrade', cost: 300, desc: 'Скорострельные плазмо-лучи' },
     { id: 'magneticStart', name: 'МАГНИТНЫЙ ЗАХВАТ', type: 'upgrade', cost: 220, desc: 'Платформа притягивает мяч' },
-    { id: 'shieldUpgrade', name: 'ТАКТИЧЕСКИЙ КВАНТ-ЩИТ', type: 'upgrade', cost: 350, desc: 'Автоматический щит от падения мяча (1 раз за игру)' }
+    { id: 'shieldUpgrade', name: 'ТАКТИЧЕСКИЙ КВАНТ-ЩИТ', type: 'upgrade', cost: 350, desc: 'Автоматический щит от падения мяча (1 раз за игру)' },
+    { id: 'overdriveBooster', name: 'OVERDRIVE РЕАКТОР', type: 'upgrade', cost: 400, desc: 'Ядро заряжается на 50% быстрее' }
 ];
 
 function renderShop() {
@@ -1964,6 +2012,13 @@ function playSound(type) {
         gain.gain.setValueAtTime(0.06, t);
         gain.gain.exponentialRampToValueAtTime(0.001, t + 0.8);
         osc.start(t); osc.stop(t + 0.8);
+    } else if (type === 'overdrive') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(150, t);
+        osc.frequency.linearRampToValueAtTime(900, t + 0.6);
+        gain.gain.setValueAtTime(0.05, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.6);
+        osc.start(t); osc.stop(t + 0.6);
     }
 }
 
@@ -2019,6 +2074,17 @@ for (let i = 0; i < 45; i++) {
         y: Math.random() * virtualHeight,
         size: Math.random() * 1.5 + 0.5,
         speed: Math.random() * 0.4 + 0.1
+    });
+}
+
+// Генерация падающих звезд
+for (let i = 0; i < 3; i++) {
+    shootingStars.push({
+        x: Math.random() * virtualWidth,
+        y: Math.random() * (virtualHeight / 2),
+        length: Math.random() * 40 + 20,
+        speed: Math.random() * 12 + 8,
+        alpha: 0
     });
 }
 
@@ -2141,6 +2207,11 @@ function initGame(mode) {
     score = 0;
     gameCoins = 0; 
     currentLevel = 1;
+    overdriveEnergy = 0;
+    overdriveActive = false;
+    overdriveDuration = 0;
+    meteors = [];
+    document.getElementById('energyFill').style.width = '0%';
     
     // Применение оверрайда жизней от администратора или стандартное значение
     if (adminLivesOverride !== null) {
@@ -2274,7 +2345,7 @@ canvas.addEventListener('touchmove', (e) => {
             paddle.x = touchX - paddle.width / 2;
             keepPaddleInBounds();
         }
-        if (paddle.laserActive) fireLaser();
+        if (paddle.laserActive || overdriveActive) fireLaser();
     }
 }, {passive: true});
 
@@ -2332,15 +2403,17 @@ window.addEventListener('keyup', (e) => {
 });
 
 function fireLaser() {
-    if (gameState === 'PLAYING' && paddle.laserActive) {
-        let t = Date.now();
-        let cooldown = playerUpgrades.laserPower ? 140 : 220;
-        if (t - paddle.lastShotTime > cooldown) {
-            bullets.push({ x: paddle.x + 8, y: paddle.y, width: 4, height: 12, dy: -8 * speedMultiplier });
-            bullets.push({ x: paddle.x + paddle.width - 12, y: paddle.y, width: 4, height: 12, dy: -8 * speedMultiplier });
-            paddle.lastShotTime = t;
-            playSound('laser');
-            triggerVibe('tick');
+    if (gameState === 'PLAYING') {
+        if (paddle.laserActive || overdriveActive) {
+            let t = Date.now();
+            let cooldown = overdriveActive ? 80 : (playerUpgrades.laserPower ? 140 : 220);
+            if (t - paddle.lastShotTime > cooldown) {
+                bullets.push({ x: paddle.x + 8, y: paddle.y, width: 4, height: 12, dy: -8 * speedMultiplier });
+                bullets.push({ x: paddle.x + paddle.width - 12, y: paddle.y, width: 4, height: 12, dy: -8 * speedMultiplier });
+                paddle.lastShotTime = t;
+                playSound('laser');
+                triggerVibe('tick');
+            }
         }
     }
 }
@@ -2349,10 +2422,25 @@ function update() {
     if (gameState !== 'PLAYING') return;
 
     if (screenShake > 0) screenShake -= 0.1;
+    if (screenGlitch > 0) screenGlitch--;
 
     for (let s of stars) {
-        s.y += (comboCount >= 5) ? s.speed * 4 : s.speed;
+        s.y += (overdriveActive) ? s.speed * 8 : ((comboCount >= 5) ? s.speed * 4 : s.speed);
         if (s.y > virtualHeight) { s.y = 0; s.x = Math.random() * virtualWidth; }
+    }
+
+    // Падающие звезды
+    for (let ss of shootingStars) {
+        if (ss.alpha <= 0 && Math.random() < 0.005) {
+            ss.x = Math.random() * (virtualWidth - 100);
+            ss.y = Math.random() * (virtualHeight / 2);
+            ss.alpha = 1;
+        }
+        if (ss.alpha > 0) {
+            ss.x += ss.speed;
+            ss.y += ss.speed * 0.5;
+            ss.alpha -= 0.02;
+        }
     }
 
     if (keys.left || touchKeys.left) paddle.x -= paddle.speed;
@@ -2361,6 +2449,81 @@ function update() {
 
     if (currentMode === 'pvp') {
         sendPvpData({ type: 'score', score: score });
+    }
+
+    // Метеоритный дождь (космические угрозы)
+    if (Math.random() < (difficulty === 'extreme' ? 0.015 : 0.006) && currentMode !== 'sandbox_edit') {
+        meteors.push({
+            x: Math.random() * (virtualWidth - 40) + 20,
+            y: -30,
+            radius: Math.random() * 12 + 8,
+            speedY: (Math.random() * 2 + 1.5) * speedMultiplier,
+            speedX: (Math.random() - 0.5) * 2,
+            hp: 2,
+            color: '#e5563a'
+        });
+    }
+
+    // Обновление метеоров
+    for (let i = meteors.length - 1; i >= 0; i--) {
+        let m = meteors[i];
+        m.y += m.speedY;
+        m.x += m.speedX;
+
+        if (m.y > virtualHeight + 30) {
+            meteors.splice(i, 1);
+            continue;
+        }
+
+        // Столкновение метеора с платформой
+        if (m.x > paddle.x && m.x < paddle.x + paddle.width && m.y + m.radius >= paddle.y && m.y - m.radius <= paddle.y + paddle.height) {
+            meteors.splice(i, 1);
+            if (overdriveActive) {
+                score += 100;
+                addScorePopup(m.x, m.y, '+100 ОВЕРДРАЙВ-СМЭШ', '#f7ce55');
+                createExplosion(m.x, m.y, '#f7ce55');
+                playSound('hit');
+            } else {
+                screenShake = 6;
+                triggerGlitch(15);
+                lives--;
+                document.getElementById('livesText').innerText = lives;
+                playSound('hurt');
+                triggerVibe('hurt');
+                checkGameOver();
+            }
+            continue;
+        }
+
+        // Столкновение лазера с метеором
+        for (let j = bullets.length - 1; j >= 0; j--) {
+            let bl = bullets[j];
+            if (Math.hypot(bl.x - m.x, bl.y - m.y) < m.radius + 6) {
+                bullets.splice(j, 1);
+                m.hp--;
+                createExplosion(bl.x, bl.y, m.color);
+                playSound('hit');
+                if (m.hp <= 0) {
+                    meteors.splice(i, 1);
+                    score += 50;
+                    gameCoins += coinRewardPerBrick;
+                    addScorePopup(m.x, m.y, '+50 СБИТО ⚙️', '#ffd700');
+                }
+                break;
+            }
+        }
+    }
+
+    // Логика Овердрайва
+    if (overdriveActive) {
+        overdriveDuration -= 0.3;
+        document.getElementById('energyFill').style.width = overdriveDuration + '%';
+        fireLaser(); // Автоматический автоогонь
+        if (overdriveDuration <= 0) {
+            overdriveActive = false;
+            paddle.width = paddle.baseWidth;
+            showNotify('Овердрайв завершен');
+        }
     }
 
     // Particles update
@@ -2458,12 +2621,20 @@ function update() {
         if (p.y > virtualHeight) { alienPlasma.splice(i, 1); continue; }
         if (p.x > paddle.x && p.x < paddle.x + paddle.width && p.y + p.radius >= paddle.y && p.y - p.radius <= paddle.y + paddle.height) {
             alienPlasma.splice(i, 1);
-            screenShake = 3;
-            lives--;
-            document.getElementById('livesText').innerText = lives;
-            playSound('hurt');
-            triggerVibe('hurt');
-            checkGameOver();
+            if (overdriveActive) {
+                score += 50;
+                addScorePopup(p.x, p.y, '+50 АБСОРБЦИЯ', '#a7d973');
+                createExplosion(p.x, p.y, '#a7d973');
+                playSound('hit');
+            } else {
+                screenShake = 3;
+                triggerGlitch(10);
+                lives--;
+                document.getElementById('livesText').innerText = lives;
+                playSound('hurt');
+                triggerVibe('hurt');
+                checkGameOver();
+            }
         }
     }
 
@@ -2500,6 +2671,7 @@ function update() {
                 b.status = 0;
                 score += 15;
                 gameCoins += coinRewardPerBrick;
+                chargeOverdrive(1.5);
                 createExplosion(bl.x, bl.y, b.color);
                 bullets.splice(i, 1);
                 break;
@@ -2532,7 +2704,7 @@ function update() {
             ball.y + ball.radius > boss.y && ball.y - ball.radius < boss.y + boss.height) {
             
             ball.dy = -ball.dy;
-            let dmg = ball.fireball ? 3 : 1;
+            let dmg = (ball.fireball || overdriveActive) ? 3 : 1;
             boss.hp -= dmg;
             createExplosion(ball.x, ball.y, '#ef4444');
             playSound('boss_hurt');
@@ -2570,14 +2742,14 @@ function update() {
             comboCount = 0; 
             balls.forEach(b => b.fireball = false); 
 
-            if (paddle.magnet) {
+            if (paddle.magnet && !overdriveActive) {
                 ball.stuck = true;
                 playSound('hit');
             } else {
                 let hitPoint = ball.x - (paddle.x + paddle.width / 2);
                 let norm = hitPoint / (paddle.width / 2);
                 let angle = norm * (Math.PI / 2.5);
-                let speed = (ball.fireball ? 7.5 : 6) * speedMultiplier;
+                let speed = ((ball.fireball || overdriveActive) ? 7.5 : 6) * speedMultiplier;
                 ball.dx = speed * Math.sin(angle);
                 ball.dy = -Math.abs(speed * Math.cos(angle));
                 playSound('hit');
@@ -2615,7 +2787,7 @@ function update() {
             activeBricksCount++;
             for (let ball of balls) {
                 if (ball.x + ball.radius > b.x && ball.x - ball.radius < b.x + b.width && ball.y + ball.radius > b.y && ball.y - ball.radius < b.y + b.height) {
-                    if (!ball.fireball) {
+                    if (!ball.fireball && !overdriveActive) {
                         let overlapLeft = (ball.x + ball.radius) - b.x;
                         let overlapRight = (b.x + b.width) - (ball.x - ball.radius);
                         let overlapTop = (ball.y + ball.radius) - b.y;
@@ -2633,6 +2805,7 @@ function update() {
                     score += 10;
                     gameCoins += coinRewardPerBrick;
                     comboCount++; 
+                    chargeOverdrive(comboCount * 0.8);
                     
                     if (comboCount >= 5) {
                         balls.forEach(bl => bl.fireball = true); 
@@ -2691,7 +2864,7 @@ function update() {
                 addScorePopup(paddle.x, paddle.y - 20, 'MULTIBALL x2', '#ffeb3b');
             } else if (p.type === 'wide') {
                 paddle.width = 145;
-                setTimeout(() => paddle.width = paddle.baseWidth, 8000);
+                setTimeout(() => { if(!overdriveActive) paddle.width = paddle.baseWidth; }, 8000);
                 addScorePopup(paddle.x, paddle.y - 20, 'PADDLE UP', '#4caf50');
             } else if (p.type === 'laser') {
                 paddle.laserActive = true;
@@ -2699,7 +2872,7 @@ function update() {
                 addScorePopup(paddle.x, paddle.y - 20, 'LASER SYSTEM', '#ef5350');
             } else if (p.type === 'fireball') {
                 balls.forEach(b => b.fireball = true);
-                setTimeout(() => balls.forEach(b => b.fireball = false), 6000);
+                setTimeout(() => balls.forEach(b => { if(!overdriveActive) b.fireball = false; }), 6000);
                 addScorePopup(paddle.x, paddle.y - 20, 'FIREBALL', '#ff7043');
             } else if (p.type === 'shield') {
                 paddle.shieldActive = true;
@@ -2712,6 +2885,30 @@ function update() {
             powerUps.splice(i, 1);
         }
     }
+}
+
+// Зарядка квантового овердрайва
+function chargeOverdrive(amount) {
+    if (overdriveActive) return;
+    let chargeRatio = playerUpgrades.overdriveBooster ? 1.5 : 1.0;
+    overdriveEnergy += amount * chargeRatio;
+    if (overdriveEnergy >= 100) {
+        overdriveEnergy = 100;
+        activateOverdrive();
+    }
+    document.getElementById('energyFill').style.width = overdriveEnergy + '%';
+}
+
+function activateOverdrive() {
+    overdriveActive = true;
+    overdriveEnergy = 0;
+    overdriveDuration = 100;
+    paddle.width = 160; // Расширяем платформу
+    playSound('overdrive');
+    triggerVibe('success');
+    triggerGlitch(40);
+    showNotify('💥 КВАНТОВЫЙ ОВЕРДРАЙВ АКТИВИРОВАН! 💥');
+    addScorePopup(paddle.x + paddle.width/2, paddle.y - 40, '💥 OVERDRIVE 💥', '#ffd700');
 }
 
 function checkBossDefeat() {
@@ -2796,10 +2993,19 @@ function adjustColor(hex, percent) {
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.save();
+    
+    // Эффект ретро глитча и тряски экрана
+    let currentShake = screenShake;
+    let glitchX = 0;
+    if (screenGlitch > 0 && Math.random() < 0.4) {
+        currentShake += Math.random() * 8;
+        glitchX = (Math.random() - 0.5) * 15;
+    }
+    
     ctx.scale(scaleX, scaleY);
 
-    if (screenShake > 0) {
-        ctx.translate((Math.random() - 0.5) * screenShake * 2, (Math.random() - 0.5) * screenShake * 2);
+    if (currentShake > 0 || glitchX !== 0) {
+        ctx.translate((Math.random() - 0.5) * currentShake * 2 + glitchX, (Math.random() - 0.5) * currentShake * 2);
     }
 
     let time = Date.now() * 0.0005;
@@ -2811,17 +3017,38 @@ function draw() {
         virtualHeight / 2, 
         virtualWidth * 0.8
     );
-    nebulaGlow.addColorStop(0, '#091508');
-    nebulaGlow.addColorStop(0.5, '#040904');
-    nebulaGlow.addColorStop(1, '#020402');
+    
+    // В Овердрайве фон становится тревожно-неоновым
+    if (overdriveActive) {
+        nebulaGlow.addColorStop(0, '#1c0715');
+        nebulaGlow.addColorStop(0.5, '#0c0209');
+        nebulaGlow.addColorStop(1, '#050003');
+    } else {
+        nebulaGlow.addColorStop(0, '#091508');
+        nebulaGlow.addColorStop(0.5, '#040904');
+        nebulaGlow.addColorStop(1, '#020402');
+    }
+    
     ctx.fillStyle = nebulaGlow;
     ctx.fillRect(0, 0, virtualWidth, virtualHeight);
 
     // Stars
     ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
     for (let s of stars) {
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-        ctx.fillRect(s.x, s.y, s.size, (comboCount >= 5) ? s.size * 5 : s.size);
+        ctx.fillStyle = overdriveActive ? 'rgba(240, 180, 255, 0.9)' : 'rgba(255, 255, 255, 0.7)';
+        ctx.fillRect(s.x, s.y, s.size, (overdriveActive) ? s.size * 8 : ((comboCount >= 5) ? s.size * 5 : s.size));
+    }
+
+    // Отрисовка падающих звезд
+    for (let ss of shootingStars) {
+        if (ss.alpha > 0) {
+            ctx.strokeStyle = `rgba(167, 217, 115, ${ss.alpha})`;
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(ss.x, ss.y);
+            ctx.lineTo(ss.x - ss.length, ss.y - ss.length * 0.5);
+            ctx.stroke();
+        }
     }
 
     if (gameState === 'MENU') { ctx.restore(); return; }
@@ -2836,6 +3063,27 @@ function draw() {
         ctx.lineTo(virtualWidth, virtualHeight - 10);
         ctx.stroke();
         ctx.shadowBlur = 0; 
+    }
+
+    // Метеориты (Космические угрозы)
+    for (let m of meteors) {
+        let grad = ctx.createRadialGradient(m.x, m.y, 2, m.x, m.y, m.radius);
+        grad.addColorStop(0, '#ffd3a0');
+        grad.addColorStop(0.4, '#e5563a');
+        grad.addColorStop(1, '#3a110a');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(m.x, m.y, m.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (highGraphics) {
+            ctx.strokeStyle = 'rgba(255, 100, 50, 0.4)';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(m.x, m.y);
+            ctx.lineTo(m.x - m.speedX * 4, m.y - m.speedY * 4);
+            ctx.stroke();
+        }
     }
 
     for (let b of bricks) {
@@ -2955,25 +3203,46 @@ function draw() {
     if (equippedSkin === 'gold') padColor = '#ffd700';
     else if (equippedSkin === 'neon') padColor = `hsl(${Date.now() / 4 % 360}, 100%, 60%)`;
 
+    // Во время Овердрайва платформа излучает квантовое сияние
+    if (overdriveActive) {
+        ctx.shadowColor = '#e5563a';
+        ctx.shadowBlur = 15;
+        padColor = '#ff4500';
+    }
+
     ctx.fillStyle = padColor;
     ctx.beginPath();
     if (ctx.roundRect) ctx.roundRect(paddle.x, paddle.y, paddle.width, paddle.height, 5);
     else ctx.rect(paddle.x, paddle.y, paddle.width, paddle.height);
     ctx.fill();
+    ctx.shadowBlur = 0; // Сброс теней
 
     for (let ball of balls) {
         if (highGraphics && ball.trail) {
             for (let t = 0; t < ball.trail.length; t++) {
                 let opacity = (t + 1) / (ball.trail.length + 1) * 0.35;
-                ctx.fillStyle = ball.fireball ? `rgba(255, 69, 0, ${opacity})` : `rgba(248, 253, 246, ${opacity})`;
+                if (overdriveActive) {
+                    ctx.fillStyle = `rgba(230, 80, 50, ${opacity})`;
+                } else {
+                    ctx.fillStyle = ball.fireball ? `rgba(255, 69, 0, ${opacity})` : `rgba(248, 253, 246, ${opacity})`;
+                }
                 ctx.beginPath();
-                ctx.arc(ball.trail[t].x, ball.trail[t].y, ball.radius * 0.9, 0, Math.PI * 2);
+                ctx.arc(ball.trail[t].x, ball.trail[t].y, ball.radius * (overdriveActive ? 1.4 : 0.9), 0, Math.PI * 2);
                 ctx.fill();
             }
         }
 
-        ctx.fillStyle = ball.fireball ? '#ff4500' : '#f8fdf6';
-        ctx.beginPath(); ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2); ctx.fill();
+        if (overdriveActive) {
+            ctx.fillStyle = '#ff3b30';
+            ctx.shadowColor = '#e5563a';
+            ctx.shadowBlur = 12;
+        } else {
+            ctx.fillStyle = ball.fireball ? '#ff4500' : '#f8fdf6';
+        }
+        ctx.beginPath(); 
+        ctx.arc(ball.x, ball.y, ball.radius * (overdriveActive ? 1.4 : 1), 0, Math.PI * 2); 
+        ctx.fill();
+        ctx.shadowBlur = 0;
     }
 
     for (let sp of scorePopups) {
@@ -2985,11 +3254,18 @@ function draw() {
     }
     ctx.globalAlpha = 1.0;
 
-    if (comboCount > 0) {
+    if (comboCount > 0 && !overdriveActive) {
         ctx.fillStyle = comboCount >= 5 ? '#f7ce55' : '#9cb299';
         ctx.font = comboCount >= 5 ? '900 16px "Outfit"' : '700 12px "Outfit"';
         ctx.textAlign = 'right';
         ctx.fillText(`COMBO X${comboCount}`, virtualWidth - 30, virtualHeight - 20);
+    }
+
+    if (overdriveActive) {
+        ctx.fillStyle = '#ff4500';
+        ctx.font = '900 18px "Outfit"';
+        ctx.textAlign = 'right';
+        ctx.fillText('🚨 OVERDRIVE MODE 🚨', virtualWidth - 30, virtualHeight - 20);
     }
 
     if (gameState === 'PAUSED') {
