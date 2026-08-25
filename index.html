@@ -644,7 +644,7 @@
                 
                 <div class="wheel-wrapper">
                     
-                    <!-- Колесо фортуны -->
+                    <!-- Косело фортуны -->
                     <div style="position: relative; width: 160px; height: 160px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transform: scale(0.95);">
                         <div id="fortuneWheel" style="width: 150px; height: 150px; border-radius: 50%; border: 6px solid #f7ce55; background: conic-gradient(#25381f 0deg 60deg, #10180e 60deg 120deg, #25381f 120deg 180deg, #10180e 180deg 240deg, #25381f 240deg 300deg, #10180e 300deg 360deg); transition: transform 5s cubic-bezier(0.15, 0.85, 0.32, 1); box-shadow: 0 0 30px rgba(247,206,85,0.45); display: flex; align-items: center; justify-content: center;">
                             <div style="position: absolute; font-size: 8px; font-weight: bold; color: #fff; transform: rotate(30deg) translate(0, -42deg);">+50 ⚙️</div>
@@ -718,6 +718,7 @@
                     <input type="text" id="settingsNicknameInput" onchange="updatePlayerNickname(this.value)" style="width: 100%; background: #060a05; border: 1.5px solid #436137; color: #fff; font-size: 12px; padding: 8px; border-radius: 8px; text-align: center; font-family: 'Outfit'; font-weight: 800; outline: none;">
                     
                     <button class="menu-btn" id="controlToggleBtn" onclick="toggleControlMode()" style="margin-top: 5px;">УПРАВЛЕНИЕ: КНОПКИ (D-PAD)</button>
+                    <button class="menu-btn" id="difficultyToggleBtn" onclick="toggleDifficulty()">СЛОЖНОСТЬ: СРЕДНЯЯ</button>
                     <button class="menu-btn" id="soundToggleBtn" onclick="toggleSound()">ЗВУКОВЫЕ ЭФФЕКТЫ: ВКЛ</button>
                     <button class="menu-btn" id="graphicsToggleBtn" onclick="toggleGraphics()">ЭФФЕКТЫ (FX): ВЫСОКИЕ</button>
                     <button class="menu-btn" id="hapticToggleBtn" onclick="toggleHaptics()">ВИБРАЦИЯ (HAPTIC): ВКЛ</button>
@@ -823,6 +824,43 @@ let controlMode = localStorage.getItem('fropy_control_mode') || 'dpad';
 let isAdmin = localStorage.getItem('fropy_admin_verified') === 'true';
 let adminLivesOverride = localStorage.getItem('fropy_admin_lives_override') !== null ? parseInt(localStorage.getItem('fropy_admin_lives_override')) : null;
 
+// НАСТРОЙКА РЕЖИМОВ СЛОЖНОСТИ И НАГРАД
+let difficulty = localStorage.getItem('fropy_difficulty') || 'medium';
+let speedMultiplier = 1.0;
+let coinRewardPerBrick = 1;
+let ufoDefeatCoins = 10;
+let levelWinBonus = 30;
+let bossDefeatCoins = 100;
+let bossWinBonus = 300;
+
+function toggleDifficulty() {
+    if (difficulty === 'easy') {
+        difficulty = 'medium';
+    } else if (difficulty === 'medium') {
+        difficulty = 'extreme';
+    } else {
+        difficulty = 'easy';
+    }
+    localStorage.setItem('fropy_difficulty', difficulty);
+    updateDifficultyUI();
+    triggerVibe('tick');
+}
+
+function updateDifficultyUI() {
+    const btn = document.getElementById('difficultyToggleBtn');
+    if (!btn) return;
+    if (difficulty === 'easy') {
+        btn.innerText = 'СЛОЖНОСТЬ: ЛЕГКАЯ';
+        btn.style.borderColor = '#a7d973';
+    } else if (difficulty === 'medium') {
+        btn.innerText = 'СЛОЖНОСТЬ: СРЕДНЯЯ';
+        btn.style.borderColor = '#f7ce55';
+    } else {
+        btn.innerText = 'СЛОЖНОСТЬ: ЭКСТРИМ 💀';
+        btn.style.borderColor = '#ef4444';
+    }
+}
+
 const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
 
 let playerNickname = localStorage.getItem('fropy_nickname');
@@ -850,6 +888,7 @@ function updateAdminButtonVisibility() {
     }
 }
 updateAdminButtonVisibility();
+updateDifficultyUI();
 
 function updatePlayerNickname(newName) {
     if (newName && newName.trim().length > 0) {
@@ -1138,6 +1177,7 @@ function openSettings() {
     document.getElementById('settingsMenu').style.display = 'flex';
     document.getElementById('settingsNicknameInput').value = playerNickname;
     updateControlUI();
+    updateDifficultyUI();
 }
 
 function closeSettings() {
@@ -2005,14 +2045,35 @@ function buildLevel(levelNum) {
     bossShields = [];
     comboCount = 0;
     
-    if (levelNum === 2) { ufo.active = true; ufo.x = 50; ufo.lives = 4; }
-    else if (levelNum === 3) { ufo.active = true; ufo.x = 200; ufo.lives = 6; }
+    let curSpeedMultiplier = (typeof speedMultiplier !== 'undefined') ? speedMultiplier : 1.0;
+    
+    if (levelNum === 2) { ufo.active = true; ufo.x = 50; ufo.lives = 4; ufo.dx = 2 * curSpeedMultiplier; }
+    else if (levelNum === 3) { ufo.active = true; ufo.x = 200; ufo.lives = 6; ufo.dx = 2 * curSpeedMultiplier; }
     else if (levelNum === 4) {
-        // BOSS LEVEL
+        if (difficulty === 'easy') {
+            // В легком режиме на 4 уровне генерируются блоки, а босс отсутствует
+            for (let r = 0; r < 5; r++) {
+                for (let c = 0; c < 10; c++) {
+                    let randomColor = blockColors[Math.floor(Math.random() * blockColors.length)];
+                    bricks.push({
+                        x: c * (brickWidth + brickPadding) + brickOffsetLeft,
+                        y: r * (brickHeight + brickPadding) + brickOffsetTop,
+                        width: brickWidth,
+                        height: brickHeight,
+                        status: 1,
+                        color: randomColor,
+                        power: 'none'
+                    });
+                }
+            }
+            return;
+        }
+        
+        // BOSS LEVEL (Medium / Extreme)
         boss.active = true;
         boss.hp = boss.maxHp;
         boss.x = 250;
-        boss.dx = 1.5;
+        boss.dx = 1.5 * curSpeedMultiplier;
         // Create boss shields
         for (let i = 0; i < 6; i++) {
             bossShields.push({ angle: (Math.PI * 2 / 6) * i, hp: 3, radius: 95 });
@@ -2050,6 +2111,31 @@ function initGame(mode) {
         gameState = 'SANDBOX_EDIT';
     } else {
         gameState = 'PLAYING';
+    }
+
+    // Инициализация параметров сложности
+    if (difficulty === 'easy') {
+        speedMultiplier = 1.0;
+        coinRewardPerBrick = 1;
+        ufoDefeatCoins = 10;
+        levelWinBonus = 30;
+        paddle.speed = 9;
+    } else if (difficulty === 'medium') {
+        speedMultiplier = 1.0;
+        coinRewardPerBrick = 2;
+        ufoDefeatCoins = 25;
+        levelWinBonus = 70;
+        bossDefeatCoins = 100;
+        bossWinBonus = 300;
+        paddle.speed = 9;
+    } else if (difficulty === 'extreme') {
+        speedMultiplier = 1.45;
+        coinRewardPerBrick = 4;
+        ufoDefeatCoins = 60;
+        levelWinBonus = 150;
+        bossDefeatCoins = 300;
+        bossWinBonus = 700;
+        paddle.speed = 13;
     }
 
     score = 0;
@@ -2111,8 +2197,8 @@ function initGame(mode) {
         x: paddle.x + paddle.width / 2,
         y: paddle.y - 10,
         radius: 7,
-        dx: 4,
-        dy: -4,
+        dx: 4 * speedMultiplier,
+        dy: -4 * speedMultiplier,
         stuck: true,
         fireball: false,
         trail: []
@@ -2168,8 +2254,8 @@ function releaseBalls() {
     balls.forEach(b => {
         if (b.stuck) {
             b.stuck = false;
-            b.dx = (Math.random() - 0.5) * 4;
-            b.dy = -5;
+            b.dx = (Math.random() - 0.5) * 4 * speedMultiplier;
+            b.dy = -5 * speedMultiplier;
             released = true;
         }
     });
@@ -2250,8 +2336,8 @@ function fireLaser() {
         let t = Date.now();
         let cooldown = playerUpgrades.laserPower ? 140 : 220;
         if (t - paddle.lastShotTime > cooldown) {
-            bullets.push({ x: paddle.x + 8, y: paddle.y, width: 4, height: 12, dy: -8 });
-            bullets.push({ x: paddle.x + paddle.width - 12, y: paddle.y, width: 4, height: 12, dy: -8 });
+            bullets.push({ x: paddle.x + 8, y: paddle.y, width: 4, height: 12, dy: -8 * speedMultiplier });
+            bullets.push({ x: paddle.x + paddle.width - 12, y: paddle.y, width: 4, height: 12, dy: -8 * speedMultiplier });
             paddle.lastShotTime = t;
             playSound('laser');
             triggerVibe('tick');
@@ -2304,8 +2390,9 @@ function update() {
         ufo.x += ufo.dx;
         if (ufo.x + ufo.width > virtualWidth || ufo.x < 0) ufo.dx = -ufo.dx;
         let now = Date.now();
-        if (now - ufo.lastShot > 1600) {
-            alienPlasma.push({ x: ufo.x + ufo.width / 2, y: ufo.y + ufo.height, radius: 4, dy: 3.5 });
+        let shotCooldown = 1600 / speedMultiplier;
+        if (now - ufo.lastShot > shotCooldown) {
+            alienPlasma.push({ x: ufo.x + ufo.width / 2, y: ufo.y + ufo.height, radius: 4, dy: 3.5 * speedMultiplier });
             ufo.lastShot = now;
         }
     }
@@ -2315,19 +2402,20 @@ function update() {
         boss.x += boss.dx;
         if (boss.x + boss.width > virtualWidth - 30 || boss.x < 30) boss.dx = -boss.dx;
 
-        boss.shieldAngle += 0.02; 
+        boss.shieldAngle += 0.02 * speedMultiplier; 
 
         let now = Date.now();
-        if (now - boss.lastAttackTime > 1900) {
+        let bossShotCooldown = 1900 / speedMultiplier;
+        if (now - boss.lastAttackTime > bossShotCooldown) {
             boss.lastAttackTime = now;
             let pattern = Math.floor(Math.random() * 2);
             if (pattern === 0) {
-                alienPlasma.push({ x: boss.x + 30, y: boss.y + boss.height, radius: 5, dy: 3.2 });
-                alienPlasma.push({ x: boss.x + boss.width / 2, y: boss.y + boss.height, radius: 6, dy: 3.8 });
-                alienPlasma.push({ x: boss.x + boss.width - 30, y: boss.y + boss.height, radius: 5, dy: 3.2 });
+                alienPlasma.push({ x: boss.x + 30, y: boss.y + boss.height, radius: 5, dy: 3.2 * speedMultiplier });
+                alienPlasma.push({ x: boss.x + boss.width / 2, y: boss.y + boss.height, radius: 6, dy: 3.8 * speedMultiplier });
+                alienPlasma.push({ x: boss.x + boss.width - 30, y: boss.y + boss.height, radius: 5, dy: 3.2 * speedMultiplier });
                 playSound('laser');
             } else {
-                alienPlasma.push({ x: boss.x + boss.width / 2, y: boss.y + boss.height, radius: 6, dy: 2, homing: true });
+                alienPlasma.push({ x: boss.x + boss.width / 2, y: boss.y + boss.height, radius: 6, dy: 2 * speedMultiplier, homing: true });
                 playSound('hurt');
             }
         }
@@ -2364,7 +2452,7 @@ function update() {
         
         if (p.homing) {
             let diffX = (paddle.x + paddle.width / 2) - p.x;
-            p.x += Math.sign(diffX) * 1.5;
+            p.x += Math.sign(diffX) * 1.5 * speedMultiplier;
         }
 
         if (p.y > virtualHeight) { alienPlasma.splice(i, 1); continue; }
@@ -2391,9 +2479,9 @@ function update() {
             if (ufo.lives <= 0) {
                 ufo.active = false;
                 score += 250;
-                gameCoins += 15;
+                gameCoins += ufoDefeatCoins;
                 addScorePopup(ufo.x, ufo.y, 'UFO DOWN +250', '#00ffcc');
-                showNotify('НЛО УНИЧТОЖЕН! +15 деталей');
+                showNotify(`НЛО УНИЧТОЖЕН! +${ufoDefeatCoins} деталей`);
             }
             continue;
         }
@@ -2411,7 +2499,7 @@ function update() {
             if (b.status === 1 && bl.x > b.x && bl.x < b.x + b.width && bl.y > b.y && bl.y < b.y + b.height) {
                 b.status = 0;
                 score += 15;
-                gameCoins += 1;
+                gameCoins += coinRewardPerBrick;
                 createExplosion(bl.x, bl.y, b.color);
                 bullets.splice(i, 1);
                 break;
@@ -2434,7 +2522,7 @@ function update() {
         ball.x += ball.dx;
         ball.y += ball.dy;
 
-        if (Math.abs(ball.dy) < 1.8) ball.dy = ball.dy < 0 ? -1.8 : 1.8;
+        if (Math.abs(ball.dy) < 1.8 * speedMultiplier) ball.dy = ball.dy < 0 ? -1.8 * speedMultiplier : 1.8 * speedMultiplier;
 
         if (ball.x - ball.radius < 0) { ball.x = ball.radius; ball.dx = -ball.dx; playSound('hit'); }
         if (ball.x + ball.radius > virtualWidth) { ball.x = virtualWidth - ball.radius; ball.dx = -ball.dx; playSound('hit'); }
@@ -2489,7 +2577,7 @@ function update() {
                 let hitPoint = ball.x - (paddle.x + paddle.width / 2);
                 let norm = hitPoint / (paddle.width / 2);
                 let angle = norm * (Math.PI / 2.5);
-                let speed = ball.fireball ? 7.5 : 6;
+                let speed = (ball.fireball ? 7.5 : 6) * speedMultiplier;
                 ball.dx = speed * Math.sin(angle);
                 ball.dy = -Math.abs(speed * Math.cos(angle));
                 playSound('hit');
@@ -2516,7 +2604,7 @@ function update() {
         if (lives <= 0) {
             checkGameOver();
         } else {
-            balls = [{ x: paddle.x + paddle.width / 2, y: paddle.y - 10, radius: 7, dx: 3.5, dy: -4, stuck: true, trail: [] }];
+            balls = [{ x: paddle.x + paddle.width / 2, y: paddle.y - 10, radius: 7, dx: 3.5 * speedMultiplier, dy: -4 * speedMultiplier, stuck: true, trail: [] }];
             paddle.magnet = playerUpgrades.magneticStart;
         }
     }
@@ -2543,7 +2631,7 @@ function update() {
                     
                     b.status = 0;
                     score += 10;
-                    gameCoins += 1;
+                    gameCoins += coinRewardPerBrick;
                     comboCount++; 
                     
                     if (comboCount >= 5) {
@@ -2567,12 +2655,27 @@ function update() {
     if (activeBricksCount === 0 && !boss.active && currentMode === 'single') {
         if (currentLevel < 4) {
             currentLevel++;
-            document.getElementById('levelText').innerText = currentLevel === 4 ? 'BOSS 🛸' : currentLevel;
-            showNotify(currentLevel === 4 ? '⚠️ ВНИМАНИЕ: МАТРИЦА VOID MASTER НАДВИГАЕТСЯ!' : `УРОВЕНЬ ${currentLevel-1} ПРОЙДЕН!`);
-            coins += gameCoins + 50; gameCoins = 0;
+            if (currentLevel === 4 && difficulty === 'easy') {
+                document.getElementById('levelText').innerText = '4';
+            } else {
+                document.getElementById('levelText').innerText = currentLevel === 4 ? 'BOSS 🛸' : currentLevel;
+            }
+            showNotify((currentLevel === 4 && difficulty !== 'easy') ? '⚠️ ВНИМАНИЕ: МАТРИЦА VOID MASTER НАДВИГАЕТСЯ!' : `УРОВЕНЬ ${currentLevel-1} ПРОЙДЕН!`);
+            coins += gameCoins + levelWinBonus; gameCoins = 0;
             updateCoinDisplays();
             buildLevel(currentLevel);
-            balls = [{ x: paddle.x + paddle.width / 2, y: paddle.y - 10, radius: 7, dx: 4, dy: -4, stuck: true, trail: [] }];
+            balls = [{ x: paddle.x + paddle.width / 2, y: paddle.y - 10, radius: 7, dx: 4 * speedMultiplier, dy: -4 * speedMultiplier, stuck: true, trail: [] }];
+        } else {
+            // Очищен 4-й уровень (на легкой сложности без босса)
+            score += 1000;
+            createExplosion(virtualWidth / 2, virtualHeight / 2, '#a7d973');
+            playSound('boss_defeat');
+            showNotify('💥 ПОБЕДА! ВСЕ УРОВНИ ПРОЙДЕНЫ!');
+            triggerScreenConfetti();
+            coins += gameCoins + 150; gameCoins = 0;
+            updateCoinDisplays();
+            updateLeaderboard(score);
+            setTimeout(backToMenu, 3000);
         }
     } else if (activeBricksCount === 0 && (currentMode === 'sandbox_play' || currentMode === 'pvp')) {
         sendPvpData({ type: 'gameover', score: score });
@@ -2584,7 +2687,7 @@ function update() {
         p.y += p.dy;
         if (p.x + p.width > paddle.x && p.x < paddle.x + paddle.width && p.y + p.height > paddle.y && p.y < paddle.y + paddle.height) {
             if (p.type === 'multiball') {
-                balls.push({ x: paddle.x, y: paddle.y, radius: 7, dx: -3, dy: -4, stuck: false, fireball: false, trail: [] });
+                balls.push({ x: paddle.x, y: paddle.y, radius: 7, dx: -3 * speedMultiplier, dy: -4 * speedMultiplier, stuck: false, fireball: false, trail: [] });
                 addScorePopup(paddle.x, paddle.y - 20, 'MULTIBALL x2', '#ffeb3b');
             } else if (p.type === 'wide') {
                 paddle.width = 145;
@@ -2615,13 +2718,13 @@ function checkBossDefeat() {
     if (boss.hp <= 0) {
         boss.active = false;
         score += 1500;
-        gameCoins += 100;
+        gameCoins += bossDefeatCoins;
         createExplosion(boss.x + boss.width / 2, boss.y + boss.height / 2, '#ef4444');
         playSound('boss_defeat');
         showNotify('💥 ПОБЕДА! КРАХ VOID MASTER!');
         triggerScreenConfetti();
         
-        coins += gameCoins + 300; gameCoins = 0;
+        coins += gameCoins + bossWinBonus; gameCoins = 0;
         updateCoinDisplays();
         updateLeaderboard(score);
         setTimeout(backToMenu, 3000);
