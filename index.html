@@ -1142,11 +1142,22 @@ async function createPvpRoom() {
         dataChannel = peerConnection.createDataChannel('flopy_pvp');
         setupDataChannel();
 
-        peerConnection.onicecandidate = async (event) => {
+        let sdpPublished = false;
+        const publishOffer = async () => {
+            if (sdpPublished) return;
+            sdpPublished = true;
+            let offerObj = { offer: peerConnection.localDescription, name: playerNickname };
+            await ntfyPublish('fropy_room_offer_' + roomCode, offerObj);
+            document.getElementById('pvpHostStatus').innerText = 'Комната готова! Ожидание соперника...';
+        };
+
+        // Ограничиваем сбор ICE кандидатов 800мс, чтобы не ждать медленные интерфейсы
+        let iceTimeout = setTimeout(publishOffer, 800); 
+
+        peerConnection.onicecandidate = (event) => {
             if (event.candidate === null) {
-                let offerObj = { offer: peerConnection.localDescription, name: playerNickname };
-                await ntfyPublish('fropy_room_offer_' + roomCode, offerObj);
-                document.getElementById('pvpHostStatus').innerText = 'Комната готова! Ожидание соперника...';
+                clearTimeout(iceTimeout);
+                publishOffer();
             }
         };
 
@@ -1233,14 +1244,25 @@ async function connectToPvpRoom() {
             setupDataChannel();
         };
 
-        peerConnection.onicecandidate = async (event) => {
+        let sdpPublished = false;
+        const publishAnswer = async () => {
+            if (sdpPublished) return;
+            sdpPublished = true;
+            let answerObj = { answer: peerConnection.localDescription, name: playerNickname };
+            await ntfyPublish('fropy_room_answer_' + code, answerObj);
+            document.getElementById('pvpJoinModal').style.display = 'none';
+            btn.innerText = oldText;
+            btn.disabled = false;
+            startPvpCountdown(pvpOpponent);
+        };
+
+        // Быстрый сбор ICE кандидатов (максимум 800мс)
+        let iceTimeout = setTimeout(publishAnswer, 800);
+
+        peerConnection.onicecandidate = (event) => {
             if (event.candidate === null) {
-                let answerObj = { answer: peerConnection.localDescription, name: playerNickname };
-                await ntfyPublish('fropy_room_answer_' + code, answerObj);
-                document.getElementById('pvpJoinModal').style.display = 'none';
-                btn.innerText = oldText;
-                btn.disabled = false;
-                startPvpCountdown(pvpOpponent);
+                clearTimeout(iceTimeout);
+                publishAnswer();
             }
         };
 
