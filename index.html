@@ -570,9 +570,9 @@
 
                 <div class="menu-left-panel">
                     <h1>Flopy</h1>
-                    <div class="alpha-badge">MOBILE EVOLUTION v2.5</div>
+                    <div class="alpha-badge">BOSS INVASION v3.0</div>
                     <div class="menu-desc">
-                        Классический аркадный автомат, адаптированный под сенсорные экраны и онлайн-дуэли! Теперь с квантовым щитом защиты.
+                        Аркадный автомат с квантовой защитой! Уничтожьте космическую угрозу Void Master на 4-м уровне и активируйте мега-комбо!
                     </div>
                     <div style="font-size: 11px; color: #f7ce55; background: #080d07; padding: 10px 15px; border: 1.5px solid #304729; border-radius: 10px; width: 100%; box-shadow: inset 0 2px 4px rgba(0,0,0,0.6);">
                         ДЕТАЛИ В НАЛИЧИИ: <br><span id="coinDisplay" style="font-size: 24px; font-weight: 900; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.2);">100</span> ⚙️
@@ -1875,6 +1875,20 @@ function playSound(type) {
         gain.gain.setValueAtTime(0.04, t);
         gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
         osc.start(t); osc.stop(t + 0.4);
+    } else if (type === 'boss_hurt') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(220, t);
+        osc.frequency.linearRampToValueAtTime(80, t + 0.25);
+        gain.gain.setValueAtTime(0.04, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+        osc.start(t); osc.stop(t + 0.25);
+    } else if (type === 'boss_defeat') {
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(440, t);
+        osc.frequency.linearRampToValueAtTime(40, t + 0.8);
+        gain.gain.setValueAtTime(0.06, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.8);
+        osc.start(t); osc.stop(t + 0.8);
     }
 }
 
@@ -1917,6 +1931,11 @@ let confettis = [];
 let stars = [];
 let screenShake = 0;
 
+// ДИНАМИЧЕСКИЙ КОМБО МУЛЬТИПЛИКАТОР И СИСТЕМА БОССА
+let comboCount = 0;
+let boss = { active: false, x: 250, y: 50, width: 300, height: 50, maxHp: 50, hp: 50, dx: 1.5, shieldAngle: 0, lastAttackTime: 0 };
+let bossShields = []; // Орбитальные энергетические блоки щита
+
 const blockColors = ['#3a86c8', '#10b981', '#fbbf24', '#f97316', '#ef4444'];
 
 for (let i = 0; i < 45; i++) {
@@ -1947,9 +1966,24 @@ const brickOffsetLeft = 35;
 function buildLevel(levelNum) {
     bricks = [];
     ufo.active = false;
+    boss.active = false;
+    bossShields = [];
+    comboCount = 0;
     
     if (levelNum === 2) { ufo.active = true; ufo.x = 50; ufo.lives = 4; }
     else if (levelNum === 3) { ufo.active = true; ufo.x = 200; ufo.lives = 6; }
+    else if (levelNum === 4) {
+        // УРОВЕНЬ БОССА
+        boss.active = true;
+        boss.hp = boss.maxHp;
+        boss.x = 250;
+        boss.dx = 1.5;
+        // Создаем орбитальные щиты
+        for (let i = 0; i < 6; i++) {
+            bossShields.push({ angle: (Math.PI * 2 / 6) * i, hp: 3, radius: 95 });
+        }
+        return; // Пропускаем генерацию обычных кирпичей
+    }
 
     let powers = ['none', 'none', 'multiball', 'wide', 'laser', 'fireball', 'shield'];
 
@@ -1999,6 +2033,9 @@ function initGame(mode) {
     confettis = [];
     scorePopups = [];
     screenShake = 0;
+    comboCount = 0;
+    boss.active = false;
+    bossShields = [];
     
     document.getElementById('levelText').innerText = (mode === 'pvp') ? 'ДУЭЛЬ' : currentLevel;
     document.getElementById('scoreText').innerText = score;
@@ -2187,7 +2224,7 @@ function update() {
     if (screenShake > 0) screenShake -= 0.1;
 
     for (let s of stars) {
-        s.y += s.speed;
+        s.y += (comboCount >= 5) ? s.speed * 4 : s.speed;
         if (s.y > virtualHeight) { s.y = 0; s.x = Math.random() * virtualWidth; }
     }
 
@@ -2232,9 +2269,67 @@ function update() {
         }
     }
 
+    // ЛОГИКА ДЕЙСТВИЙ БОССА VOID MASTER
+    if (boss.active) {
+        boss.x += boss.dx;
+        if (boss.x + boss.width > virtualWidth - 30 || boss.x < 30) boss.dx = -boss.dx;
+
+        boss.shieldAngle += 0.02; // вращение орбитальных щитов
+
+        let now = Date.now();
+        if (now - boss.lastAttackTime > 1900) {
+            boss.lastAttackTime = now;
+            let pattern = Math.floor(Math.random() * 2);
+            if (pattern === 0) {
+                // Тройная плазма
+                alienPlasma.push({ x: boss.x + 30, y: boss.y + boss.height, radius: 5, dy: 3.2 });
+                alienPlasma.push({ x: boss.x + boss.width / 2, y: boss.y + boss.height, radius: 6, dy: 3.8 });
+                alienPlasma.push({ x: boss.x + boss.width - 30, y: boss.y + boss.height, radius: 5, dy: 3.2 });
+                playSound('laser');
+            } else {
+                // Самонаводящаяся ракета
+                alienPlasma.push({ x: boss.x + boss.width / 2, y: boss.y + boss.height, radius: 6, dy: 2, homing: true });
+                playSound('hurt');
+            }
+        }
+
+        // Обновление и коллизия орбитальных щитов
+        let bCenterX = boss.x + boss.width / 2;
+        let bCenterY = boss.y + boss.height / 2;
+        for (let i = bossShields.length - 1; i >= 0; i--) {
+            let sh = bossShields[i];
+            let shX = bCenterX + Math.cos(boss.shieldAngle + sh.angle) * sh.radius;
+            let shY = bCenterY + Math.sin(boss.shieldAngle + sh.angle) * sh.radius;
+
+            // Коллизия щита босса с нашими снарядами (пулями)
+            for (let j = bullets.length - 1; j >= 0; j--) {
+                let bl = bullets[j];
+                let dist = Math.hypot(bl.x - shX, bl.y - shY);
+                if (dist < 14) {
+                    sh.hp--;
+                    createExplosion(shX, shY, '#f7ce55');
+                    bullets.splice(j, 1);
+                    playSound('brick');
+                    if (sh.hp <= 0) {
+                        bossShields.splice(i, 1);
+                        score += 50;
+                        addScorePopup(shX, shY, '+50 ЩИТ БОССА', '#f7ce55');
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
     for (let i = alienPlasma.length - 1; i >= 0; i--) {
         let p = alienPlasma[i];
         p.y += p.dy;
+        
+        if (p.homing) {
+            let diffX = (paddle.x + paddle.width / 2) - p.x;
+            p.x += Math.sign(diffX) * 1.5;
+        }
+
         if (p.y > virtualHeight) { alienPlasma.splice(i, 1); continue; }
         if (p.x > paddle.x && p.x < paddle.x + paddle.width && p.y + p.radius >= paddle.y && p.y - p.radius <= paddle.y + paddle.height) {
             alienPlasma.splice(i, 1);
@@ -2263,6 +2358,15 @@ function update() {
                 addScorePopup(ufo.x, ufo.y, 'UFO DOWN +250', '#00ffcc');
                 showNotify('НЛО УНИЧТОЖЕН! +15 деталей');
             }
+            continue;
+        }
+
+        if (boss.active && bl.x > boss.x && bl.x < boss.x + boss.width && bl.y > boss.y && bl.y < boss.y + boss.height) {
+            bullets.splice(i, 1);
+            boss.hp--;
+            createExplosion(bl.x, bl.y, '#ef4444');
+            playSound('boss_hurt');
+            checkBossDefeat();
             continue;
         }
 
@@ -2301,7 +2405,50 @@ function update() {
         if (ball.x + ball.radius > virtualWidth) { ball.x = virtualWidth - ball.radius; ball.dx = -ball.dx; playSound('hit'); }
         if (ball.y - ball.radius < 0) { ball.y = ball.radius; ball.dy = -ball.dy; playSound('hit'); }
 
+        // Прямое столкновение с телом босса
+        if (boss.active && ball.x + ball.radius > boss.x && ball.x - ball.radius < boss.x + boss.width &&
+            ball.y + ball.radius > boss.y && ball.y - ball.radius < boss.y + boss.height) {
+            
+            ball.dy = -ball.dy;
+            let dmg = ball.fireball ? 3 : 1;
+            boss.hp -= dmg;
+            createExplosion(ball.x, ball.y, '#ef4444');
+            playSound('boss_hurt');
+            addScorePopup(ball.x, ball.y, `-${dmg} HP БОССУ`, '#ef4444');
+            checkBossDefeat();
+        }
+
+        // Прямое столкновение с орбитальными щитами босса
+        if (boss.active) {
+            let bCenterX = boss.x + boss.width / 2;
+            let bCenterY = boss.y + boss.height / 2;
+            for (let k = bossShields.length - 1; k >= 0; k--) {
+                let sh = bossShields[k];
+                let shX = bCenterX + Math.cos(boss.shieldAngle + sh.angle) * sh.radius;
+                let shY = bCenterY + Math.sin(boss.shieldAngle + sh.angle) * sh.radius;
+                let dist = Math.hypot(ball.x - shX, ball.y - shY);
+                if (dist < ball.radius + 12) {
+                    ball.dy = -ball.dy;
+                    sh.hp--;
+                    createExplosion(shX, shY, '#ffd700');
+                    playSound('brick');
+                    if (sh.hp <= 0) {
+                        bossShields.splice(k, 1);
+                        score += 50;
+                        addScorePopup(shX, shY, '+50 ЩИТ БОССА', '#ffd700');
+                    }
+                    break;
+                }
+            }
+        }
+
         if (ball.x > paddle.x && ball.x < paddle.x + paddle.width && ball.y + ball.radius >= paddle.y && ball.y - ball.radius <= paddle.y + paddle.height) {
+            if (comboCount >= 5) {
+                playSound('shield_hit');
+            }
+            comboCount = 0; // Сброс комбо при возврате мяча на ракетку
+            balls.forEach(b => b.fireball = false); // сброс гипер-режима
+
             if (paddle.magnet) {
                 ball.stuck = true;
                 playSound('hit');
@@ -2332,6 +2479,7 @@ function update() {
 
     if (balls.length === 0) {
         lives--;
+        comboCount = 0;
         document.getElementById('livesText').innerText = lives;
         if (lives <= 0) {
             checkGameOver();
@@ -2365,6 +2513,12 @@ function update() {
                     b.status = 0;
                     score += 10;
                     gameCoins += 1;
+                    comboCount++; // Увеличение комбо
+                    
+                    if (comboCount >= 5) {
+                        balls.forEach(bl => bl.fireball = true); // Включаем гипер-режим огненного шара при комбо >= 5
+                    }
+
                     document.getElementById('scoreText').innerText = score;
                     document.getElementById('gameCoinText').innerText = gameCoins;
                     createExplosion(ball.x, ball.y, b.color);
@@ -2379,21 +2533,15 @@ function update() {
         }
     }
 
-    if (activeBricksCount === 0 && currentMode === 'single') {
-        if (currentLevel < 3) {
+    if (activeBricksCount === 0 && !boss.active && currentMode === 'single') {
+        if (currentLevel < 4) {
             currentLevel++;
-            document.getElementById('levelText').innerText = currentLevel;
-            showNotify(`УРОВЕНЬ ${currentLevel-1} ПРОЙДЕН!`);
+            document.getElementById('levelText').innerText = currentLevel === 4 ? 'BOSS 🛸' : currentLevel;
+            showNotify(currentLevel === 4 ? '⚠️ ВНИМАНИЕ: МАТРИЦА VOID MASTER НАДВИГАЕТСЯ!' : `УРОВЕНЬ ${currentLevel-1} ПРОЙДЕН!`);
             coins += gameCoins + 50; gameCoins = 0;
             updateCoinDisplays();
             buildLevel(currentLevel);
             balls = [{ x: paddle.x + paddle.width / 2, y: paddle.y - 10, radius: 7, dx: 4, dy: -4, stuck: true, trail: [] }];
-        } else {
-            showNotify('АРКАДА ПРОЙДЕНА!');
-            coins += gameCoins + 150; gameCoins = 0;
-            updateCoinDisplays();
-            updateLeaderboard(score);
-            setTimeout(backToMenu, 3000);
         }
     } else if (activeBricksCount === 0 && (currentMode === 'sandbox_play' || currentMode === 'pvp')) {
         sendPvpData({ type: 'gameover', score: score });
@@ -2429,6 +2577,23 @@ function update() {
         } else if (p.y > virtualHeight) {
             powerUps.splice(i, 1);
         }
+    }
+}
+
+function checkBossDefeat() {
+    if (boss.hp <= 0) {
+        boss.active = false;
+        score += 1500;
+        gameCoins += 100;
+        createExplosion(boss.x + boss.width / 2, boss.y + boss.height / 2, '#ef4444');
+        playSound('boss_defeat');
+        showNotify('💥 ПОБЕДА! КРАХ VOID MASTER!');
+        triggerScreenConfetti();
+        
+        coins += gameCoins + 300; gameCoins = 0;
+        updateCoinDisplays();
+        updateLeaderboard(score);
+        setTimeout(backToMenu, 3000);
     }
 }
 
@@ -2521,7 +2686,10 @@ function draw() {
 
     // Звезды
     ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-    for (let s of stars) ctx.fillRect(s.x, s.y, s.size, s.size);
+    for (let s of stars) {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+        ctx.fillRect(s.x, s.y, s.size, (comboCount >= 5) ? s.size * 5 : s.size);
+    }
 
     if (gameState === 'MENU') { ctx.restore(); return; }
 
@@ -2582,8 +2750,52 @@ function draw() {
         ctx.fill();
     }
 
+    // ОТРИСОВКА БОССА VOID MASTER
+    if (boss.active) {
+        // Тело босса
+        ctx.fillStyle = '#ef4444';
+        ctx.beginPath();
+        if (ctx.roundRect) {
+            ctx.roundRect(boss.x, boss.y, boss.width, boss.height, 12);
+        } else {
+            ctx.rect(boss.x, boss.y, boss.width, boss.height);
+        }
+        ctx.fill();
+
+        // Световой индикатор уязвимости босса
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(boss.x + boss.width / 2, boss.y + boss.height / 2, 14, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#111';
+        ctx.font = 'bold 10px "Outfit"';
+        ctx.textAlign = 'center';
+        ctx.fillText('VOID', boss.x + boss.width / 2, boss.y + boss.height / 2 + 3);
+
+        // Индикатор ХП Босса
+        ctx.fillStyle = 'rgba(255, 85, 85, 0.15)';
+        ctx.fillRect(boss.x, boss.y - 15, boss.width, 6);
+        ctx.fillStyle = '#ef4444';
+        ctx.fillRect(boss.x, boss.y - 15, boss.width * (boss.hp / boss.maxHp), 6);
+
+        // Отрисовка орбитальных блоков щита
+        let bCenterX = boss.x + boss.width / 2;
+        let bCenterY = boss.y + boss.height / 2;
+        bossShields.forEach(sh => {
+            let shX = bCenterX + Math.cos(boss.shieldAngle + sh.angle) * sh.radius;
+            let shY = bCenterY + Math.sin(boss.shieldAngle + sh.angle) * sh.radius;
+            ctx.fillStyle = '#ffd700';
+            ctx.beginPath();
+            ctx.arc(shX, shY, 10, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#fff';
+            ctx.stroke();
+        });
+    }
+
     for (let p of alienPlasma) {
-        ctx.fillStyle = '#ff3366';
+        ctx.fillStyle = p.homing ? '#ffe600' : '#ff3366';
         ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2); ctx.fill();
     }
 
@@ -2650,6 +2862,14 @@ function draw() {
         ctx.fillText(sp.text, sp.x, sp.y);
     }
     ctx.globalAlpha = 1.0;
+
+    // Отрисовка комбо на экране
+    if (comboCount > 0) {
+        ctx.fillStyle = comboCount >= 5 ? '#f7ce55' : '#9cb299';
+        ctx.font = comboCount >= 5 ? '900 16px "Outfit"' : '700 12px "Outfit"';
+        ctx.textAlign = 'right';
+        ctx.fillText(`COMBO X${comboCount}`, virtualWidth - 30, virtualHeight - 20);
+    }
 
     if (gameState === 'PAUSED') {
         ctx.fillStyle = 'rgba(6, 10, 5, 0.9)';
