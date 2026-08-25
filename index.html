@@ -3,7 +3,7 @@
 <head>
     <!-- Базовые мета-теги -->
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Fropy Arcade — Мобильная аркадная игра</title>
     <meta name="description" content="Играйте в увлекательную аркадную игру Fropy Arcade прямо в браузере. Уровни, бонусы и классный геймплей!">
     <meta name="keywords" content="аркада, игра в браузере, fropy arcade, казуальная игра">
@@ -20,6 +20,7 @@
     <!-- Для мобильных устройств -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap');
 
@@ -27,7 +28,9 @@
             box-sizing: border-box;
             user-select: none;
             -webkit-user-select: none;
+            touch-action: none;
         }
+        
         body {
             margin: 0;
             padding: 0;
@@ -39,13 +42,17 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
+            min-height: 100dvh;
             overflow: hidden;
             background-image: radial-gradient(circle at center, #0e170c 0%, #050804 100%);
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
         }
+
+        /* Адаптивный ретро-корпус */
         .arcade-cabinet {
             background: linear-gradient(180deg, #182415 0%, #0c120a 100%);
-            padding: 24px;
-            border-radius: 28px;
+            padding: clamp(10px, 3vw, 24px);
+            border-radius: clamp(14px, 4vw, 28px);
             border: 3px solid #456339;
             box-shadow: 0 25px 70px rgba(0, 0, 0, 0.9), 
                         inset 0 0 20px rgba(167, 217, 115, 0.15),
@@ -53,8 +60,13 @@
             text-align: center;
             width: 95vw;
             max-width: 860px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
             transition: all 0.3s ease;
         }
+
+        /* Рамка экрана */
         .screen-border {
             position: relative;
             border-radius: 18px;
@@ -65,6 +77,7 @@
             width: 100%;
             box-shadow: inset 0 0 40px rgba(0,0,0,0.95), 0 0 20px rgba(0,0,0,0.6);
         }
+
         canvas {
             display: block;
             width: 100%;
@@ -72,19 +85,22 @@
             background: #060a05;
         }
         
-        /* СТИЛЬНОЕ МЕНЮ (FROPY STYLE) */
+        /* СТИЛЬНОЕ АДАПТИВНОЕ МЕНЮ */
         .menu-screen {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(6, 10, 5, 0.97);
             backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             display: flex;
             justify-content: space-between;
             align-items: center;
             z-index: 10;
-            padding: 40px;
+            padding: clamp(15px, 5vw, 40px);
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
+
         .menu-left-panel {
             width: 44%;
             display: flex;
@@ -92,59 +108,66 @@
             align-items: flex-start;
             text-align: left;
             border-right: 2px solid rgba(82, 117, 68, 0.25);
-            padding-right: 30px;
+            padding-right: clamp(15px, 3vw, 30px);
         }
+
         .menu-right-panel {
             width: 52%;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 12px;
+            gap: clamp(8px, 2vw, 12px);
         }
+
         h1 {
             color: #a7d973;
-            font-size: 42px;
+            font-size: clamp(24px, 6vw, 42px);
             font-weight: 900;
             margin: 0 0 4px 0;
             letter-spacing: 3px;
             text-shadow: 0 0 20px rgba(167, 217, 115, 0.5);
             font-style: italic;
         }
+
         .alpha-badge {
             background: #25381f;
             color: #b9ec88;
-            font-size: 10px;
+            font-size: clamp(8px, 1.8vw, 10px);
             font-weight: 800;
             padding: 5px 12px;
             border-radius: 8px;
-            margin-bottom: 18px;
+            margin-bottom: clamp(10px, 3vw, 18px);
             display: inline-block;
             border: 1px solid #436137;
             letter-spacing: 1.5px;
         }
+
         .menu-desc {
-            font-size: 13px;
+            font-size: clamp(11px, 2.2vw, 13px);
             color: #9cb299;
-            margin-bottom: 24px;
-            line-height: 1.6;
+            margin-bottom: clamp(12px, 3vw, 24px);
+            line-height: 1.5;
         }
+
         .menu-btn {
             background: linear-gradient(180deg, #1f2d1c 0%, #152013 100%);
             border: 1px solid #48663a;
             color: #e2edd6;
-            padding: 13px 20px;
+            padding: clamp(10px, 2.5vw, 14px) 20px;
             border-radius: 10px;
             font-family: 'Outfit', sans-serif;
-            font-size: 12px;
+            font-size: clamp(10px, 2.2vw, 12px);
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.2s ease-in-out;
             width: 100%;
             max-width: 320px;
             text-transform: uppercase;
             letter-spacing: 1.5px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+            touch-action: manipulation;
         }
+
         .menu-btn:hover {
             background: linear-gradient(180deg, #517a43 0%, #3e5e32 100%);
             color: #ffffff;
@@ -152,6 +175,7 @@
             box-shadow: 0 8px 25px rgba(78, 115, 64, 0.6), inset 0 1px 0 rgba(255,255,255,0.15);
             border-color: #79ac66;
         }
+
         .menu-btn:active {
             transform: translateY(1px);
             box-shadow: 0 2px 4px rgba(0,0,0,0.4);
@@ -166,6 +190,7 @@
             text-shadow: 0 2px 4px rgba(0,0,0,0.6);
             animation: viralPulse 1.4s infinite alternate cubic-bezier(0.4, 0, 0.6, 1);
         }
+
         @keyframes viralPulse {
             0% {
                 transform: scale(1) rotate(0deg);
@@ -182,7 +207,7 @@
             top: 14px; left: 18px; right: 18px;
             display: flex;
             justify-content: space-between;
-            font-size: 14px;
+            font-size: clamp(10px, 2.5vw, 14px);
             font-weight: 800;
             pointer-events: none;
             color: #fff;
@@ -190,49 +215,57 @@
             z-index: 5;
             letter-spacing: 0.8px;
         }
+
         .sandbox-panel {
             position: absolute;
             bottom: 12px; left: 12px; right: 12px;
             background: rgba(10, 16, 9, 0.96);
             border: 1.5px solid #517a43;
             border-radius: 12px;
-            padding: 10px;
+            padding: 8px;
             display: flex;
             justify-content: space-around;
             align-items: center;
-            font-size: 11px;
+            font-size: clamp(8px, 1.8vw, 11px);
             font-weight: 800;
             z-index: 5;
             box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            gap: 6px;
+            overflow-x: auto;
         }
+
         .sandbox-btn {
             background: #0f150e;
             border: 1px solid #436137;
             color: #a7d973;
-            padding: 8px 14px;
+            padding: 6px 10px;
             border-radius: 8px;
             cursor: pointer;
             font-family: 'Outfit', sans-serif;
-            font-size: 11px;
+            font-size: clamp(9px, 1.8vw, 11px);
             font-weight: 700;
             transition: 0.2s;
+            white-space: nowrap;
+            touch-action: manipulation;
         }
+
         .sandbox-btn.active, .sandbox-btn:hover {
             background: linear-gradient(180deg, #517a43 0%, #3e5e32 100%);
             color: #fff;
             border-color: #72a35f;
             box-shadow: 0 0 10px rgba(114, 163, 95, 0.4);
         }
+
         .notification {
             position: absolute;
-            top: 65px; left: 50%;
+            top: 55px; left: 50%;
             transform: translateX(-50%);
             background: rgba(8, 14, 7, 0.98);
             border: 2px solid #f7ce55;
             color: #fae08f;
-            padding: 12px 28px;
+            padding: 10px 22px;
             border-radius: 10px;
-            font-size: 13px;
+            font-size: clamp(11px, 2.2vw, 13px);
             font-weight: 800;
             z-index: 30;
             display: none;
@@ -240,24 +273,27 @@
             box-shadow: 0 8px 30px rgba(247, 206, 85, 0.35);
             animation: slideDown 0.35s cubic-bezier(0.18, 0.89, 0.32, 1.28);
         }
+
         @keyframes slideDown {
             0% { transform: translate(-50%, -25px); opacity: 0; }
             100% { transform: translate(-50%, 0); opacity: 1; }
         }
+
         .shop-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 14px;
-            margin-bottom: 15px;
+            gap: 12px;
+            margin-bottom: 10px;
             max-width: 600px;
             width: 100%;
         }
+
         .shop-item {
             background: linear-gradient(135deg, #131c11 0%, #0a1009 100%);
             border: 1.5px solid #304729;
             border-radius: 12px;
-            padding: 14px;
-            font-size: 11px;
+            padding: 10px;
+            font-size: clamp(9px, 2vw, 11px);
             text-align: center;
             display: flex;
             flex-direction: column;
@@ -265,15 +301,17 @@
             transition: all 0.25s ease;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
+
         .shop-item:hover {
             border-color: #517a43;
             background: linear-gradient(135deg, #182415 0%, #0d140b 100%);
             transform: translateY(-2px);
             box-shadow: 0 6px 15px rgba(0,0,0,0.5), 0 0 10px rgba(81, 122, 67, 0.1);
         }
-        .shop-item div { margin-bottom: 8px; }
+
+        .shop-item div { margin-bottom: 6px; }
+
         .footer-credits {
-            margin-top: 16px;
             font-size: 11px;
             color: #55704c;
             letter-spacing: 2px;
@@ -289,8 +327,9 @@
             background-size: 100% 3.5px, 5px 100%;
             z-index: 3;
             pointer-events: none;
-            opacity: 0.3;
+            opacity: 0.25;
         }
+
         .crt-vignette {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -299,58 +338,165 @@
             pointer-events: none;
         }
 
-        /* МОБИЛЬНЫЕ ЗОНЫ НАЖАТИЯ */
-        .mobile-touch-zones {
-            position: absolute;
-            bottom: 0; left: 0; width: 100%; height: 80px;
+        /* КЛАССИЧЕСКАЯ ИГРОВАЯ КОНСОЛЬ - МОБИЛЬНЫЙ ПУЛЬТ */
+        .mobile-controls-panel {
             display: none;
-            z-index: 4;
-            pointer-events: none;
+            width: 100%;
+            padding: 10px 15px;
+            background: rgba(14, 23, 12, 0.95);
+            border: 2px solid #3d5932;
+            border-radius: 18px;
+            margin-top: 5px;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.7);
         }
+
+        .touch-pad {
+            display: flex;
+            gap: 15px;
+        }
+
         .touch-btn {
-            position: absolute;
-            bottom: 10px;
-            width: 65px; height: 65px;
-            background: rgba(255, 255, 255, 0.08);
-            border: 2px solid rgba(255, 255, 255, 0.25);
+            width: clamp(55px, 14vw, 70px);
+            height: clamp(55px, 14vw, 70px);
+            background: linear-gradient(135deg, #253c1e 0%, #121e0f 100%);
+            border: 2.5px solid #517a43;
             border-radius: 50%;
-            pointer-events: auto;
             display: flex;
             align-items: center;
             justify-content: center;
             color: #fff;
             font-size: 24px;
             font-weight: bold;
-            transition: 0.1s;
-            backdrop-filter: blur(4px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.5), inset 0 2px 4px rgba(255,255,255,0.1);
+            transition: 0.05s;
+            cursor: pointer;
+            touch-action: manipulation;
         }
+
         .touch-btn:active {
-            background: rgba(255, 255, 255, 0.25);
-            transform: scale(0.9);
+            background: linear-gradient(135deg, #517a43 0%, #253c1e 100%);
+            transform: scale(0.92);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.6);
             border-color: #a7d973;
         }
-        #touchLeft { left: 15px; }
-        #touchRight { left: 90px; }
-        #touchAction { right: 15px; width: 85px; border-radius: 14px; font-size: 13px; letter-spacing: 1px; font-weight: 800; }
+
+        #touchAction {
+            width: clamp(80px, 20vw, 110px);
+            border-radius: 20px;
+            font-size: 14px;
+            letter-spacing: 1.5px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #a7d973 0%, #4e7340 100%);
+            border-color: #b9ec88;
+            color: #0d1a08;
+            text-shadow: 0 1px 2px rgba(255,255,255,0.2);
+        }
+
+        #touchAction:active {
+            background: linear-gradient(135deg, #4e7340 0%, #253c1e 100%);
+            color: #fff;
+        }
 
         /* ТАБЛИЦА ЛИДЕРОВ */
         .leaderboard-table {
             width: 100%;
             border-collapse: collapse;
             color: #e2e8df;
-            font-size: 12px;
+            font-size: clamp(10px, 2vw, 12px);
             text-align: left;
         }
+
         .leaderboard-table th {
             border-bottom: 2px solid #436137;
             color: #f7ce55;
             font-weight: 900;
-            font-size: 13px;
+            font-size: clamp(11px, 2.2vw, 13px);
             padding: 8px;
         }
+
         .leaderboard-table td {
             padding: 8px;
             border-bottom: 1px solid rgba(82, 117, 68, 0.15);
+        }
+
+        /* КОЛЕСО УДАЧИ АДАПТАЦИЯ */
+        .wheel-wrapper {
+            display: flex; 
+            gap: 20px; 
+            align-items: center; 
+            width: 100%; 
+            max-width: 680px; 
+            margin: auto 0; 
+            justify-content: center;
+        }
+
+        /* АДАПТИВНОСТЬ ДЛЯ ТЕЛЕФОНОВ / ВЕРТИКАЛЬНАЯ ОРИЕНТАЦИЯ */
+        @media (max-width: 768px) {
+            body {
+                justify-content: flex-start;
+                padding: 10px;
+            }
+
+            .arcade-cabinet {
+                width: 100%;
+                border-radius: 18px;
+                padding: 12px;
+                box-shadow: none;
+            }
+
+            .menu-screen {
+                flex-direction: column;
+                justify-content: flex-start;
+                gap: 15px;
+                padding: 20px 15px;
+            }
+
+            .menu-left-panel {
+                width: 100%;
+                border-right: none;
+                padding-right: 0;
+                align-items: center;
+                text-align: center;
+                border-bottom: 1.5px solid rgba(82, 117, 68, 0.25);
+                padding-bottom: 12px;
+            }
+
+            .menu-right-panel {
+                width: 100%;
+                margin-top: 0;
+            }
+
+            .shop-container {
+                grid-template-columns: 1fr;
+                max-height: 200px;
+                overflow-y: auto;
+            }
+
+            .wheel-wrapper {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            /* Включение нижнего пульта контроллеров на сенсорных экранах */
+            .mobile-controls-panel.touch-active {
+                display: flex;
+            }
+        }
+
+        @media (max-height: 600px) and (orientation: landscape) {
+            .arcade-cabinet {
+                max-width: 100%;
+                padding: 6px;
+            }
+            .menu-screen {
+                padding: 10px;
+            }
+            h1 { font-size: 22px; }
+            .alpha-badge { margin-bottom: 4px; }
+            .menu-desc { display: none; }
         }
     </style>
 </head>
@@ -366,25 +512,18 @@
             <!-- УВЕДОМЛЕНИЕ -->
             <div id="notificationBox" class="notification">Сообщение</div>
 
-            <!-- ЗОНЫ СЕНСОРНОГО УПРАВЛЕНИЯ НА ТЕЛЕФОНАХ -->
-            <div id="mobileControls" class="mobile-touch-zones">
-                <div id="touchLeft" class="touch-btn">◀</div>
-                <div id="touchRight" class="touch-btn">▶</div>
-                <div id="touchAction" class="touch-btn">ОГОНЬ</div>
-            </div>
-
             <!-- ГЛАВНОЕ МЕНЮ (FROPY) -->
             <div id="mainMenu" class="menu-screen">
                 <!-- КАРТОЧКА ИГРОКА ВЕРХНИЙ ПРАВЫЙ УГОЛ -->
-                <div style="position: absolute; top: 15px; right: 18px; font-size: 11px; background: rgba(37, 56, 31, 0.85); padding: 6px 12px; border-radius: 8px; border: 1px solid #436137; color: #a7d973; font-weight: 800; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 15;">
+                <div style="position: absolute; top: 15px; right: 18px; font-size: 10px; background: rgba(37, 56, 31, 0.85); padding: 6px 12px; border-radius: 8px; border: 1px solid #436137; color: #a7d973; font-weight: 800; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 15;">
                     👨‍🚀 ПИЛОТ: <span id="playerNicknameDisplay" style="color: #fff; text-shadow: 0 0 5px #a7d973;">Загрузка...</span>
                 </div>
 
                 <div class="menu-left-panel">
                     <h1>Fropy</h1>
-                    <div class="alpha-badge">EVOLUTION UPDATE v1.4</div>
+                    <div class="alpha-badge">MOBILE EVOLUTION v2.0</div>
                     <div class="menu-desc">
-                        Испытайте полностью обновленную космическую аркаду! Исправлен баланс начисления деталей, добавлены зловещие НЛО-соперники, огненные мячи, система прокачки скинов и 3 проработанных уровня!
+                        Полная адаптация для мобильных и планшетов! Наслаждайтесь улучшенным сенсорным управлением, тактильной вибрацией, четкой High-DPI графикой и сбалансированным геймплеем.
                     </div>
                     <div style="font-size: 11px; color: #f7ce55; background: #080d07; padding: 12px 18px; border: 1.5px solid #304729; border-radius: 10px; width: 100%; box-shadow: inset 0 2px 4px rgba(0,0,0,0.6);">
                         ДЕТАЛИ В НАЛИЧИИ: <br><span id="coinDisplay" style="font-size: 26px; font-weight: 900; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.2);">100</span> ⚙️
@@ -407,26 +546,26 @@
                 <h1>УДАЧА & AIRDROP 🎡🪂</h1>
                 <div class="alpha-badge" style="background:#3b2d10; color:#f7ce55; border:1px solid #735515;">РЕФЕРАЛЬНЫЙ БУСТ: АКТИВЕН</div>
                 
-                <div style="display: flex; gap: 30px; align-items: center; width: 100%; max-width: 680px; margin: auto 0; justify-content: center;">
+                <div class="wheel-wrapper">
                     
                     <!-- Колесо фортуны -->
-                    <div style="position: relative; width: 200px; height: 200px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                        <div id="fortuneWheel" style="width: 180px; height: 180px; border-radius: 50%; border: 6px solid #f7ce55; background: conic-gradient(#25381f 0deg 60deg, #10180e 60deg 120deg, #25381f 120deg 180deg, #10180e 180deg 240deg, #25381f 240deg 300deg, #10180e 300deg 360deg); transition: transform 5s cubic-bezier(0.15, 0.85, 0.32, 1); box-shadow: 0 0 30px rgba(247,206,85,0.45); display: flex; align-items: center; justify-content: center;">
-                            <div style="position: absolute; font-size: 9px; font-weight: bold; color: #fff; transform: rotate(30deg) translate(0, -55deg);">+50 ⚙️</div>
-                            <div style="position: absolute; font-size: 9px; font-weight: bold; color: #f7ce55; transform: rotate(90deg) translate(0, -55deg);">ДЖЕКПОТ</div>
-                            <div style="position: absolute; font-size: 9px; font-weight: bold; color: #fff; transform: rotate(150deg) translate(0, -55deg);">+10 ⚙️</div>
-                            <div style="position: absolute; font-size: 9px; font-weight: bold; color: #fff; transform: rotate(210deg) translate(0, -55deg);">+200 ⚙️</div>
-                            <div style="position: absolute; font-size: 9px; font-weight: bold; color: #ff5555; transform: rotate(270deg) translate(0, -55deg);">ПОВТОР</div>
-                            <div style="position: absolute; font-size: 9px; font-weight: bold; color: #fff; transform: rotate(330deg) translate(0, -55deg);">+100 ⚙️</div>
+                    <div style="position: relative; width: 170px; height: 170px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transform: scale(0.95);">
+                        <div id="fortuneWheel" style="width: 160px; height: 160px; border-radius: 50%; border: 6px solid #f7ce55; background: conic-gradient(#25381f 0deg 60deg, #10180e 60deg 120deg, #25381f 120deg 180deg, #10180e 180deg 240deg, #25381f 240deg 300deg, #10180e 300deg 360deg); transition: transform 5s cubic-bezier(0.15, 0.85, 0.32, 1); box-shadow: 0 0 30px rgba(247,206,85,0.45); display: flex; align-items: center; justify-content: center;">
+                            <div style="position: absolute; font-size: 8px; font-weight: bold; color: #fff; transform: rotate(30deg) translate(0, -45deg);">+50 ⚙️</div>
+                            <div style="position: absolute; font-size: 8px; font-weight: bold; color: #f7ce55; transform: rotate(90deg) translate(0, -45deg);">ДЖЕКПОТ</div>
+                            <div style="position: absolute; font-size: 8px; font-weight: bold; color: #fff; transform: rotate(150deg) translate(0, -45deg);">+10 ⚙️</div>
+                            <div style="position: absolute; font-size: 8px; font-weight: bold; color: #fff; transform: rotate(210deg) translate(0, -45deg);">+200 ⚙️</div>
+                            <div style="position: absolute; font-size: 8px; font-weight: bold; color: #ff5555; transform: rotate(270deg) translate(0, -45deg);">ПОВТОР</div>
+                            <div style="position: absolute; font-size: 8px; font-weight: bold; color: #fff; transform: rotate(330deg) translate(0, -45deg);">+100 ⚙️</div>
                         </div>
-                        <div style="position: absolute; top: -5px; width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 24px solid #f7ce55; z-index: 15; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));"></div>
-                        <div style="position: absolute; width: 28px; height: 28px; background: #fff; border: 4px solid #f7ce55; border-radius: 50%; z-index: 12; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>
+                        <div style="position: absolute; top: -5px; width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 20px solid #f7ce55; z-index: 15; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));"></div>
+                        <div style="position: absolute; width: 24px; height: 24px; background: #fff; border: 3px solid #f7ce55; border-radius: 50%; z-index: 12; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>
                     </div>
 
                     <!-- Правая колонка с вирусным функционалом -->
-                    <div style="text-align: left; flex-grow: 1; max-width: 320px;">
-                        <h3 style="color:#f7ce55; margin: 0 0 8px 0; font-size: 17px; font-weight: 800; letter-spacing: 0.5px;">КРУТИ & ВЫИГРЫВАЙ</h3>
-                        <p style="font-size: 11px; color:#9cb299; margin: 0 0 14px 0; line-height: 1.55;">
+                    <div style="text-align: left; flex-grow: 1; max-width: 320px; width: 100%;">
+                        <h3 style="color:#f7ce55; margin: 0 0 8px 0; font-size: 15px; font-weight: 800; letter-spacing: 0.5px;">КРУТИ & ВЫИГРЫВАЙ</h3>
+                        <p style="font-size: 11px; color:#9cb299; margin: 0 0 10px 0; line-height: 1.5;">
                             Крутите Колесо каждые 30 секунд или приглашайте друзей по реф-ссылке. За каждого пилота вы мгновенно заберете <strong>+250 деталей</strong>!
                         </p>
                         
@@ -471,7 +610,7 @@
                             </tr>
                         </thead>
                         <tbody id="leaderboardBody">
-                            <!-- Заполняется динамически через JS -->
+                            <!-- Заполняется динамически -->
                         </tbody>
                     </table>
                 </div>
@@ -482,8 +621,10 @@
             <div id="settingsMenu" class="menu-screen" style="display: none; flex-direction: column; justify-content: center; align-items: center;">
                 <h1>НАСТРОЙКИ СИСТЕМЫ</h1>
                 <div style="display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 300px; align-items: center; margin-top: 10px;">
+                    <button class="menu-btn" id="controlToggleBtn" onclick="toggleControlMode()">УПРАВЛЕНИЕ: КНОПКИ (D-PAD)</button>
                     <button class="menu-btn" id="soundToggleBtn" onclick="toggleSound()">ЗВУКОВЫЕ ЭФФЕКТЫ: ВКЛ</button>
                     <button class="menu-btn" id="graphicsToggleBtn" onclick="toggleGraphics()">ЭФФЕКТЫ (FX): ВЫСОКИЕ</button>
+                    <button class="menu-btn" id="hapticToggleBtn" onclick="toggleHaptics()">ВИБРАЦИЯ (HAPTIC): ВКЛ</button>
                     <button class="menu-btn" onclick="closeSettings()" style="margin-top: 15px;">НАЗАД В МЕНЮ</button>
                 </div>
             </div>
@@ -498,26 +639,40 @@
 
             <!-- ПАНЕЛЬ РЕДАКТОРА -->
             <div id="sandboxPanel" class="sandbox-panel" style="display: none;">
-                <div style="font-size:10px;">БЛОК:</div>
+                <div style="font-size:10px; color: #a7d973;">БЛОК:</div>
                 <button class="sandbox-btn active" onclick="setSandboxPower('none')" id="sb-none">ОБЫЧНЫЙ</button>
-                <button class="sandbox-btn" onclick="setSandboxPower('multiball')" id="sb-multiball">УДВОИТЕЛЬ (M)</button>
-                <button class="sandbox-btn" onclick="setSandboxPower('wide')" id="sb-wide">ШИРОКИЙ (W)</button>
-                <button class="sandbox-btn" onclick="setSandboxPower('laser')" id="sb-laser">ЛАЗЕР (L)</button>
-                <button class="sandbox-btn" onclick="setSandboxPower('fireball')" id="sb-fireball">ОГНЕННЫЙ (F)</button>
+                <button class="sandbox-btn" onclick="setSandboxPower('multiball')" id="sb-multiball">УДВОИТЕЛЬ</button>
+                <button class="sandbox-btn" onclick="setSandboxPower('wide')" id="sb-wide">ШИРОКИЙ</button>
+                <button class="sandbox-btn" onclick="setSandboxPower('laser')" id="sb-laser">ЛАЗЕР</button>
+                <button class="sandbox-btn" onclick="setSandboxPower('fireball')" id="sb-fireball">ОГНЕННЫЙ</button>
                 <button class="sandbox-btn" onclick="saveAndExitSandbox()" style="border-color: #f7ce55; color: #fae08f;">СОХРАНИТЬ КАРТУ</button>
             </div>
 
-            <canvas id="gameCanvas" width="800" height="500"></canvas>
+            <canvas id="gameCanvas"></canvas>
+        </div>
+
+        <!-- ЗОНЫ СЕНСОРНОГО УПРАВЛЕНИЯ НА ТЕЛЕФОНАХ / ПЛАНШЕТАХ -->
+        <div id="mobileControls" class="mobile-controls-panel">
+            <div class="touch-pad">
+                <div id="touchLeft" class="touch-btn">◀</div>
+                <div id="touchRight" class="touch-btn">▶</div>
+            </div>
+            <div id="touchAction" class="touch-btn">ОГОНЬ</div>
         </div>
 
         <div class="footer-credits">
-            FROPY (ALPHA EVOLUTION) &bull; ARCADE SPECIAL EDITION
+            FROPY (MOBILE SPECIAL) &bull; ARCADE SPECIAL EDITION
         </div>
     </div>
 
 <script>
 let soundEnabled = true;
 let highGraphics = true;
+let hapticEnabled = true;
+let controlMode = localStorage.getItem('fropy_control_mode') || 'dpad'; // 'dpad' или 'swipe'
+
+// ОПРЕДЕЛЕНИЕ СЕНСОРНОГО УСТРОЙСТВА
+const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
 
 // ГЕНЕРАЦИЯ СЛУЧАЙНОГО НИКНЕЙМА ПРИ ПЕРВОМ ЗАПУСКЕ
 let playerNickname = localStorage.getItem('fropy_nickname');
@@ -543,9 +698,7 @@ function updateLeaderboard(scoreToAdd) {
     } else {
         leaderboard.push({ name: playerNickname, score: scoreToAdd });
     }
-    // Сортировка по убыванию очков
     leaderboard.sort((a, b) => b.score - a.score);
-    // Оставляем топ-7
     leaderboard = leaderboard.slice(0, 7);
     localStorage.setItem('fropy_leaderboard', JSON.stringify(leaderboard));
 }
@@ -578,7 +731,7 @@ function closeLeaderboard() {
     document.getElementById('mainMenu').style.display = 'flex';
 }
 
-// ОДНОКРАТНОЕ ОБНУЛЕНИЕ ДЕТАЛЕЙ (ЗАПУСКАЕТСЯ ОДИН РАЗ)
+// ОДНОКРАТНОЕ ОБНУЛЕНИЕ ДЕТАЛЕЙ
 if (!localStorage.getItem('fropy_coins_reset_once_v2')) {
     localStorage.setItem('fropy_coins', '0');
     localStorage.setItem('fropy_coins_reset_once_v2', 'true');
@@ -672,6 +825,7 @@ function renderShop() {
 }
 
 function buyShopItem(id, type, cost) {
+    triggerVibe('tick');
     if (type === 'skin' && playerSkins[id]) {
         equippedSkin = id;
         showNotify('Скин успешно экипирован!');
@@ -699,25 +853,58 @@ function buyShopItem(id, type, cost) {
 
 function toggleSound() {
     soundEnabled = !soundEnabled;
+    triggerVibe('tick');
     document.getElementById('soundToggleBtn').innerText = `ЗВУКОВЫЕ ЭФФЕКТЫ: ${soundEnabled ? 'ВКЛ' : 'ВЫКЛ'}`;
 }
 
 function toggleGraphics() {
     highGraphics = !highGraphics;
+    triggerVibe('tick');
     document.getElementById('graphicsToggleBtn').innerText = `ЭФФЕКТЫ (FX): ${highGraphics ? 'ВЫСОКИЕ' : 'БАЗОВЫЕ'}`;
 }
 
+function toggleHaptics() {
+    hapticEnabled = !hapticEnabled;
+    triggerVibe('tick');
+    document.getElementById('hapticToggleBtn').innerText = `ВИБРАЦИЯ (HAPTIC): ${hapticEnabled ? 'ВКЛ' : 'ВЫКЛ'}`;
+}
+
+function toggleControlMode() {
+    controlMode = controlMode === 'dpad' ? 'swipe' : 'dpad';
+    localStorage.setItem('fropy_control_mode', controlMode);
+    triggerVibe('tick');
+    updateControlUI();
+}
+
+function updateControlUI() {
+    const statusText = controlMode === 'dpad' ? 'КНОПКИ (D-PAD)' : 'ПРЯМОЙ СЕНСОР (SWIPE)';
+    document.getElementById('controlToggleBtn').innerText = `УПРАВЛЕНИЕ: ${statusText}`;
+    
+    const isPlaying = (gameState === 'PLAYING' || gameState === 'SANDBOX_EDIT');
+    const controller = document.getElementById('mobileControls');
+    
+    if (isPlaying && isTouchDevice && controlMode === 'dpad') {
+        controller.classList.add('touch-active');
+    } else {
+        controller.classList.remove('touch-active');
+    }
+}
+
 function openShop() {
+    triggerVibe('tick');
     document.getElementById('mainMenu').style.display = 'none';
     document.getElementById('shopMenu').style.display = 'flex';
     renderShop();
 }
+
 function closeShop() {
+    triggerVibe('tick');
     document.getElementById('shopMenu').style.display = 'none';
     document.getElementById('mainMenu').style.display = 'flex';
 }
 
 function claimDailyReward() {
+    triggerVibe('tick');
     let lastClaim = localStorage.getItem('fropy_last_claim');
     let today = new Date().toDateString();
     if (lastClaim === today) {
@@ -731,13 +918,18 @@ function claimDailyReward() {
 }
 
 function openSettings() {
+    triggerVibe('tick');
     document.getElementById('mainMenu').style.display = 'none';
     document.getElementById('settingsMenu').style.display = 'flex';
+    updateControlUI();
 }
+
 function closeSettings() {
+    triggerVibe('tick');
     document.getElementById('settingsMenu').style.display = 'none';
     document.getElementById('mainMenu').style.display = 'flex';
 }
+
 function backToMenu() {
     gameState = 'MENU';
     document.getElementById('mainMenu').style.display = 'flex';
@@ -747,29 +939,31 @@ function backToMenu() {
     document.getElementById('statusBar').style.display = 'none';
     document.getElementById('sandboxPanel').style.display = 'none';
     document.getElementById('airdropMenu').style.display = 'none';
-    document.getElementById('mobileControls').style.display = 'none';
+    document.getElementById('mobileControls').classList.remove('touch-active');
     try { document.exitPointerLock(); } catch(e) {}
     updateCoinDisplays();
 }
 
 function startGame(mode) {
+    triggerVibe('tick');
     document.getElementById('mainMenu').style.display = 'none';
     document.getElementById('statusBar').style.display = 'flex';
-    if ('ontouchstart' in window) {
-        document.getElementById('mobileControls').style.display = 'block';
-    }
     initGame('single');
+    updateControlUI();
 }
 
 // РЕДАКТОР САНДБОКСА
 function openSandboxEditor() {
+    triggerVibe('tick');
     document.getElementById('mainMenu').style.display = 'none';
     document.getElementById('statusBar').style.display = 'flex';
     document.getElementById('sandboxPanel').style.display = 'flex';
     initGame('sandbox_edit');
+    updateControlUI();
 }
 
 function saveAndExitSandbox() {
+    triggerVibe('tick');
     customSavedBricks = JSON.parse(JSON.stringify(bricks.filter(b => b.status === 1)));
     if (customSavedBricks.length > 0) {
         sandboxLevelCreated = true;
@@ -784,18 +978,18 @@ function saveAndExitSandbox() {
 }
 
 function startCustomSandboxGame() {
+    triggerVibe('tick');
     document.getElementById('mainMenu').style.display = 'none';
     document.getElementById('statusBar').style.display = 'flex';
-    if ('ontouchstart' in window) {
-        document.getElementById('mobileControls').style.display = 'block';
-    }
     initGame('sandbox_play');
+    updateControlUI();
 }
 
 // ВИРУСНАЯ СИСТЕМА КОЛЕСА УДАЧИ
 let isSpinningWheel = false;
 
 function openAirdropSpin() {
+    triggerVibe('tick');
     document.getElementById('mainMenu').style.display = 'none';
     document.getElementById('airdropMenu').style.display = 'flex';
     
@@ -819,6 +1013,7 @@ function openAirdropSpin() {
 }
 
 function closeAirdrop() {
+    triggerVibe('tick');
     document.getElementById('airdropMenu').style.display = 'none';
     document.getElementById('mainMenu').style.display = 'flex';
 }
@@ -846,6 +1041,7 @@ function spinAirdropWheel() {
     let tickInterval = setInterval(() => {
         if (ticks < 25) {
             playSound('hit');
+            triggerVibe('tick');
             ticks++;
         } else {
             clearInterval(tickInterval);
@@ -887,10 +1083,12 @@ function spinAirdropWheel() {
             coins += reward;
             updateCoinDisplays();
             playSound('powerup');
+            triggerVibe('success');
             triggerScreenConfetti();
         } else {
             localStorage.removeItem('fropy_last_airdrop_spin');
             playSound('brick');
+            triggerVibe('hurt');
         }
         
         showNotify(msg);
@@ -900,7 +1098,7 @@ function spinAirdropWheel() {
 function triggerScreenConfetti() {
     for (let i = 0; i < 40; i++) {
         confettis.push({
-            x: Math.random() * canvas.width,
+            x: Math.random() * virtualWidth,
             y: -10,
             color: `hsl(${Math.random() * 360}, 100%, 60%)`,
             size: Math.random() * 6 + 4,
@@ -914,6 +1112,7 @@ function copyReferralLink() {
     let copyText = document.getElementById('refLinkInput');
     copyText.select();
     copyText.setSelectionRange(0, 99999);
+    triggerVibe('tick');
     navigator.clipboard.writeText(copyText.value).then(() => {
         showNotify('Реферальный код скопирован! Делитесь с друзьями 🔗');
         if (!localStorage.getItem('fropy_ref_copied_bonus')) {
@@ -928,6 +1127,7 @@ function copyReferralLink() {
 }
 
 function shareToTelegram() {
+    triggerVibe('tick');
     let link = document.getElementById('refLinkInput').value;
     let text = encodeURIComponent(`🎮 Раздача ценных космических деталей в Fropy Arcade! Забирай свой стартовый набор бонусов по моей пилотной ссылке: `);
     let shareUrl = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${text}`;
@@ -935,17 +1135,41 @@ function shareToTelegram() {
 }
 
 function shareToVK() {
+    triggerVibe('tick');
     let link = document.getElementById('refLinkInput').value;
     let title = encodeURIComponent(`🎮 Запускай Fropy Arcade! Динамичный геймплей, крутые скины и бесплатная раздача бонусов!`);
     let shareUrl = `https://vk.com/share.php?url=${encodeURIComponent(link)}&title=${title}`;
     window.open(shareUrl, '_blank');
 }
 
-// ЗВУКОВОЙ ДВИЖОК С ПОНИЖЕННОЙ ГРОМКОСТЬЮ
+// ВИБРО-ОТКЛИК (HAPTIC) НА МОБИЛЬНЫХ УСТРОЙСТВАХ
+function triggerVibe(type) {
+    if (!hapticEnabled || !isTouchDevice || !("vibrate" in navigator)) return;
+    try {
+        if (type === 'tick') navigator.vibrate(12);
+        else if (type === 'hit') navigator.vibrate(25);
+        else if (type === 'powerup') navigator.vibrate([20, 40, 20]);
+        else if (type === 'hurt') navigator.vibrate([100, 50, 100]);
+        else if (type === 'success') navigator.vibrate([40, 40, 40, 40, 80]);
+    } catch(e) {}
+}
+
+// ЗВУКОВОЙ ДВИЖОК С ПОНИЖЕННОЙ ГРОМКОСТЬЮ И АКТИВАЦИЕЙ ПО КЛИКУ ДЛЯ МОБИЛЬНЫХ
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function unlockAudio() {
+    if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+    window.removeEventListener('click', unlockAudio);
+    window.removeEventListener('touchstart', unlockAudio);
+}
+window.addEventListener('click', unlockAudio);
+window.addEventListener('touchstart', unlockAudio);
+
 function playSound(type) {
     if (!soundEnabled) return;
-    if (audioCtx.state === 'suspended') audioCtx.resume();
+    if (audioCtx.state === 'suspended') return;
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     osc.connect(gain);
@@ -995,12 +1219,35 @@ function playSound(type) {
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
+// ВИРТУАЛЬНОЕ РАЗРЕШЕНИЕ (ФИКСИРОВАННАЯ ЛОГИКА КООРДИНАТ)
+const virtualWidth = 800;
+const virtualHeight = 500;
+let scaleX = 1;
+let scaleY = 1;
+
+function resizeCanvas() {
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    
+    // Округляем для High-DPI экранов
+    canvas.width = Math.floor(rect.width * dpr);
+    canvas.height = Math.floor(rect.height * dpr);
+    
+    // Масштабирование контекста
+    scaleX = canvas.width / virtualWidth;
+    scaleY = canvas.height / virtualHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+window.addEventListener('orientationchange', () => {
+    setTimeout(resizeCanvas, 200);
+});
+
 let gameState = 'MENU';
 let currentMode = 'single';
 let currentLevel = 1;
 
 let score = 0;
-let gameCoins = 0; // Накопленные за уровень детали
+let gameCoins = 0; 
 let lives = 3;
 let paddle = { x: 350, y: 460, width: 100, baseWidth: 100, height: 12, speed: 9, laserActive: false, lastShotTime: 0, magnet: false };
 let balls = [];
@@ -1018,8 +1265,8 @@ const blockColors = ['#3a86c8', '#10b981', '#fbbf24', '#f97316', '#ef4444'];
 // Инициализация космических звёзд на фоне
 for (let i = 0; i < 50; i++) {
     stars.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
+        x: Math.random() * virtualWidth,
+        y: Math.random() * virtualHeight,
         size: Math.random() * 1.5 + 0.5,
         speed: Math.random() * 0.4 + 0.1
     });
@@ -1032,7 +1279,8 @@ let selectedSandboxPower = 'none';
 
 function setSandboxPower(type) {
     selectedSandboxPower = type;
-    document.querySelectorAll('.sandbox-btn').forEach(b => b.classList.remove('active'));
+    triggerVibe('tick');
+    document.querySelectorAll('.sandbox-panel .sandbox-btn').forEach(b => b.classList.remove('active'));
     document.getElementById('sb-' + type).classList.add('active');
 }
 
@@ -1080,6 +1328,7 @@ function buildLevel(levelNum) {
 }
 
 function initGame(mode) {
+    resizeCanvas();
     currentMode = mode;
     if (mode === 'sandbox_edit') {
         gameState = 'SANDBOX_EDIT';
@@ -1088,10 +1337,10 @@ function initGame(mode) {
     }
 
     score = 0;
-    gameCoins = 0; // Сбрасываем внутриигровые детали для нового старта
+    gameCoins = 0; 
     currentLevel = 1;
     lives = 3 + (playerUpgrades.extraLife ? 1 : 0);
-    paddle.x = canvas.width / 2 - 50;
+    paddle.x = virtualWidth / 2 - 50;
     paddle.width = paddle.baseWidth;
     paddle.laserActive = false;
     paddle.magnet = playerUpgrades.magneticStart;
@@ -1141,7 +1390,7 @@ function initGame(mode) {
         trail: []
     }];
 
-    if (mode !== 'sandbox_edit' && !('ontouchstart' in window)) {
+    if (mode !== 'sandbox_edit' && !isTouchDevice) {
         canvas.requestPointerLock();
     }
 }
@@ -1163,22 +1412,29 @@ function createExplosion(x, y, color) {
     }
 }
 
-// Клики по экрану
-canvas.addEventListener('mousedown', (e) => {
-    if (gameState === 'SANDBOX_EDIT') {
-        const rect = canvas.getBoundingClientRect();
-        let scaleX = canvas.width / rect.width;
-        let scaleY = canvas.height / rect.height;
-        let mouseX = (e.clientX - rect.left) * scaleX;
-        let mouseY = (e.clientY - rect.top) * scaleY;
+// Оптимизированные клики и тапы по Canvas
+canvas.addEventListener('mousedown', handleInteractionStart);
+canvas.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    if (e.touches.length > 0) {
+        handleInteractionStart(e.touches[0]);
+    }
+}, {passive: false});
 
+function handleInteractionStart(e) {
+    const rect = canvas.getBoundingClientRect();
+    const clickX = (e.clientX - rect.left) * (virtualWidth / rect.width);
+    const clickY = (e.clientY - rect.top) * (virtualHeight / rect.height);
+
+    if (gameState === 'SANDBOX_EDIT') {
         for (let b of bricks) {
-            if (mouseX >= b.x && mouseX <= b.x + b.width && mouseY >= b.y && mouseY <= b.y + b.height) {
+            if (clickX >= b.x && clickX <= b.x + b.width && clickY >= b.y && clickY <= b.y + b.height) {
                 b.status = b.status === 1 ? 0 : 1;
                 if (b.status === 1) {
                     b.power = selectedSandboxPower;
                     b.color = blockColors[Math.floor(Math.random() * blockColors.length)];
                     playSound('hit');
+                    triggerVibe('tick');
                 }
                 break;
             }
@@ -1187,22 +1443,42 @@ canvas.addEventListener('mousedown', (e) => {
         releaseBalls();
     } else if (gameState === 'PAUSED') {
         gameState = 'PLAYING';
-        if (!('ontouchstart' in window)) canvas.requestPointerLock();
+        if (!isTouchDevice) canvas.requestPointerLock();
     }
-});
+}
 
 function releaseBalls() {
+    let released = false;
     balls.forEach(b => {
         if (b.stuck) {
             b.stuck = false;
             b.dx = (Math.random() - 0.5) * 4;
             b.dy = -5;
+            released = true;
         }
     });
-    paddle.magnet = false;
+    if (released) {
+        paddle.magnet = false;
+        triggerVibe('tick');
+    }
 }
 
-// Управление мышью
+// УПРАВЛЕНИЕ СЕНСОРНЫМ СВАЙПОМ (SWIPE / TOUCH DRAG DIRECT)
+canvas.addEventListener('touchmove', (e) => {
+    if (gameState === 'PLAYING' && controlMode === 'swipe' && e.touches.length > 0) {
+        const rect = canvas.getBoundingClientRect();
+        const touchX = (e.touches[0].clientX - rect.left) * (virtualWidth / rect.width);
+        paddle.x = touchX - paddle.width / 2;
+        keepPaddleInBounds();
+        
+        // Автоматическая стрельба лазером при прямом касании
+        if (paddle.laserActive) {
+            fireLaser();
+        }
+    }
+}, {passive: true});
+
+// Обработка движения мыши для десктопа
 document.addEventListener('mousemove', (e) => {
     if (gameState === 'PLAYING' && document.pointerLockElement === canvas) {
         paddle.x += e.movementX;
@@ -1210,25 +1486,20 @@ document.addEventListener('mousemove', (e) => {
     }
 });
 
-// Сенсорное управление
-canvas.addEventListener('touchmove', (e) => {
-    if (gameState === 'PLAYING' && e.touches.length > 0) {
-        const rect = canvas.getBoundingClientRect();
-        let scaleX = canvas.width / rect.width;
-        let touchX = (e.touches[0].clientX - rect.left) * scaleX;
-        paddle.x = touchX - paddle.width / 2;
-        keepPaddleInBounds();
-    }
-});
+function keepPaddleInBounds() {
+    if (paddle.x < 0) paddle.x = 0;
+    if (paddle.x + paddle.width > virtualWidth) paddle.x = virtualWidth - paddle.width;
+}
 
+// УПРАВЛЕНИЕ КНОПКАМИ СЕНСОРНОГО ТАКТИЛЬНОГО ПУЛЬТА (D-PAD)
 const btnLeft = document.getElementById('touchLeft');
 const btnRight = document.getElementById('touchRight');
 const btnAction = document.getElementById('touchAction');
 
 let touchKeys = { left: false, right: false };
-btnLeft.addEventListener('touchstart', (e) => { e.preventDefault(); touchKeys.left = true; });
+btnLeft.addEventListener('touchstart', (e) => { e.preventDefault(); touchKeys.left = true; triggerVibe('tick'); });
 btnLeft.addEventListener('touchend', () => { touchKeys.left = false; });
-btnRight.addEventListener('touchstart', (e) => { e.preventDefault(); touchKeys.right = true; });
+btnRight.addEventListener('touchstart', (e) => { e.preventDefault(); touchKeys.right = true; triggerVibe('tick'); });
 btnRight.addEventListener('touchend', () => { touchKeys.right = false; });
 btnAction.addEventListener('touchstart', (e) => {
     e.preventDefault();
@@ -1236,11 +1507,7 @@ btnAction.addEventListener('touchstart', (e) => {
     fireLaser();
 });
 
-function keepPaddleInBounds() {
-    if (paddle.x < 0) paddle.x = 0;
-    if (paddle.x + paddle.width > canvas.width) paddle.x = canvas.width - paddle.width;
-}
-
+// Клавиатурные события (PC)
 const keys = { left: false, right: false };
 window.addEventListener('keydown', (e) => {
     if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = true;
@@ -1274,6 +1541,7 @@ function fireLaser() {
             bullets.push({ x: paddle.x + paddle.width - 12, y: paddle.y, width: 4, height: 12, dy: -8 });
             paddle.lastShotTime = t;
             playSound('laser');
+            triggerVibe('tick');
         }
     }
 }
@@ -1287,9 +1555,9 @@ function update() {
     // Плавное движение звездного неба
     for (let s of stars) {
         s.y += s.speed;
-        if (s.y > canvas.height) {
+        if (s.y > virtualHeight) {
             s.y = 0;
-            s.x = Math.random() * canvas.width;
+            s.x = Math.random() * virtualWidth;
         }
     }
 
@@ -1309,12 +1577,12 @@ function update() {
         let c = confettis[i];
         c.y += c.speedY;
         c.x += c.speedX;
-        if (c.y > canvas.height) confettis.splice(i, 1);
+        if (c.y > virtualHeight) confettis.splice(i, 1);
     }
 
     if (ufo.active) {
         ufo.x += ufo.dx;
-        if (ufo.x + ufo.width > canvas.width || ufo.x < 0) {
+        if (ufo.x + ufo.width > virtualWidth || ufo.x < 0) {
             ufo.dx = -ufo.dx;
         }
 
@@ -1328,7 +1596,7 @@ function update() {
     for (let i = alienPlasma.length - 1; i >= 0; i--) {
         let p = alienPlasma[i];
         p.y += p.dy;
-        if (p.y > canvas.height) {
+        if (p.y > virtualHeight) {
             alienPlasma.splice(i, 1);
             continue;
         }
@@ -1339,6 +1607,7 @@ function update() {
             lives--;
             document.getElementById('livesText').innerText = lives;
             playSound('hurt');
+            triggerVibe('hurt');
             checkGameOver();
         }
     }
@@ -1353,13 +1622,15 @@ function update() {
             ufo.lives--;
             createExplosion(ufo.x + ufo.width/2, ufo.y + ufo.height/2, '#00ffcc');
             playSound('hit');
+            triggerVibe('hit');
             if (ufo.lives <= 0) {
                 ufo.active = false;
                 score += 250;
-                gameCoins += 15; // Сбалансированная награда за НЛО
+                gameCoins += 15; 
                 document.getElementById('gameCoinText').innerText = gameCoins;
                 showNotify('НЛО УНИЧТОЖЕН! +15 деталей');
                 triggerScreenConfetti();
+                triggerVibe('success');
             }
             continue;
         }
@@ -1369,10 +1640,11 @@ function update() {
                 b.status = 0;
                 createExplosion(b.x + b.width / 2, b.y + b.height / 2, b.color);
                 score += 15;
-                gameCoins += 1; // 1 деталь за кирпич для баланса (вместо 2)
+                gameCoins += 1; 
                 document.getElementById('scoreText').innerText = score;
                 document.getElementById('gameCoinText').innerText = gameCoins;
                 playSound('brick');
+                triggerVibe('tick');
                 bullets.splice(i, 1);
                 break;
             }
@@ -1403,15 +1675,16 @@ function update() {
             if (ball.trail.length > 8) ball.trail.shift();
         }
 
-        if (ball.x - ball.radius < 0) { ball.x = ball.radius; ball.dx = -ball.dx; playSound('hit'); }
-        if (ball.x + ball.radius > canvas.width) { ball.x = canvas.width - ball.radius; ball.dx = -ball.dx; playSound('hit'); }
-        if (ball.y - ball.radius < 0) { ball.y = ball.radius; ball.dy = -ball.dy; playSound('hit'); }
+        if (ball.x - ball.radius < 0) { ball.x = ball.radius; ball.dx = -ball.dx; playSound('hit'); triggerVibe('tick'); }
+        if (ball.x + ball.radius > virtualWidth) { ball.x = virtualWidth - ball.radius; ball.dx = -ball.dx; playSound('hit'); triggerVibe('tick'); }
+        if (ball.y - ball.radius < 0) { ball.y = ball.radius; ball.dy = -ball.dy; playSound('hit'); triggerVibe('tick'); }
 
         if (ufo.active && ball.x + ball.radius > ufo.x && ball.x - ball.radius < ufo.x + ufo.width && ball.y + ball.radius > ufo.y && ball.y - ball.radius < ufo.y + ufo.height) {
             ball.dy = -ball.dy;
             ufo.lives--;
             createExplosion(ball.x, ball.y, '#ef4444');
             playSound('hit');
+            triggerVibe('hit');
             if (ufo.lives <= 0) {
                 ufo.active = false;
                 score += 250;
@@ -1419,6 +1692,7 @@ function update() {
                 document.getElementById('gameCoinText').innerText = gameCoins;
                 showNotify('ВРАЖЕСКИЙ КОРАБЛЬ СБИТ! +15 деталей');
                 triggerScreenConfetti();
+                triggerVibe('success');
             }
         }
 
@@ -1426,6 +1700,7 @@ function update() {
             if (paddle.magnet) {
                 ball.stuck = true;
                 playSound('powerup');
+                triggerVibe('powerup');
             } else {
                 let hitPoint = ball.x - (paddle.x + paddle.width / 2);
                 let norm = hitPoint / (paddle.width / 2);
@@ -1434,10 +1709,11 @@ function update() {
                 ball.dx = speed * Math.sin(angle);
                 ball.dy = -Math.abs(speed * Math.cos(angle));
                 playSound('hit');
+                triggerVibe('hit');
             }
         }
 
-        if (ball.y - ball.radius > canvas.height) {
+        if (ball.y - ball.radius > virtualHeight) {
             balls.splice(i, 1);
         }
     }
@@ -1447,6 +1723,7 @@ function update() {
         screenShake = 5;
         document.getElementById('livesText').innerText = lives;
         playSound('hurt');
+        triggerVibe('hurt');
         
         if (lives <= 0) {
             checkGameOver();
@@ -1481,10 +1758,11 @@ function update() {
                     b.status = 0;
                     createExplosion(b.x + b.width/2, b.y + b.height/2, b.color);
                     score += 10;
-                    gameCoins += 1; // Строго 1 деталь за кирпич для предотвращения фарма
+                    gameCoins += 1; 
                     document.getElementById('scoreText').innerText = score;
                     document.getElementById('gameCoinText').innerText = gameCoins;
                     playSound('brick');
+                    triggerVibe('tick');
 
                     if (b.power !== 'none') {
                         powerUps.push({ x: b.x + b.width/2 - 10, y: b.y, width: 22, height: 22, type: b.power, dy: 2.2 });
@@ -1501,10 +1779,10 @@ function update() {
             document.getElementById('levelText').innerText = currentLevel;
             showNotify(`УРОВЕНЬ ${currentLevel-1} ПРОЙДЕН! Запуск следующего...`);
             
-            // Фиксируем монеты и сбрасываем счетчик за уровень, исключая дублирование
             coins += gameCoins + 50; 
             gameCoins = 0; 
             updateCoinDisplays();
+            triggerVibe('success');
             
             buildLevel(currentLevel);
             balls = [{ x: paddle.x + paddle.width / 2, y: paddle.y - 10, radius: 7, dx: 4, dy: -4, stuck: true, trail: [] }];
@@ -1514,6 +1792,7 @@ function update() {
             coins += gameCoins + 150;
             gameCoins = 0;
             triggerScreenConfetti();
+            triggerVibe('success');
             updateCoinDisplays();
             updateLeaderboard(score);
             
@@ -1526,6 +1805,7 @@ function update() {
         gameCoins = 0;
         updateCoinDisplays();
         updateLeaderboard(score);
+        triggerVibe('success');
         
         setTimeout(backToMenu, 2500);
     }
@@ -1536,6 +1816,7 @@ function update() {
         
         if (p.x + p.width > paddle.x && p.x < paddle.x + paddle.width && p.y + p.height > paddle.y && p.y < paddle.y + paddle.height) {
             playSound('powerup');
+            triggerVibe('powerup');
             
             if (p.type === 'multiball') {
                 let first = balls[0] || { x: paddle.x + paddle.width/2, y: paddle.y - 12 };
@@ -1554,7 +1835,7 @@ function update() {
                 });
             }
             powerUps.splice(i, 1);
-        } else if (p.y > canvas.height) {
+        } else if (p.y > virtualHeight) {
             powerUps.splice(i, 1);
         }
     }
@@ -1564,18 +1845,17 @@ function checkGameOver() {
     if (lives <= 0) {
         showNotify('КОРАБЛЬ РАЗБИТ! СЕКТОР ПОТЕРЯН');
         
-        // Корректно сохраняем заработанное и сбрасываем сессионные монеты
         coins += gameCoins;
         gameCoins = 0;
         updateCoinDisplays();
         updateLeaderboard(score);
+        triggerVibe('hurt');
         
         try { document.exitPointerLock(); } catch(e) {}
         setTimeout(backToMenu, 2000);
     }
 }
 
-// Помощник регулирования яркости
 function adjustColor(hex, percent) {
     let num = parseInt(hex.replace("#",""),16),
     amt = Math.round(2.55 * percent),
@@ -1585,18 +1865,23 @@ function adjustColor(hex, percent) {
     return "#" + (0x1000000 + (R<255?R<0?0:R:255)*0x10000 + (G<255?G<0?0:G:255)*0x100 + (B<255?B<0?0:B:255)).toString(16).slice(1);
 }
 
-// ОТРИСОВКА КОМПОНЕНТОВ
+// ОТРИСОВКА С ДИНАМИЧЕСКИМ МАСШТАБОМ КАНВАСА
 function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
     ctx.save();
+    // Применение автоматического масштабирования
+    ctx.scale(scaleX, scaleY);
+
     if (screenShake > 0) {
         let dx = (Math.random() - 0.5) * screenShake * 2.5;
         let dy = (Math.random() - 0.5) * screenShake * 2.5;
         ctx.translate(dx, dy);
     }
 
-    // Отрисовка глубокого космического пространства
+    // Заполнение космического фона
     ctx.fillStyle = '#060a05';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, virtualWidth, virtualHeight);
 
     // Звезды
     ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
@@ -1608,16 +1893,16 @@ function draw() {
         ctx.strokeStyle = '#0e170c';
         ctx.lineWidth = 1;
         let gridOffset = (Date.now() / 40) % 40;
-        for (let x = gridOffset; x < canvas.width; x += 40) {
+        for (let x = gridOffset; x < virtualWidth; x += 40) {
             ctx.beginPath();
             ctx.moveTo(x, 0);
-            ctx.lineTo(x, canvas.height);
+            ctx.lineTo(x, virtualHeight);
             ctx.stroke();
         }
-        for (let y = gridOffset; y < canvas.height; y += 40) {
+        for (let y = gridOffset; y < virtualHeight; y += 40) {
             ctx.beginPath();
             ctx.moveTo(0, y);
-            ctx.lineTo(canvas.width, y);
+            ctx.lineTo(virtualWidth, y);
             ctx.stroke();
         }
     }
@@ -1639,7 +1924,6 @@ function draw() {
                 ctx.fillStyle = '#111b0e';
             }
             
-            // Скругленные плитки
             ctx.beginPath();
             if (ctx.roundRect) {
                 ctx.roundRect(b.x, b.y, b.width, b.height, 4);
@@ -1651,7 +1935,6 @@ function draw() {
             if (highGraphics && b.status === 1) {
                 ctx.strokeStyle = 'rgba(255,255,255,0.22)';
                 ctx.stroke();
-                // Блик на верхней грани
                 ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
                 ctx.beginPath();
                 ctx.moveTo(b.x + 2, b.y + 1);
@@ -1800,19 +2083,19 @@ function draw() {
         ctx.fillStyle = '#fae08f';
         ctx.font = 'bold 14px "Outfit"';
         ctx.textAlign = 'center';
-        ctx.fillText('РЕДАКТОР СЕКТОРА: Кликайте по сетке для дизайна', canvas.width / 2, 28);
+        ctx.fillText('РЕДАКТОР СЕКТОРА: Кликайте по сетке для дизайна', virtualWidth / 2, 28);
     }
 
     if (gameState === 'PAUSED') {
         ctx.fillStyle = 'rgba(6, 10, 5, 0.92)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillRect(0, 0, virtualWidth, virtualHeight);
         ctx.fillStyle = '#a7d973';
         ctx.font = 'bold 24px "Outfit"';
         ctx.textAlign = 'center';
-        ctx.fillText('ТРАНСПОРТИРОВКА НА ПАУЗЕ', canvas.width / 2, canvas.height / 2);
+        ctx.fillText('ТРАНСПОРТИРОВКА НА ПАУЗЕ', virtualWidth / 2, virtualHeight / 2);
         ctx.font = '13px "Outfit"';
         ctx.fillStyle = '#9cb299';
-        ctx.fillText('Кликните по экрану или нажмите Space для продолжения', canvas.width / 2, canvas.height / 2 + 35);
+        ctx.fillText('Кликните по экрану или зажмите Space для продолжения', virtualWidth / 2, virtualHeight / 2 + 35);
     }
 
     ctx.restore();
