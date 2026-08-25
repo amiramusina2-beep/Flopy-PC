@@ -1,3 +1,6 @@
+Вот обновленный и полностью готовый код игры со встроенной таблицей лидеров и автоматической генерацией никнеймов для новых игроков:
+
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -332,6 +335,26 @@
         #touchLeft { left: 15px; }
         #touchRight { left: 90px; }
         #touchAction { right: 15px; width: 85px; border-radius: 14px; font-size: 13px; letter-spacing: 1px; font-weight: 800; }
+
+        /* ТАБЛИЦА ЛИДЕРОВ */
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            color: #e2e8df;
+            font-size: 12px;
+            text-align: left;
+        }
+        .leaderboard-table th {
+            border-bottom: 2px solid #436137;
+            color: #f7ce55;
+            font-weight: 900;
+            font-size: 13px;
+            padding: 8px;
+        }
+        .leaderboard-table td {
+            padding: 8px;
+            border-bottom: 1px solid rgba(82, 117, 68, 0.15);
+        }
     </style>
 </head>
 <body>
@@ -355,6 +378,11 @@
 
             <!-- ГЛАВНОЕ МЕНЮ (FROPY) -->
             <div id="mainMenu" class="menu-screen">
+                <!-- КАРТОЧКА ИГРОКА ВЕРХНИЙ ПРАВЫЙ УГОЛ -->
+                <div style="position: absolute; top: 15px; right: 18px; font-size: 11px; background: rgba(37, 56, 31, 0.85); padding: 6px 12px; border-radius: 8px; border: 1px solid #436137; color: #a7d973; font-weight: 800; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 15;">
+                    👨‍🚀 ПИЛОТ: <span id="playerNicknameDisplay" style="color: #fff; text-shadow: 0 0 5px #a7d973;">Загрузка...</span>
+                </div>
+
                 <div class="menu-left-panel">
                     <h1>Fropy</h1>
                     <div class="alpha-badge">EVOLUTION UPDATE v1.4</div>
@@ -365,12 +393,13 @@
                         ДЕТАЛИ В НАЛИЧИИ: <br><span id="coinDisplay" style="font-size: 26px; font-weight: 900; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.2);">100</span> ⚙️
                     </div>
                 </div>
-                <div class="menu-right-panel">
+                <div class="menu-right-panel" style="margin-top: 15px;">
                     <button class="menu-btn viral-btn" onclick="openAirdropSpin()">КРУТИТЬ КОЛЕСО & AIRDROP 🎡🪂</button>
                     <button class="menu-btn" onclick="startGame('single')" style="border-color:#a7d973; background: linear-gradient(180deg, #243d1d 0%, #152410 100%);">ПОЛЕТЕТЬ В БОЙ (АРКАДА)</button>
                     <button class="menu-btn" id="playSandboxBtn" style="display: none; border-color: #f7ce55; color: #fae08f;" onclick="startCustomSandboxGame()">ИГРАТЬ В СВОЙ УРОВЕНЬ</button>
                     <button class="menu-btn" onclick="openSandboxEditor()">РЕДАКТОР УРОВНЯ</button>
                     <button class="menu-btn" onclick="openShop()">КОСМИЧЕСКИЙ МАГАЗИН</button>
+                    <button class="menu-btn" onclick="openLeaderboard()" style="border-color:#a7d973; color: #b9ec88;">ТАБЛИЦА ЛИДЕРОВ 🏆</button>
                     <button class="menu-btn" onclick="claimDailyReward()" style="border-color: #4b8a45; color: #9be68e;">ЕЖЕДНЕВНЫЙ ПОДАРОК 🎁</button>
                     <button class="menu-btn" onclick="openSettings()">НАСТРОЙКИ</button>
                 </div>
@@ -430,6 +459,28 @@
                 <button class="menu-btn" onclick="closeShop()" style="margin-top: auto; max-width: 200px;">НАЗАД</button>
             </div>
 
+            <!-- ТАБЛИЦА ЛИДЕРОВ -->
+            <div id="leaderboardMenu" class="menu-screen" style="display: none; flex-direction: column; justify-content: flex-start; padding: 30px;">
+                <h1>ТАБЛИЦА ЛИДЕРОВ 🏆</h1>
+                <div class="alpha-badge" style="background:#1b2e18; color:#a7d973; border:1px solid #33592a;">ЛУЧШИЕ ПИЛОТЫ ГАЛАКТИКИ</div>
+                
+                <div style="width: 100%; max-width: 480px; background: rgba(8, 14, 7, 0.95); border: 2px solid #304729; border-radius: 14px; padding: 15px; margin: 15px auto; box-shadow: inset 0 0 15px rgba(0,0,0,0.8); overflow-y: auto; max-height: 230px;">
+                    <table class="leaderboard-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 20%;">МЕСТО</th>
+                                <th style="width: 50%;">ПИЛОТ</th>
+                                <th style="width: 30%; text-align: right;">РЕКОРД</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboardBody">
+                            <!-- Заполняется динамически через JS -->
+                        </tbody>
+                    </table>
+                </div>
+                <button class="menu-btn" onclick="closeLeaderboard()" style="margin-top: auto; max-width: 200px;">НАЗАД</button>
+            </div>
+
             <!-- НАСТРОЙКИ -->
             <div id="settingsMenu" class="menu-screen" style="display: none; flex-direction: column; justify-content: center; align-items: center;">
                 <h1>НАСТРОЙКИ СИСТЕМЫ</h1>
@@ -470,6 +521,69 @@
 <script>
 let soundEnabled = true;
 let highGraphics = true;
+
+// ГЕНЕРАЦИЯ СЛУЧАЙНОГО НИКНЕЙМА ПРИ ПЕРВОМ ЗАПУСКЕ
+let playerNickname = localStorage.getItem('fropy_nickname');
+if (!playerNickname) {
+    const prefixes = ['Pilot', 'Cosmo', 'Alpha', 'Nova', 'Vortex', 'Starlight', 'Cyber', 'Astro', 'Quantum', 'Nebula'];
+    const randomNum = Math.floor(1000 + Math.random() * 9000);
+    playerNickname = `${prefixes[Math.floor(Math.random() * prefixes.length)]}_${randomNum}`;
+    localStorage.setItem('fropy_nickname', playerNickname);
+}
+document.getElementById('playerNicknameDisplay').innerText = playerNickname;
+
+// СИСТЕМА ТАБЛИЦЫ ЛИДЕРОВ (С СОХРАНЕНИЕМ И ДЕМО-ДАННЫМИ)
+let leaderboard = JSON.parse(localStorage.getItem('fropy_leaderboard')) || [
+    { name: 'CosmoRider_99', score: 8500 },
+    { name: 'StarForce_312', score: 6400 },
+    { name: 'AlphaPilot_77', score: 4800 },
+    { name: 'CyberArka_500', score: 3200 },
+    { name: 'FropyFan_88', score: 1500 }
+];
+
+function updateLeaderboard(scoreToAdd) {
+    let playerIndex = leaderboard.findIndex(item => item.name === playerNickname);
+    if (playerIndex !== -1) {
+        if (scoreToAdd > leaderboard[playerIndex].score) {
+            leaderboard[playerIndex].score = scoreToAdd;
+        }
+    } else {
+        leaderboard.push({ name: playerNickname, score: scoreToAdd });
+    }
+    // Сортировка по убыванию очков
+    leaderboard.sort((a, b) => b.score - a.score);
+    // Оставляем топ-7
+    leaderboard = leaderboard.slice(0, 7);
+    localStorage.setItem('fropy_leaderboard', JSON.stringify(leaderboard));
+}
+
+function renderLeaderboard() {
+    const body = document.getElementById('leaderboardBody');
+    body.innerHTML = '';
+    leaderboard.forEach((user, index) => {
+        const isCurrent = user.name === playerNickname;
+        const highlightStyle = isCurrent ? 'background: rgba(167, 217, 115, 0.15); font-weight: 800;' : '';
+        const rankMedal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}`;
+        body.innerHTML += `
+            <tr style="${highlightStyle}">
+                <td style="font-weight: 900; color: #a7d973; padding-left: 12px;">${rankMedal}</td>
+                <td style="color: ${isCurrent ? '#fff' : '#9cb299'};">${user.name}</td>
+                <td style="text-align: right; font-weight: 900; color: #f7ce55; padding-right: 12px;">${user.score} 🏆</td>
+            </tr>
+        `;
+    });
+}
+
+function openLeaderboard() {
+    document.getElementById('mainMenu').style.display = 'none';
+    document.getElementById('leaderboardMenu').style.display = 'flex';
+    renderLeaderboard();
+}
+
+function closeLeaderboard() {
+    document.getElementById('leaderboardMenu').style.display = 'none';
+    document.getElementById('mainMenu').style.display = 'flex';
+}
 
 // ОДНОКРАТНОЕ ОБНУЛЕНИЕ ДЕТАЛЕЙ (ЗАПУСКАЕТСЯ ОДИН РАЗ)
 if (!localStorage.getItem('fropy_coins_reset_once_v2')) {
@@ -635,6 +749,7 @@ function backToMenu() {
     gameState = 'MENU';
     document.getElementById('mainMenu').style.display = 'flex';
     document.getElementById('shopMenu').style.display = 'none';
+    document.getElementById('leaderboardMenu').style.display = 'none';
     document.getElementById('settingsMenu').style.display = 'none';
     document.getElementById('statusBar').style.display = 'none';
     document.getElementById('sandboxPanel').style.display = 'none';
@@ -1407,6 +1522,7 @@ function update() {
             gameCoins = 0;
             triggerScreenConfetti();
             updateCoinDisplays();
+            updateLeaderboard(score);
             
             setTimeout(backToMenu, 3500);
         }
@@ -1416,6 +1532,7 @@ function update() {
         coins += gameCoins + 30;
         gameCoins = 0;
         updateCoinDisplays();
+        updateLeaderboard(score);
         
         setTimeout(backToMenu, 2500);
     }
@@ -1458,6 +1575,7 @@ function checkGameOver() {
         coins += gameCoins;
         gameCoins = 0;
         updateCoinDisplays();
+        updateLeaderboard(score);
         
         try { document.exitPointerLock(); } catch(e) {}
         setTimeout(backToMenu, 2000);
