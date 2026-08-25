@@ -2113,11 +2113,32 @@ function buildLevel(levelNum) {
     
     let curSpeedMultiplier = (typeof speedMultiplier !== 'undefined') ? speedMultiplier : 1.0;
     
-    if (levelNum === 2) { ufo.active = true; ufo.x = 50; ufo.lives = 4; ufo.dx = 2 * curSpeedMultiplier; }
-    else if (levelNum === 3) { ufo.active = true; ufo.x = 200; ufo.lives = 6; ufo.dx = 2 * curSpeedMultiplier; }
-    else if (levelNum === 4) {
-        if (difficulty === 'easy') {
-            // В легком режиме на 4 уровне генерируются блоки, а босс отсутствует
+    // Настройка НЛО (летающего корабля) в зависимости от сложности
+    if (difficulty === 'medium') {
+        if (levelNum === 2) { ufo.active = true; ufo.x = 50; ufo.lives = 4; ufo.dx = 2 * curSpeedMultiplier; }
+        else if (levelNum === 3) { ufo.active = true; ufo.x = 200; ufo.lives = 6; ufo.dx = 2 * curSpeedMultiplier; }
+        else if (levelNum === 4) { ufo.active = true; ufo.x = 150; ufo.lives = 8; ufo.dx = 2.5 * curSpeedMultiplier; }
+    } else if (difficulty === 'extreme') {
+        if (levelNum === 2) { ufo.active = true; ufo.x = 50; ufo.lives = 5; ufo.dx = 2 * curSpeedMultiplier; }
+        else if (levelNum === 3) { ufo.active = true; ufo.x = 200; ufo.lives = 7; ufo.dx = 2.5 * curSpeedMultiplier; }
+    }
+    // На легкой сложности (easy) ufo.active всегда остается false.
+
+    // Настройка босса на уровне 4 (только для экстремальной сложности)
+    if (levelNum === 4) {
+        if (difficulty === 'extreme') {
+            // BOSS LEVEL (Extreme)
+            boss.active = true;
+            boss.hp = boss.maxHp;
+            boss.x = 250;
+            boss.dx = 1.5 * curSpeedMultiplier;
+            // Создание щитов босса
+            for (let i = 0; i < 6; i++) {
+                bossShields.push({ angle: (Math.PI * 2 / 6) * i, hp: 3, radius: 95 });
+            }
+            return; // Пропускаем генерацию кирпичей для уровня с боссом
+        } else {
+            // На легкой и средней сложности 4-й уровень — это просто кирпичи
             for (let r = 0; r < 5; r++) {
                 for (let c = 0; c < 10; c++) {
                     let randomColor = blockColors[Math.floor(Math.random() * blockColors.length)];
@@ -2134,17 +2155,6 @@ function buildLevel(levelNum) {
             }
             return;
         }
-        
-        // BOSS LEVEL (Medium / Extreme)
-        boss.active = true;
-        boss.hp = boss.maxHp;
-        boss.x = 250;
-        boss.dx = 1.5 * curSpeedMultiplier;
-        // Create boss shields
-        for (let i = 0; i < 6; i++) {
-            bossShields.push({ angle: (Math.PI * 2 / 6) * i, hp: 3, radius: 95 });
-        }
-        return; // Skip brick generation
     }
 
     let powers = ['none', 'none', 'multiball', 'wide', 'laser', 'fireball', 'shield'];
@@ -2451,8 +2461,8 @@ function update() {
         sendPvpData({ type: 'score', score: score });
     }
 
-    // Метеоритный дождь (космические угрозы)
-    if (Math.random() < (difficulty === 'extreme' ? 0.015 : 0.006) && currentMode !== 'sandbox_edit') {
+    // Метеоритный дождь (космические угрозы) — только на экстремальной сложности
+    if (difficulty === 'extreme' && Math.random() < 0.015 && currentMode !== 'sandbox_edit') {
         meteors.push({
             x: Math.random() * (virtualWidth - 40) + 20,
             y: -30,
@@ -2828,18 +2838,18 @@ function update() {
     if (activeBricksCount === 0 && !boss.active && currentMode === 'single') {
         if (currentLevel < 4) {
             currentLevel++;
-            if (currentLevel === 4 && difficulty === 'easy') {
+            if (currentLevel === 4 && difficulty !== 'extreme') {
                 document.getElementById('levelText').innerText = '4';
             } else {
                 document.getElementById('levelText').innerText = currentLevel === 4 ? 'BOSS 🛸' : currentLevel;
             }
-            showNotify((currentLevel === 4 && difficulty !== 'easy') ? '⚠️ ВНИМАНИЕ: МАТРИЦА VOID MASTER НАДВИГАЕТСЯ!' : `УРОВЕНЬ ${currentLevel-1} ПРОЙДЕН!`);
+            showNotify((currentLevel === 4 && difficulty === 'extreme') ? '⚠️ ВНИМАНИЕ: МАТРИЦА VOID MASTER НАДВИГАЕТСЯ!' : `УРОВЕНЬ ${currentLevel-1} ПРОЙДЕН!`);
             coins += gameCoins + levelWinBonus; gameCoins = 0;
             updateCoinDisplays();
             buildLevel(currentLevel);
             balls = [{ x: paddle.x + paddle.width / 2, y: paddle.y - 10, radius: 7, dx: 4 * speedMultiplier, dy: -4 * speedMultiplier, stuck: true, trail: [] }];
         } else {
-            // Очищен 4-й уровень (на легкой сложности без босса)
+            // Очищен 4-й уровень (на легкой/средней сложности без босса)
             score += 1000;
             createExplosion(virtualWidth / 2, virtualHeight / 2, '#a7d973');
             playSound('boss_defeat');
