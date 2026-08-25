@@ -41,42 +41,41 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            width: 100vw;
-            height: 100vh;
-            height: 100dvh;
+            min-height: 100vh;
+            min-height: 100dvh;
             overflow: hidden;
             background-image: radial-gradient(circle at center, #0e170c 0%, #050804 100%);
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
         }
 
-        /* Адаптивный ретро-корпус на весь экран телефона */
+        /* Адаптивный ретро-корпус (ПК версия по умолчанию) */
         .arcade-cabinet {
             background: linear-gradient(180deg, #182415 0%, #0c120a 100%);
-            padding: 6px;
-            border-radius: 0;
-            border: none;
-            box-shadow: none;
+            padding: clamp(10px, 3vw, 24px);
+            border-radius: clamp(14px, 4vw, 28px);
+            border: 3px solid #456339;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.9), 
+                        inset 0 0 20px rgba(167, 217, 115, 0.15),
+                        0 0 30px rgba(78, 115, 64, 0.2);
             text-align: center;
-            width: 100vw;
-            height: 100vh;
-            height: 100dvh;
+            width: 95vw;
+            max-width: 860px;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
-            gap: 4px;
+            gap: 12px;
             transition: all 0.3s ease;
         }
 
-        /* Рамка экрана растянута на весь доступный вертикальный/горизонтальный объем */
+        /* Рамка экрана */
         .screen-border {
             position: relative;
-            border-radius: 0;
-            border: none;
+            border-radius: 18px;
+            border: 4px solid #33472b;
             background: #060a05;
             overflow: hidden;
-            flex-grow: 1;
+            aspect-ratio: 800/500;
             width: 100%;
-            height: 100%;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.9);
+            box-shadow: inset 0 0 40px rgba(0,0,0,0.95), 0 0 20px rgba(0,0,0,0.6);
         }
 
         canvas {
@@ -90,43 +89,41 @@
         .menu-screen {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(6, 10, 5, 0.98);
+            background: rgba(6, 10, 5, 0.97);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             display: flex;
-            flex-direction: column;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
             z-index: 10;
-            padding: 15px;
+            padding: clamp(15px, 5vw, 40px);
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
         }
 
         .menu-left-panel {
-            width: 100%;
+            width: 44%;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            text-align: center;
-            border-right: none;
-            padding-right: 0;
-            margin-bottom: 10px;
+            align-items: flex-start;
+            text-align: left;
+            border-right: 2px solid rgba(82, 117, 68, 0.25);
+            padding-right: clamp(15px, 3vw, 30px);
         }
 
         .menu-right-panel {
-            width: 100%;
+            width: 52%;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
+            gap: clamp(8px, 2vw, 12px);
         }
 
         h1 {
             color: #a7d973;
-            font-size: clamp(28px, 8vw, 42px);
+            font-size: clamp(24px, 6vw, 42px);
             font-weight: 900;
-            margin: 0 0 2px 0;
+            margin: 0 0 4px 0;
             letter-spacing: 3px;
             text-shadow: 0 0 20px rgba(167, 217, 115, 0.5);
             font-style: italic;
@@ -135,41 +132,48 @@
         .alpha-badge {
             background: #25381f;
             color: #b9ec88;
-            font-size: 10px;
+            font-size: clamp(8px, 1.8vw, 10px);
             font-weight: 800;
-            padding: 4px 10px;
-            border-radius: 6px;
-            margin-bottom: 8px;
+            padding: 5px 12px;
+            border-radius: 8px;
+            margin-bottom: clamp(10px, 3vw, 18px);
             display: inline-block;
             border: 1px solid #436137;
             letter-spacing: 1.5px;
         }
 
         .menu-desc {
-            font-size: 12px;
+            font-size: clamp(11px, 2.2vw, 13px);
             color: #9cb299;
-            margin-bottom: 10px;
-            line-height: 1.4;
-            max-width: 400px;
+            margin-bottom: clamp(12px, 3vw, 24px);
+            line-height: 1.5;
         }
 
         .menu-btn {
             background: linear-gradient(180deg, #1f2d1c 0%, #152013 100%);
             border: 1px solid #48663a;
             color: #e2edd6;
-            padding: 12px 16px;
+            padding: clamp(10px, 2.5vw, 14px) 20px;
             border-radius: 10px;
             font-family: 'Outfit', sans-serif;
-            font-size: 11px;
+            font-size: clamp(10px, 2.2vw, 12px);
             font-weight: 700;
             cursor: pointer;
             transition: all 0.2s ease-in-out;
             width: 100%;
-            max-width: 340px;
+            max-width: 320px;
             text-transform: uppercase;
             letter-spacing: 1.5px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
             touch-action: manipulation;
+        }
+
+        .menu-btn:hover {
+            background: linear-gradient(180deg, #517a43 0%, #3e5e32 100%);
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(78, 115, 64, 0.6), inset 0 1px 0 rgba(255,255,255,0.15);
+            border-color: #79ac66;
         }
 
         .menu-btn:active {
@@ -189,43 +193,44 @@
 
         @keyframes viralPulse {
             0% {
-                transform: scale(1);
+                transform: scale(1) rotate(0deg);
                 box-shadow: 0 0 12px rgba(247, 206, 85, 0.5);
             }
             100% {
-                transform: scale(1.02);
-                box-shadow: 0 0 25px rgba(247, 206, 85, 0.95);
+                transform: scale(1.03) rotate(0.5deg);
+                box-shadow: 0 0 28px rgba(247, 206, 85, 0.95), 0 0 15px rgba(255, 235, 59, 0.45);
             }
         }
 
         .status-bar {
             position: absolute;
-            top: 10px; left: 12px; right: 12px;
+            top: 14px; left: 18px; right: 18px;
             display: flex;
             justify-content: space-between;
-            font-size: 11px;
+            font-size: clamp(10px, 2.5vw, 14px);
             font-weight: 800;
             pointer-events: none;
             color: #fff;
             text-shadow: 0 2px 5px rgba(0,0,0,0.95);
             z-index: 5;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.8px;
         }
 
         .sandbox-panel {
             position: absolute;
-            bottom: 8px; left: 8px; right: 8px;
+            bottom: 12px; left: 12px; right: 12px;
             background: rgba(10, 16, 9, 0.96);
             border: 1.5px solid #517a43;
-            border-radius: 10px;
-            padding: 6px;
+            border-radius: 12px;
+            padding: 8px;
             display: flex;
             justify-content: space-around;
             align-items: center;
-            font-size: 10px;
+            font-size: clamp(8px, 1.8vw, 11px);
             font-weight: 800;
             z-index: 5;
-            gap: 4px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            gap: 6px;
             overflow-x: auto;
         }
 
@@ -233,86 +238,102 @@
             background: #0f150e;
             border: 1px solid #436137;
             color: #a7d973;
-            padding: 6px 8px;
-            border-radius: 6px;
+            padding: 6px 10px;
+            border-radius: 8px;
             cursor: pointer;
             font-family: 'Outfit', sans-serif;
-            font-size: 10px;
+            font-size: clamp(9px, 1.8vw, 11px);
             font-weight: 700;
+            transition: 0.2s;
             white-space: nowrap;
             touch-action: manipulation;
         }
 
-        .sandbox-btn.active {
+        .sandbox-btn.active, .sandbox-btn:hover {
             background: linear-gradient(180deg, #517a43 0%, #3e5e32 100%);
             color: #fff;
             border-color: #72a35f;
+            box-shadow: 0 0 10px rgba(114, 163, 95, 0.4);
         }
 
         .notification {
             position: absolute;
-            top: 45px; left: 50%;
+            top: 55px; left: 50%;
             transform: translateX(-50%);
             background: rgba(8, 14, 7, 0.98);
             border: 2px solid #f7ce55;
             color: #fae08f;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 11px;
+            padding: 10px 22px;
+            border-radius: 10px;
+            font-size: clamp(11px, 2.2vw, 13px);
             font-weight: 800;
             z-index: 30;
             display: none;
             text-align: center;
             box-shadow: 0 8px 30px rgba(247, 206, 85, 0.35);
+            animation: slideDown 0.35s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+        }
+
+        @keyframes slideDown {
+            0% { transform: translate(-50%, -25px); opacity: 0; }
+            100% { transform: translate(-50%, 0); opacity: 1; }
         }
 
         .shop-container {
             display: grid;
-            grid-template-columns: 1fr;
-            gap: 10px;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
             margin-bottom: 10px;
-            max-width: 400px;
+            max-width: 600px;
             width: 100%;
-            max-height: 50vh;
-            overflow-y: auto;
         }
 
         .shop-item {
             background: linear-gradient(135deg, #131c11 0%, #0a1009 100%);
             border: 1.5px solid #304729;
-            border-radius: 10px;
-            padding: 8px;
-            font-size: 10px;
+            border-radius: 12px;
+            padding: 10px;
+            font-size: clamp(9px, 2vw, 11px);
             text-align: center;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            transition: all 0.25s ease;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
 
+        .shop-item:hover {
+            border-color: #517a43;
+            background: linear-gradient(135deg, #182415 0%, #0d140b 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.5), 0 0 10px rgba(81, 122, 67, 0.1);
+        }
+
+        .shop-item div { margin-bottom: 6px; }
+
         .footer-credits {
-            font-size: 9px;
+            font-size: 11px;
             color: #55704c;
-            letter-spacing: 1.5px;
+            letter-spacing: 2px;
             font-weight: 800;
-            padding: 2px 0;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.6);
         }
         
         /* РЕТРО ЭКРАННЫЕ СЛОИ */
         .crt-overlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
-            background-size: 100% 3px, 4px 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.015), rgba(0, 0, 255, 0.04));
+            background-size: 100% 3.5px, 5px 100%;
             z-index: 3;
             pointer-events: none;
-            opacity: 0.2;
+            opacity: 0.25;
         }
 
         .crt-vignette {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle, transparent 60%, rgba(0,0,0,0.7) 100%);
+            background: radial-gradient(circle, transparent 65%, rgba(0,0,0,0.75) 100%);
             z-index: 4;
             pointer-events: none;
         }
@@ -321,26 +342,25 @@
         .mobile-controls-panel {
             display: none;
             width: 100%;
-            padding: 8px 12px;
-            background: rgba(14, 23, 12, 0.98);
-            border-top: 2px solid #3d5932;
+            padding: 10px 15px;
+            background: rgba(14, 23, 12, 0.95);
+            border: 2px solid #3d5932;
+            border-radius: 18px;
+            margin-top: 5px;
             justify-content: space-between;
             align-items: center;
-            gap: 15px;
-        }
-
-        .mobile-controls-panel.touch-active {
-            display: flex;
+            gap: 20px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.7);
         }
 
         .touch-pad {
             display: flex;
-            gap: 12px;
+            gap: 15px;
         }
 
         .touch-btn {
-            width: 60px;
-            height: 60px;
+            width: clamp(55px, 14vw, 70px);
+            height: clamp(55px, 14vw, 70px);
             background: linear-gradient(135deg, #253c1e 0%, #121e0f 100%);
             border: 2.5px solid #517a43;
             border-radius: 50%;
@@ -348,9 +368,10 @@
             align-items: center;
             justify-content: center;
             color: #fff;
-            font-size: 22px;
+            font-size: 24px;
             font-weight: bold;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.5), inset 0 2px 4px rgba(255,255,255,0.1);
+            transition: 0.05s;
             cursor: pointer;
             touch-action: manipulation;
         }
@@ -358,17 +379,25 @@
         .touch-btn:active {
             background: linear-gradient(135deg, #517a43 0%, #253c1e 100%);
             transform: scale(0.92);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.6);
+            border-color: #a7d973;
         }
 
         #touchAction {
-            width: 90px;
-            border-radius: 18px;
-            font-size: 12px;
-            letter-spacing: 1px;
+            width: clamp(80px, 20vw, 110px);
+            border-radius: 20px;
+            font-size: 14px;
+            letter-spacing: 1.5px;
             font-weight: 900;
             background: linear-gradient(135deg, #a7d973 0%, #4e7340 100%);
             border-color: #b9ec88;
             color: #0d1a08;
+            text-shadow: 0 1px 2px rgba(255,255,255,0.2);
+        }
+
+        #touchAction:active {
+            background: linear-gradient(135deg, #4e7340 0%, #253c1e 100%);
+            color: #fff;
         }
 
         /* ТАБЛИЦА ЛИДЕРОВ */
@@ -376,7 +405,7 @@
             width: 100%;
             border-collapse: collapse;
             color: #e2e8df;
-            font-size: 11px;
+            font-size: clamp(10px, 2vw, 12px);
             text-align: left;
         }
 
@@ -384,22 +413,93 @@
             border-bottom: 2px solid #436137;
             color: #f7ce55;
             font-weight: 900;
-            padding: 6px;
+            font-size: clamp(11px, 2.2vw, 13px);
+            padding: 8px;
         }
 
         .leaderboard-table td {
-            padding: 6px;
+            padding: 8px;
             border-bottom: 1px solid rgba(82, 117, 68, 0.15);
         }
 
+        /* КОЛЕСО УДАЧИ АДАПТАЦИЯ */
         .wheel-wrapper {
             display: flex; 
-            flex-direction: column;
-            gap: 12px; 
+            gap: 20px; 
             align-items: center; 
             width: 100%; 
-            max-width: 400px; 
+            max-width: 680px; 
+            margin: auto 0; 
             justify-content: center;
+        }
+
+        /* АДАПТИВНОСТЬ ДЛЯ ТЕЛЕФОНОВ (МОБИЛЬНЫЙ СПЕЦИАЛЬНЫЙ РЕЖИМ ВОЗВРАЩЕН КАК РАНЬШЕ) */
+        @media (max-width: 768px) {
+            body {
+                justify-content: flex-start;
+                padding: 6px;
+                width: 100vw;
+                height: 100vh;
+                height: 100dvh;
+            }
+
+            .arcade-cabinet {
+                width: 100vw;
+                height: 100vh;
+                height: 100dvh;
+                border-radius: 0;
+                border: none;
+                padding: 4px;
+                box-shadow: none;
+                gap: 2px;
+            }
+
+            .screen-border {
+                border-radius: 0;
+                border: none;
+                flex-grow: 1;
+                aspect-ratio: unset;
+                width: 100%;
+                height: 100%;
+            }
+
+            .menu-screen {
+                flex-direction: column;
+                justify-content: flex-start;
+                gap: 12px;
+                padding: 15px 12px;
+            }
+
+            .menu-left-panel {
+                width: 100%;
+                border-right: none;
+                padding-right: 0;
+                align-items: center;
+                text-align: center;
+                border-bottom: 1.5px solid rgba(82, 117, 68, 0.25);
+                padding-bottom: 10px;
+            }
+
+            .menu-right-panel {
+                width: 100%;
+                margin-top: 0;
+            }
+
+            .shop-container {
+                grid-template-columns: 1fr;
+                max-height: 45vh;
+                overflow-y: auto;
+            }
+
+            .wheel-wrapper {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            /* Включение нижнего пульта контроллеров на сенсорных экранах */
+            .mobile-controls-panel.touch-active {
+                display: flex;
+            }
         }
     </style>
 </head>
@@ -418,21 +518,21 @@
             <!-- ГЛАВНОЕ МЕНЮ (FROPY) -->
             <div id="mainMenu" class="menu-screen">
                 <!-- КАРТОЧКА ИГРОКА ВЕРХНИЙ ПРАВЫЙ УГОЛ -->
-                <div style="position: absolute; top: 12px; right: 12px; font-size: 9px; background: rgba(37, 56, 31, 0.85); padding: 4px 10px; border-radius: 6px; border: 1px solid #436137; color: #a7d973; font-weight: 800; display: flex; align-items: center; gap: 4px; z-index: 15;">
-                    👨‍🚀 <span id="playerNicknameDisplay" style="color: #fff;">Загрузка...</span>
+                <div style="position: absolute; top: 12px; right: 15px; font-size: 10px; background: rgba(37, 56, 31, 0.85); padding: 5px 10px; border-radius: 8px; border: 1px solid #436137; color: #a7d973; font-weight: 800; display: flex; align-items: center; gap: 5px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 15;">
+                    👨‍🚀 ПИЛОТ: <span id="playerNicknameDisplay" style="color: #fff; text-shadow: 0 0 5px #a7d973;">Загрузка...</span>
                 </div>
 
                 <div class="menu-left-panel">
                     <h1>Fropy</h1>
                     <div class="alpha-badge">MOBILE EVOLUTION v2.0</div>
                     <div class="menu-desc">
-                        Аркада адаптирована на весь экран мобильного! Наслаждайтесь сенсорным управлением и бонусами.
+                        Классический аркадный автомат для ПК, адаптированный под сенсорные экраны смартфонов!
                     </div>
-                    <div style="font-size: 10px; color: #f7ce55; background: #080d07; padding: 8px 14px; border: 1.5px solid #304729; border-radius: 8px; width: 100%; max-width: 340px;">
-                        БАЛАНС ДЕТАЛЕЙ: <br><span id="coinDisplay" style="font-size: 22px; font-weight: 900; color: #fff;">100</span> ⚙️
+                    <div style="font-size: 11px; color: #f7ce55; background: #080d07; padding: 10px 15px; border: 1.5px solid #304729; border-radius: 10px; width: 100%; box-shadow: inset 0 2px 4px rgba(0,0,0,0.6);">
+                        ДЕТАЛИ В НАЛИЧИИ: <br><span id="coinDisplay" style="font-size: 24px; font-weight: 900; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.2);">100</span> ⚙️
                     </div>
                 </div>
-                <div class="menu-right-panel">
+                <div class="menu-right-panel" style="margin-top: 10px;">
                     <button class="menu-btn viral-btn" onclick="openAirdropSpin()">КРУТИТЬ КОЛЕСО & AIRDROP 🎡🪂</button>
                     <button class="menu-btn" onclick="startGame('single')" style="border-color:#a7d973; background: linear-gradient(180deg, #243d1d 0%, #152410 100%);">ПОЛЕТЕТЬ В БОЙ (АРКАДА)</button>
                     <button class="menu-btn" id="playSandboxBtn" style="display: none; border-color: #f7ce55; color: #fae08f;" onclick="startCustomSandboxGame()">ИГРАТЬ В СВОЙ УРОВЕНЬ</button>
@@ -445,35 +545,40 @@
             </div>
 
             <!-- ОКНО КОЛЕСА УДАЧИ, РЕФЕРАЛОВ И AIRDROP -->
-            <div id="airdropMenu" class="menu-screen" style="display: none; justify-content: flex-start; padding: 20px;">
+            <div id="airdropMenu" class="menu-screen" style="display: none; flex-direction: column; justify-content: flex-start; padding: 25px; overflow-y: auto;">
                 <h1>УДАЧА & AIRDROP 🎡🪂</h1>
                 <div class="alpha-badge" style="background:#3b2d10; color:#f7ce55; border:1px solid #735515;">РЕФЕРАЛЬНЫЙ БУСТ: АКТИВЕН</div>
                 
                 <div class="wheel-wrapper">
                     
                     <!-- Колесо фортуны -->
-                    <div style="position: relative; width: 140px; height: 140px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                        <div id="fortuneWheel" style="width: 130px; height: 130px; border-radius: 50%; border: 5px solid #f7ce55; background: conic-gradient(#25381f 0deg 60deg, #10180e 60deg 120deg, #25381f 120deg 180deg, #10180e 180deg 240deg, #25381f 240deg 300deg, #10180e 300deg 360deg); transition: transform 5s cubic-bezier(0.15, 0.85, 0.32, 1); display: flex; align-items: center; justify-content: center;">
-                            <div style="position: absolute; font-size: 7px; font-weight: bold; color: #fff; transform: rotate(30deg) translate(0, -35deg);">+50 ⚙️</div>
-                            <div style="position: absolute; font-size: 7px; font-weight: bold; color: #f7ce55; transform: rotate(90deg) translate(0, -35deg);">ДЖЕКПОТ</div>
-                            <div style="position: absolute; font-size: 7px; font-weight: bold; color: #fff; transform: rotate(150deg) translate(0, -35deg);">+10 ⚙️</div>
-                            <div style="position: absolute; font-size: 7px; font-weight: bold; color: #fff; transform: rotate(210deg) translate(0, -35deg);">+200 ⚙️</div>
-                            <div style="position: absolute; font-size: 7px; font-weight: bold; color: #ff5555; transform: rotate(270deg) translate(0, -35deg);">ПОВТОР</div>
-                            <div style="position: absolute; font-size: 7px; font-weight: bold; color: #fff; transform: rotate(330deg) translate(0, -35deg);">+100 ⚙️</div>
+                    <div style="position: relative; width: 160px; height: 160px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transform: scale(0.95);">
+                        <div id="fortuneWheel" style="width: 150px; height: 150px; border-radius: 50%; border: 6px solid #f7ce55; background: conic-gradient(#25381f 0deg 60deg, #10180e 60deg 120deg, #25381f 120deg 180deg, #10180e 180deg 240deg, #25381f 240deg 300deg, #10180e 300deg 360deg); transition: transform 5s cubic-bezier(0.15, 0.85, 0.32, 1); box-shadow: 0 0 30px rgba(247,206,85,0.45); display: flex; align-items: center; justify-content: center;">
+                            <div style="position: absolute; font-size: 8px; font-weight: bold; color: #fff; transform: rotate(30deg) translate(0, -42deg);">+50 ⚙️</div>
+                            <div style="position: absolute; font-size: 8px; font-weight: bold; color: #f7ce55; transform: rotate(90deg) translate(0, -42deg);">ДЖЕКПОТ</div>
+                            <div style="position: absolute; font-size: 8px; font-weight: bold; color: #fff; transform: rotate(150deg) translate(0, -42deg);">+10 ⚙️</div>
+                            <div style="position: absolute; font-size: 8px; font-weight: bold; color: #fff; transform: rotate(210deg) translate(0, -42deg);">+200 ⚙️</div>
+                            <div style="position: absolute; font-size: 8px; font-weight: bold; color: #ff5555; transform: rotate(270deg) translate(0, -42deg);">ПОВТОР</div>
+                            <div style="position: absolute; font-size: 8px; font-weight: bold; color: #fff; transform: rotate(330deg) translate(0, -42deg);">+100 ⚙️</div>
                         </div>
-                        <div style="position: absolute; top: -3px; width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 16px solid #f7ce55; z-index: 15;"></div>
+                        <div style="position: absolute; top: -5px; width: 0; height: 0; border-left: 9px solid transparent; border-right: 9px solid transparent; border-top: 18px solid #f7ce55; z-index: 15;"></div>
                     </div>
 
                     <!-- Правая колонка с вирусным функционалом -->
-                    <div style="text-align: center; width: 100%; max-width: 325px;">
+                    <div style="text-align: left; flex-grow: 1; max-width: 320px; width: 100%;">
+                        <h3 style="color:#f7ce55; margin: 0 0 6px 0; font-size: 14px; font-weight: 800;">КРУТИ & ВЫИГРЫВАЙ</h3>
+                        <p style="font-size: 10.5px; color:#9cb299; margin: 0 0 10px 0; line-height: 1.4;">
+                            Крутите колесо каждые 30 сек или делитесь ссылкой (+250 деталей за друга)!
+                        </p>
+                        
                         <button class="menu-btn viral-btn" id="spinWheelBtn" onclick="spinAirdropWheel()" style="margin-bottom: 10px; width: 100%;">ИСПЫТАТЬ УДАЧУ 🎡</button>
 
-                        <div style="background: rgba(8, 14, 7, 0.95); border: 1.5px solid #304729; padding: 8px; border-radius: 8px; margin-bottom: 10px;">
-                            <div style="font-size: 8px; color: #9cb299; margin-bottom: 4px; font-weight: bold;">ТВОЯ ССЫЛКА (Кликни для копирования):</div>
-                            <input type="text" id="refLinkInput" readonly onclick="copyReferralLink()" style="width: 100%; background: #060a05; border: 1px solid #436137; color: #a7d973; font-size: 9px; padding: 6px; border-radius: 4px; cursor: pointer; text-align: center; font-family: 'Outfit';">
+                        <div style="background: rgba(8, 14, 7, 0.95); border: 1.5px solid #304729; padding: 8px; border-radius: 8px;">
+                            <div style="font-size: 8.5px; color: #9cb299; margin-bottom: 4px; font-weight: bold;">ТВОЯ ССЫЛКА (Кликни для копирования):</div>
+                            <input type="text" id="refLinkInput" readonly onclick="copyReferralLink()" style="width: 100%; background: #060a05; border: 1px solid #436137; color: #a7d973; font-size: 9.5px; padding: 6px; border-radius: 6px; cursor: pointer; text-align: center; font-family: 'Outfit';">
                         </div>
 
-                        <div style="display: flex; gap: 8px;">
+                        <div style="display: flex; gap: 8px; margin-top: 8px;">
                             <button class="menu-btn" onclick="shareToTelegram()" style="background:#229ED9; border:none; font-size: 9px; padding: 8px; flex: 1;">ТЕЛЕГРАМ ✈️</button>
                             <button class="menu-btn" onclick="shareToVK()" style="background:#4C75A3; border:none; font-size: 9px; padding: 8px; flex: 1;">ВКОНТАКТЕ 📱</button>
                         </div>
@@ -481,23 +586,23 @@
 
                 </div>
 
-                <button class="menu-btn" onclick="closeAirdrop()" style="margin-top: 15px; max-width: 160px;">НАЗАД</button>
+                <button class="menu-btn" onclick="closeAirdrop()" style="margin-top: 15px; max-width: 180px;">НАЗАД</button>
             </div>
 
             <!-- МАГАЗИН -->
-            <div id="shopMenu" class="menu-screen" style="display: none; justify-content: flex-start; padding: 20px;">
-                <h1>МАГАЗИН</h1>
-                <div style="font-size: 11px; color: #f7ce55; margin-bottom: 10px; font-weight: 800;">БАЛАНС: <span id="shopCoinDisplay">0</span> ⚙️</div>
+            <div id="shopMenu" class="menu-screen" style="display: none; flex-direction: column; justify-content: flex-start; padding: 25px;">
+                <h1>КОСМИЧЕСКИЙ МАГАЗИН</h1>
+                <div style="font-size: 12px; color: #f7ce55; margin-bottom: 12px; font-weight: 800;">ТВОЙ ЗАПАС ДЕТАЛЕЙ: <span id="shopCoinDisplay">0</span> ⚙️</div>
                 <div class="shop-container" id="shopItemsList"></div>
-                <button class="menu-btn" onclick="closeShop()" style="margin-top: 10px; max-width: 180px;">НАЗАД</button>
+                <button class="menu-btn" onclick="closeShop()" style="margin-top: auto; max-width: 180px;">НАЗАД</button>
             </div>
 
             <!-- ТАБЛИЦА ЛИДЕРОВ -->
-            <div id="leaderboardMenu" class="menu-screen" style="display: none; justify-content: flex-start; padding: 20px;">
-                <h1>ЛИДЕРЫ 🏆</h1>
-                <div class="alpha-badge" style="background:#1b2e18; color:#a7d973; border:1px solid #33592a;">ЛУЧШИЕ ПИЛОТЫ</div>
+            <div id="leaderboardMenu" class="menu-screen" style="display: none; flex-direction: column; justify-content: flex-start; padding: 25px;">
+                <h1>ТАБЛИЦА ЛИДЕРОВ 🏆</h1>
+                <div class="alpha-badge" style="background:#1b2e18; color:#a7d973; border:1px solid #33592a;">ЛУЧШИЕ ПИЛОТЫ ГАЛАКТИКИ</div>
                 
-                <div style="width: 100%; max-width: 350px; background: rgba(8, 14, 7, 0.95); border: 2px solid #304729; border-radius: 10px; padding: 10px; margin: 10px auto; overflow-y: auto; max-height: 50vh;">
+                <div style="width: 100%; max-width: 450px; background: rgba(8, 14, 7, 0.95); border: 2px solid #304729; border-radius: 12px; padding: 12px; margin: 12px auto; overflow-y: auto; max-height: 220px;">
                     <table class="leaderboard-table">
                         <thead>
                             <tr>
@@ -509,38 +614,38 @@
                         <tbody id="leaderboardBody"></tbody>
                     </table>
                 </div>
-                <button class="menu-btn" onclick="closeLeaderboard()" style="margin-top: 10px; max-width: 180px;">НАЗАД</button>
+                <button class="menu-btn" onclick="closeLeaderboard()" style="margin-top: auto; max-width: 180px;">НАЗАД</button>
             </div>
 
             <!-- НАСТРОЙКИ -->
-            <div id="settingsMenu" class="menu-screen" style="display: none;">
-                <h1>НАСТРОЙКИ</h1>
+            <div id="settingsMenu" class="menu-screen" style="display: none; flex-direction: column; justify-content: center; align-items: center;">
+                <h1>НАСТРОЙКИ СИСТЕМЫ</h1>
                 <div style="display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 300px; align-items: center; margin-top: 10px;">
                     <button class="menu-btn" id="controlToggleBtn" onclick="toggleControlMode()">УПРАВЛЕНИЕ: КНОПКИ (D-PAD)</button>
                     <button class="menu-btn" id="soundToggleBtn" onclick="toggleSound()">ЗВУКОВЫЕ ЭФФЕКТЫ: ВКЛ</button>
                     <button class="menu-btn" id="graphicsToggleBtn" onclick="toggleGraphics()">ЭФФЕКТЫ (FX): ВЫСОКИЕ</button>
                     <button class="menu-btn" id="hapticToggleBtn" onclick="toggleHaptics()">ВИБРАЦИЯ (HAPTIC): ВКЛ</button>
-                    <button class="menu-btn" onclick="closeSettings()" style="margin-top: 10px;">НАЗАД</button>
+                    <button class="menu-btn" onclick="closeSettings()" style="margin-top: 12px;">НАЗАД В МЕНЮ</button>
                 </div>
             </div>
 
             <!-- ИГРОВОЙ ИНТЕРФЕЙС -->
             <div id="statusBar" class="status-bar" style="display: none;">
-                <div>УР: <span id="levelText" style="color: #a7d973;">1</span></div>
+                <div>УРОВЕНЬ: <span id="levelText" style="color: #a7d973;">1</span></div>
                 <div>ОЧКИ: <span id="scoreText" style="color: #a7d973;">0</span></div>
                 <div>ДЕТАЛИ: <span id="gameCoinText" style="color: #f7ce55;">0</span></div>
-                <div>ЖИЗНИ: <span id="livesText" style="color: #ff5555;">3</span></div>
+                <div>ПРОЧНОСТЬ: <span id="livesText" style="color: #ff5555;">3</span></div>
             </div>
 
             <!-- ПАНЕЛЬ РЕДАКТОРА -->
             <div id="sandboxPanel" class="sandbox-panel" style="display: none;">
-                <div style="font-size:9px; color: #a7d973;">БЛОК:</div>
-                <button class="sandbox-btn active" onclick="setSandboxPower('none')" id="sb-none">ОБЫЧ</button>
-                <button class="sandbox-btn" onclick="setSandboxPower('multiball')" id="sb-multiball">2X</button>
-                <button class="sandbox-btn" onclick="setSandboxPower('wide')" id="sb-wide">ШИР</button>
-                <button class="sandbox-btn" onclick="setSandboxPower('laser')" id="sb-laser">ЛАЗ</button>
-                <button class="sandbox-btn" onclick="setSandboxPower('fireball')" id="sb-fireball">ОГОНЬ</button>
-                <button class="sandbox-btn" onclick="saveAndExitSandbox()" style="border-color: #f7ce55; color: #fae08f;">СОХР</button>
+                <div style="font-size:9.5px; color: #a7d973;">БЛОК:</div>
+                <button class="sandbox-btn active" onclick="setSandboxPower('none')" id="sb-none">ОБЫЧНЫЙ</button>
+                <button class="sandbox-btn" onclick="setSandboxPower('multiball')" id="sb-multiball">УДВОИТЕЛЬ</button>
+                <button class="sandbox-btn" onclick="setSandboxPower('wide')" id="sb-wide">ШИРОКИЙ</button>
+                <button class="sandbox-btn" onclick="setSandboxPower('laser')" id="sb-laser">ЛАЗЕР</button>
+                <button class="sandbox-btn" onclick="setSandboxPower('fireball')" id="sb-fireball">ОГНЕННЫЙ</button>
+                <button class="sandbox-btn" onclick="saveAndExitSandbox()" style="border-color: #f7ce55; color: #fae08f;">СОХРАНИТЬ</button>
             </div>
 
             <canvas id="gameCanvas"></canvas>
@@ -556,7 +661,7 @@
         </div>
 
         <div class="footer-credits">
-            FROPY (MOBILE FULLSCREEN EDITION)
+            FROPY (ARCADE CABINET EDITION)
         </div>
     </div>
 
@@ -604,9 +709,9 @@ function renderLeaderboard() {
         const rankMedal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}`;
         body.innerHTML += `
             <tr style="${highlightStyle}">
-                <td style="font-weight: 900; color: #a7d973; padding-left: 8px;">${rankMedal}</td>
+                <td style="font-weight: 900; color: #a7d973; padding-left: 10px;">${rankMedal}</td>
                 <td style="color: ${isCurrent ? '#fff' : '#9cb299'};">${user.name}</td>
-                <td style="text-align: right; font-weight: 900; color: #f7ce55; padding-right: 8px;">${user.score} 🏆</td>
+                <td style="text-align: right; font-weight: 900; color: #f7ce55; padding-right: 10px;">${user.score} 🏆</td>
             </tr>
         `;
     });
@@ -703,7 +808,7 @@ function renderShop() {
                 <div><strong style="color: #fff; font-size: 10px;">${item.name}</strong></div>
                 <div style="color:#9cb299; font-size:9px;">${item.desc}</div>
                 <div style="color:#f7ce55; font-weight: 800; font-size:11px;">${item.cost} ⚙️</div>
-                <button class="sandbox-btn" style="margin-top: 4px; ${btnStyle}" onclick="buyShopItem('${item.id}', '${item.type}', ${item.cost})">
+                <button class="sandbox-btn" style="margin-top: 5px; ${btnStyle}" onclick="buyShopItem('${item.id}', '${item.type}', ${item.cost})">
                     ${buttonText}
                 </button>
             </div>
@@ -964,7 +1069,7 @@ function spinAirdropWheel() {
 }
 
 function triggerScreenConfetti() {
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 35; i++) {
         confettis.push({
             x: Math.random() * virtualWidth,
             y: -10,
@@ -1104,7 +1209,7 @@ let screenShake = 0;
 
 const blockColors = ['#3a86c8', '#10b981', '#fbbf24', '#f97316', '#ef4444'];
 
-for (let i = 0; i < 40; i++) {
+for (let i = 0; i < 45; i++) {
     stars.push({
         x: Math.random() * virtualWidth,
         y: Math.random() * virtualHeight,
@@ -1126,7 +1231,7 @@ function setSandboxPower(type) {
 const brickWidth = 70;
 const brickHeight = 20;
 const brickPadding = 10;
-const brickOffsetTop = 50;
+const brickOffsetTop = 60;
 const brickOffsetLeft = 35;
 
 function buildLevel(levelNum) {
