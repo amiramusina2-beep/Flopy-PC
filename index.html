@@ -357,9 +357,9 @@
             <div id="mainMenu" class="menu-screen">
                 <div class="menu-left-panel">
                     <h1>Fropy</h1>
-                    <div class="alpha-badge">EVOLUTION UPDATE v1.3</div>
+                    <div class="alpha-badge">EVOLUTION UPDATE v1.4</div>
                     <div class="menu-desc">
-                        Испытайте полностью обновленную космическую аркаду! Добавлены зловещие НЛО-соперники, огненные мячи, система прокачки скинов и 3 проработанных уровня!
+                        Испытайте полностью обновленную космическую аркаду! Исправлен баланс начисления деталей, добавлены зловещие НЛО-соперники, огненные мячи, система прокачки скинов и 3 проработанных уровня!
                     </div>
                     <div style="font-size: 11px; color: #f7ce55; background: #080d07; padding: 12px 18px; border: 1.5px solid #304729; border-radius: 10px; width: 100%; box-shadow: inset 0 2px 4px rgba(0,0,0,0.6);">
                         ДЕТАЛИ В НАЛИЧИИ: <br><span id="coinDisplay" style="font-size: 26px; font-weight: 900; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.2);">100</span> ⚙️
@@ -516,7 +516,7 @@ function showNotify(text) {
     setTimeout(() => box.style.display = 'none', 3000);
 }
 
-// МАГАЗИН И ПРОКАЧКА (БЕЗ БАГАННОЙ КНОПКИ КУПИТЬ МОНЕТЫ)
+// МАГАЗИН И ПРОКАЧКА
 const shopCatalog = [
     { id: 'gold', name: 'СКИН: ЗОЛОТОЙ ТИТАН', type: 'skin', cost: 150, desc: 'Золотая зеркальная платформа' },
     { id: 'neon', name: 'СКИН: КИБЕР-НЕОН', type: 'skin', cost: 250, desc: 'Динамический неоновый градиент' },
@@ -762,7 +762,7 @@ function spinAirdropWheel() {
                 reward = 50; msg = 'ВЫИГРЫШ: +50 ДЕТАЛЕЙ! ⚙️';
                 break;
             case 2:
-                reward = 1000; msg = '🌟 СВЕРХНОВАЯ! ДЖЕКПОТ +1000 ДЕТАЛЕЙ! 🌟';
+                reward = 500; msg = '🌟 СВЕРХНОВАЯ! ДЖЕКПОТ +500 ДЕТАЛЕЙ! 🌟';
                 break;
             case 3:
                 reward = 10; msg = 'ОБЛОМКИ: +10 ДЕТАЛЕЙ!';
@@ -833,7 +833,7 @@ function shareToVK() {
     window.open(shareUrl, '_blank');
 }
 
-// ЗВУКОВОЙ ДВИЖОК С ПОНИЖЕННОЙ ГРОМКОСТЬЮ (БЕЗ ШУМА)
+// ЗВУКОВОЙ ДВИЖОК С ПОНИЖЕННОЙ ГРОМКОСТЬЮ
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 function playSound(type) {
     if (!soundEnabled) return;
@@ -848,21 +848,21 @@ function playSound(type) {
         osc.type = 'triangle';
         osc.frequency.setValueAtTime(150, t);
         osc.frequency.exponentialRampToValueAtTime(70, t + 0.08);
-        gain.gain.setValueAtTime(0.03, t); // Тише
+        gain.gain.setValueAtTime(0.03, t);
         gain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
         osc.start(t); osc.stop(t + 0.08);
     } else if (type === 'brick') {
         osc.type = 'sawtooth';
         osc.frequency.setValueAtTime(320, t);
         osc.frequency.exponentialRampToValueAtTime(120, t + 0.12);
-        gain.gain.setValueAtTime(0.02, t); // Тише
+        gain.gain.setValueAtTime(0.02, t);
         gain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
         osc.start(t); osc.stop(t + 0.12);
     } else if (type === 'laser') {
         osc.type = 'sawtooth';
         osc.frequency.setValueAtTime(800, t);
         osc.frequency.exponentialRampToValueAtTime(300, t + 0.15);
-        gain.gain.setValueAtTime(0.015, t); // Тише
+        gain.gain.setValueAtTime(0.015, t);
         gain.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
         osc.start(t); osc.stop(t + 0.15);
     } else if (type === 'powerup') {
@@ -870,14 +870,14 @@ function playSound(type) {
         osc.frequency.setValueAtTime(250, t);
         osc.frequency.setValueAtTime(400, t + 0.05);
         osc.frequency.setValueAtTime(600, t + 0.1);
-        gain.gain.setValueAtTime(0.025, t); // Тише
+        gain.gain.setValueAtTime(0.025, t);
         gain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
         osc.start(t); osc.stop(t + 0.2);
     } else if (type === 'hurt') {
         osc.type = 'square';
         osc.frequency.setValueAtTime(100, t);
         osc.frequency.linearRampToValueAtTime(20, t + 0.3);
-        gain.gain.setValueAtTime(0.04, t); // Тише
+        gain.gain.setValueAtTime(0.04, t);
         gain.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
         osc.start(t); osc.stop(t + 0.3);
     }
@@ -892,7 +892,7 @@ let currentMode = 'single';
 let currentLevel = 1;
 
 let score = 0;
-let gameCoins = 0;
+let gameCoins = 0; // Накопленные за уровень детали
 let lives = 3;
 let paddle = { x: 350, y: 460, width: 100, baseWidth: 100, height: 12, speed: 9, laserActive: false, lastShotTime: 0, magnet: false };
 let balls = [];
@@ -904,6 +904,8 @@ let particles = [];
 let confettis = [];
 let stars = [];
 let screenShake = 0;
+
+const blockColors = ['#3a86c8', '#10b981', '#fbbf24', '#f97316', '#ef4444'];
 
 // Инициализация космических звёзд на фоне
 for (let i = 0; i < 50; i++) {
@@ -946,7 +948,6 @@ function buildLevel(levelNum) {
         ufo.lives = 5;
     }
 
-    const blockColors = ['#3a86c8', '#10b981', '#fbbf24', '#f97316', '#ef4444'];
     let powers = ['none', 'none', 'multiball', 'wide', 'laser', 'fireball'];
 
     for (let r = 0; r < 5; r++) {
@@ -979,7 +980,7 @@ function initGame(mode) {
     }
 
     score = 0;
-    gameCoins = 0;
+    gameCoins = 0; // Сбрасываем внутриигровые детали для нового старта
     currentLevel = 1;
     lives = 3 + (playerUpgrades.extraLife ? 1 : 0);
     paddle.x = canvas.width / 2 - 50;
@@ -1055,7 +1056,7 @@ function createExplosion(x, y, color) {
 }
 
 // Клики по экрану
-canvas.addEventListener('click', (e) => {
+canvas.addEventListener('mousedown', (e) => {
     if (gameState === 'SANDBOX_EDIT') {
         const rect = canvas.getBoundingClientRect();
         let scaleX = canvas.width / rect.width;
@@ -1068,8 +1069,7 @@ canvas.addEventListener('click', (e) => {
                 b.status = b.status === 1 ? 0 : 1;
                 if (b.status === 1) {
                     b.power = selectedSandboxPower;
-                    const colors = ['#3a86c8', '#10b981', '#fbbf24', '#f97316', '#ef4444'];
-                    b.color = colors[Math.floor(Math.random() * blockColors.length)];
+                    b.color = blockColors[Math.floor(Math.random() * blockColors.length)];
                     playSound('hit');
                 }
                 break;
@@ -1091,7 +1091,6 @@ function releaseBalls() {
             b.dy = -5;
         }
     });
-    // Отключаем магнитный захват после первого запуска, чтобы мяч отскакивал при падениях
     paddle.magnet = false;
 }
 
@@ -1249,8 +1248,9 @@ function update() {
             if (ufo.lives <= 0) {
                 ufo.active = false;
                 score += 250;
-                gameCoins += 30;
-                showNotify('НЛО УНИЧТОЖЕН! +30 деталей');
+                gameCoins += 15; // Сбалансированная награда за НЛО
+                document.getElementById('gameCoinText').innerText = gameCoins;
+                showNotify('НЛО УНИЧТОЖЕН! +15 деталей');
                 triggerScreenConfetti();
             }
             continue;
@@ -1261,7 +1261,7 @@ function update() {
                 b.status = 0;
                 createExplosion(b.x + b.width / 2, b.y + b.height / 2, b.color);
                 score += 15;
-                gameCoins += 2;
+                gameCoins += 1; // 1 деталь за кирпич для баланса (вместо 2)
                 document.getElementById('scoreText').innerText = score;
                 document.getElementById('gameCoinText').innerText = gameCoins;
                 playSound('brick');
@@ -1284,6 +1284,11 @@ function update() {
         ball.x += ball.dx;
         ball.y += ball.dy;
 
+        // Коррекция слишком горизонтального полета
+        if (Math.abs(ball.dy) < 1.5) {
+            ball.dy = ball.dy < 0 ? -1.5 : 1.5;
+        }
+
         // Плавный след мяча
         if (highGraphics) {
             ball.trail.push({ x: ball.x, y: ball.y });
@@ -1302,8 +1307,9 @@ function update() {
             if (ufo.lives <= 0) {
                 ufo.active = false;
                 score += 250;
-                gameCoins += 30;
-                showNotify('ВРАЖЕСКИЙ КОРАБЛЬ СБИТ!');
+                gameCoins += 15;
+                document.getElementById('gameCoinText').innerText = gameCoins;
+                showNotify('ВРАЖЕСКИЙ КОРАБЛЬ СБИТ! +15 деталей');
                 triggerScreenConfetti();
             }
         }
@@ -1367,7 +1373,7 @@ function update() {
                     b.status = 0;
                     createExplosion(b.x + b.width/2, b.y + b.height/2, b.color);
                     score += 10;
-                    gameCoins += 3;
+                    gameCoins += 1; // Строго 1 деталь за кирпич для предотвращения фарма
                     document.getElementById('scoreText').innerText = score;
                     document.getElementById('gameCoinText').innerText = gameCoins;
                     playSound('brick');
@@ -1386,21 +1392,31 @@ function update() {
             currentLevel++;
             document.getElementById('levelText').innerText = currentLevel;
             showNotify(`УРОВЕНЬ ${currentLevel-1} ПРОЙДЕН! Запуск следующего...`);
-            coins += gameCoins + 50;
+            
+            // Фиксируем монеты и сбрасываем счетчик за уровень, исключая дублирование
+            coins += gameCoins + 50; 
+            gameCoins = 0; 
             updateCoinDisplays();
+            
             buildLevel(currentLevel);
             balls = [{ x: paddle.x + paddle.width / 2, y: paddle.y - 10, radius: 7, dx: 4, dy: -4, stuck: true, trail: [] }];
         } else {
             showNotify('АРКАДА ПОЛНОСТЬЮ ПРОЙДЕНА! ПИЛОТ-ЧЕМПИОН!');
+            
             coins += gameCoins + 150;
+            gameCoins = 0;
             triggerScreenConfetti();
             updateCoinDisplays();
+            
             setTimeout(backToMenu, 3500);
         }
     } else if (activeBricksCount === 0 && currentMode === 'sandbox_play') {
         showNotify('СВОЙ УРОВЕНЬ УСПЕШНО ПРОЙДЕН!');
-        coins += gameCoins + 50;
+        
+        coins += gameCoins + 30;
+        gameCoins = 0;
         updateCoinDisplays();
+        
         setTimeout(backToMenu, 2500);
     }
 
@@ -1437,8 +1453,12 @@ function update() {
 function checkGameOver() {
     if (lives <= 0) {
         showNotify('КОРАБЛЬ РАЗБИТ! СЕКТОР ПОТЕРЯН');
+        
+        // Корректно сохраняем заработанное и сбрасываем сессионные монеты
         coins += gameCoins;
+        gameCoins = 0;
         updateCoinDisplays();
+        
         try { document.exitPointerLock(); } catch(e) {}
         setTimeout(backToMenu, 2000);
     }
