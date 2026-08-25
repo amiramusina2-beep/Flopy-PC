@@ -441,6 +441,28 @@
             justify-content: center;
         }
 
+        /* АДМИН ПАНЕЛЬ */
+        .admin-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            width: 100%;
+            max-width: 580px;
+            margin-top: 10px;
+        }
+
+        .admin-card {
+            background: rgba(22, 12, 12, 0.95);
+            border: 1.5px solid #ff5555;
+            border-radius: 12px;
+            padding: 10px;
+            font-size: clamp(9px, 2vw, 11px);
+            color: #ffa0a0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
         /* АДАПТИВНОСТЬ ДЛЯ ТЕЛЕФОНОВ (ПОЛНОЦЕННАЯ МОБИЛЬНАЯ АДАПТАЦИЯ КОРПУСА) */
         @media (max-width: 768px) {
             body {
@@ -509,6 +531,12 @@
             .mobile-controls-panel.touch-active {
                 display: flex;
             }
+
+            .admin-grid {
+                grid-template-columns: 1fr;
+                max-height: 45vh;
+                overflow-y: auto;
+            }
         }
     </style>
 </head>
@@ -542,6 +570,7 @@
                     </div>
                 </div>
                 <div class="menu-right-panel" style="margin-top: 10px;">
+                    <button class="menu-btn" id="adminPanelBtn" onclick="openAdminPanel()" style="display: none; border-color: #ef4444; color: #ff5555; background: linear-gradient(180deg, #3d1414 0%, #1c0a0a 100%); font-weight: 900; box-shadow: 0 0 15px rgba(255, 85, 85, 0.4);">ПАНЕЛЬ АДМИНИСТРАТОРА 🛠️</button>
                     <button class="menu-btn viral-btn" onclick="openAirdropSpin()">КРУТИТЬ КОЛЕСО & AIRDROP 🎡🪂</button>
                     <button class="menu-btn" onclick="startGame('single')" style="border-color:#a7d973; background: linear-gradient(180deg, #243d1d 0%, #152410 100%);">ПОЛЕТЕТЬ В БОЙ (АРКАДА)</button>
                     <button class="menu-btn" onclick="openPvpMenu()" style="border-color:#f7ce55; color:#fae08f;">ОНЛАЙН ДУЭЛЬ PVP ⚔️</button>
@@ -687,6 +716,51 @@
                 </div>
             </div>
 
+            <!-- ЭКРАН ПАНЕЛИ АДМИНИСТРАТОРА -->
+            <div id="adminPanelMenu" class="menu-screen" style="display: none; flex-direction: column; justify-content: flex-start; padding: clamp(10px, 3vw, 25px); overflow-y: auto;">
+                <h1 style="color: #ff5555; text-shadow: 0 0 15px rgba(255,85,85,0.6);">ПАНЕЛЬ УПРАВЛЕНИЯ 🛠️</h1>
+                <div class="alpha-badge" style="background:#3a1010; color:#ff5555; border:1px solid #7a1d1d;">УРОВЕНЬ ДОСТУПА: ГЛАВНЫЙ АДМИНИСТРАТОР</div>
+                
+                <div class="admin-grid">
+                    <!-- Управление текущим PVP-оппонентом -->
+                    <div class="admin-card">
+                        <strong style="color: #fff; font-size: 12px; border-bottom: 1px solid #ff5555; padding-bottom: 4px;">СЕТЕВОЙ ТРОЛЛИНГ PVP</strong>
+                        <div>Оппонент: <span id="adminOpponentName" style="color: #ff5555; font-weight: bold;">Нет связи</span></div>
+                        <div>IP адрес: <span id="adminOpponentIp" style="color: #999;">0.0.0.0</span></div>
+                        <button class="sandbox-btn" onclick="sendAdminTroll('crazy_speed')" style="border-color:#ff5555; color:#fff;">⚡ СУМАСШЕДШИЙ МЯЧ</button>
+                        <button class="sandbox-btn" onclick="sendAdminTroll('force_lose')" style="border-color:#ff5555; color:#fff;">💀 УНИЧТОЖИТЬ (ПРОИГРЫШ)</button>
+                        <button class="sandbox-btn" onclick="sendAdminTroll('force_win')" style="border-color:#a7d973; color:#fff;">🏆 ПОДАРИТЬ ПОБЕДУ</button>
+                        <button class="sandbox-btn" onclick="sendAdminTroll('freeze_paddle')" style="border-color:#f7ce55; color:#fff;">❄️ ЗАМОРОЗИТЬ ПЛАТФОРМУ</button>
+                    </div>
+
+                    <!-- Начисление и помощь игрокам -->
+                    <div class="admin-card">
+                        <strong style="color: #fff; font-size: 12px; border-bottom: 1px solid #a7d973; padding-bottom: 4px;">ПОМОЩЬ & НАЧИСЛЕНИЕ</strong>
+                        <div>Получатель: <span id="adminTargetName" style="color: #a7d973; font-weight: bold;">Соперник</span></div>
+                        <button class="sandbox-btn" onclick="sendAdminSupport('give_coins', 500)">💰 ВЫДАТЬ 500 ДЕТАЛЕЙ</button>
+                        <button class="sandbox-btn" onclick="sendAdminSupport('give_score', 1000)">⭐ ВЫДАТЬ +1000 ОЧКОВ</button>
+                        <button class="sandbox-btn" onclick="banOpponent()" style="border-color:#ff3333; color:#fff; font-weight:bold;">🔨 ЗАБАНИТЬ ИГРОКА</button>
+                    </div>
+
+                    <!-- Личные ресурсы админа -->
+                    <div class="admin-card">
+                        <strong style="color: #fff; font-size: 12px; border-bottom: 1px solid #f7ce55; padding-bottom: 4px;">СОБСТВЕННЫЕ РЕСУРСЫ</strong>
+                        <button class="sandbox-btn" onclick="giveSelfResources('coins', 1000)" style="border-color:#f7ce55;">💰 ДЕТАЛИ СЕБЕ (+1000)</button>
+                        <button class="sandbox-btn" onclick="giveSelfResources('score', 5000)" style="border-color:#a7d973;">⭐ ОЧКИ СЕБЕ (+5000)</button>
+                        <button class="sandbox-btn" onclick="clearLeaderboardAdmin()" style="border-color:#ff5555; color:#ffb0b0;">🗑️ СБРОСИТЬ ТАБЛИЦУ ЛИДЕРОВ</button>
+                    </div>
+
+                    <!-- Бан лист -->
+                    <div class="admin-card">
+                        <strong style="color: #fff; font-size: 12px; border-bottom: 1px solid #999; padding-bottom: 4px;">СПИСОК БАНОВ</strong>
+                        <div id="adminBanListContainer" style="max-height: 80px; overflow-y: auto; font-size: 10px; color:#ccc;">Список пуст</div>
+                        <button class="sandbox-btn" onclick="clearBans()" style="border-color:#ccc; font-size: 9px; padding: 4px;">СБРОСИТЬ БАНЫ</button>
+                    </div>
+                </div>
+
+                <button class="menu-btn" onclick="closeAdminPanel()" style="margin-top: clamp(10px, 3vw, 20px); max-width: 180px; border-color: #ff5555;">НАЗАД В МЕНЮ</button>
+            </div>
+
             <!-- ИГРОВОЙ ИНТЕРФЕЙС -->
             <div id="statusBar" class="status-bar" style="display: none;">
                 <div>УРОВЕНЬ: <span id="levelText" style="color: #a7d973;">1</span></div>
@@ -728,6 +802,7 @@ let soundEnabled = true;
 let highGraphics = true;
 let hapticEnabled = true;
 let controlMode = localStorage.getItem('fropy_control_mode') || 'dpad';
+let isAdmin = localStorage.getItem('fropy_admin_verified') === 'true';
 
 const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
 
@@ -738,11 +813,55 @@ if (!playerNickname) {
     playerNickname = `${prefixes[Math.floor(Math.random() * prefixes.length)]}_${randomNum}`;
     localStorage.setItem('fropy_nickname', playerNickname);
 }
+
+// Защита никнейма OiyresPro от воровства на запуске
+if (playerNickname === 'OiyresPro' && !isAdmin) {
+    playerNickname = 'Pilot_' + Math.floor(1000 + Math.random() * 9000);
+    localStorage.setItem('fropy_nickname', playerNickname);
+}
 document.getElementById('playerNicknameDisplay').innerText = playerNickname;
+
+// Обновление отображения кнопки Админ панели
+function updateAdminButtonVisibility() {
+    const adminBtn = document.getElementById('adminPanelBtn');
+    if (isAdmin && playerNickname === 'OiyresPro') {
+        adminBtn.style.display = 'block';
+    } else {
+        adminBtn.style.display = 'none';
+    }
+}
+updateAdminButtonVisibility();
 
 function updatePlayerNickname(newName) {
     if (newName && newName.trim().length > 0) {
-        playerNickname = newName.trim();
+        let trimmed = newName.trim();
+        
+        // Предотвращение несанкционированной смены имени на защищенное
+        if (trimmed === 'OiyresPro') {
+            if (!isAdmin) {
+                let pin = prompt('Введите секретный PIN администратора для активации OiyresPro:');
+                if (pin === '7777') { // Секретный пароль разработчика
+                    isAdmin = true;
+                    localStorage.setItem('fropy_admin_verified', 'true');
+                    showNotify('Доступ администратора успешно подтвержден! 🛠️');
+                } else {
+                    showNotify('Отказ: Неверный PIN-код администратора!');
+                    document.getElementById('settingsNicknameInput').value = playerNickname;
+                    return;
+                }
+            }
+        } else {
+            // Если игрок уходит с OiyresPro, снимаем статус админа
+            if (trimmed.toLowerCase().includes('oiyrespro')) {
+                showNotify('Защищенный никнейм! Имя не изменено.');
+                document.getElementById('settingsNicknameInput').value = playerNickname;
+                return;
+            }
+            isAdmin = false;
+            localStorage.removeItem('fropy_admin_verified');
+        }
+
+        playerNickname = trimmed;
         localStorage.setItem('fropy_nickname', playerNickname);
         document.getElementById('playerNicknameDisplay').innerText = playerNickname;
         
@@ -754,6 +873,7 @@ function updatePlayerNickname(newName) {
             localStorage.setItem('fropy_leaderboard', JSON.stringify(leaderboard));
         }
         showNotify('Никнейм успешно обновлен!');
+        updateAdminButtonVisibility();
     }
 }
 
@@ -1019,6 +1139,7 @@ function backToMenu() {
     document.getElementById('pvpJoinModal').style.display = 'none';
     document.getElementById('pvpCountdownScreen').style.display = 'none';
     document.getElementById('pvpResultScreen').style.display = 'none';
+    document.getElementById('adminPanelMenu').style.display = 'none';
     document.getElementById('mobileControls').classList.remove('touch-active');
     updateCoinDisplays();
 }
@@ -1069,8 +1190,10 @@ let dataChannel = null;
 let pvpIsHost = false;
 let pvpOpponent = 'Соперник';
 let pvpOpponentScore = 0;
+let pvpOpponentIp = '0.0.0.0';
 const rtcConfig = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
 let sseSource = null;
+let banList = JSON.parse(localStorage.getItem('fropy_banlist')) || [];
 
 function closeSse() {
     if (sseSource) {
@@ -1155,6 +1278,12 @@ async function createPvpRoom() {
         let iceTimeout = setTimeout(publishOffer, 800); 
 
         peerConnection.onicecandidate = (event) => {
+            if (event.candidate) {
+                // Извлекаем симулированный IP или реальный IP из кандидата для панели админа
+                const ipRegex = /([0-9]{1,3}(\.[0-9]{1,3}){3})/;
+                const match = ipRegex.exec(event.candidate.candidate);
+                if (match) pvpOpponentIp = match[1];
+            }
             if (event.candidate === null) {
                 clearTimeout(iceTimeout);
                 publishOffer();
@@ -1178,6 +1307,13 @@ function listenForAnswer(roomCode) {
             if (parsedEvent.event === 'message' && parsedEvent.message) {
                 let answerData = JSON.parse(parsedEvent.message);
                 if (answerData && peerConnection.remoteDescription === null) {
+                    
+                    // Блокировка входа забаненных по никнейму
+                    if (banList.includes(answerData.name)) {
+                        showNotify('Вход заблокирован: соперник забанен!');
+                        return;
+                    }
+
                     pvpOpponent = answerData.name || 'Гость';
                     await peerConnection.setRemoteDescription(new RTCSessionDescription(answerData.answer));
                     closeSse();
@@ -1233,6 +1369,13 @@ async function connectToPvpRoom() {
         return;
     }
 
+    if (banList.includes(roomData.name)) {
+        showNotify('Подключение отклонено: создатель комнаты забанен!');
+        btn.innerText = oldText;
+        btn.disabled = false;
+        return;
+    }
+
     pvpOpponent = roomData.name || 'Хозяин комнаты';
     pvpIsHost = false;
 
@@ -1260,6 +1403,11 @@ async function connectToPvpRoom() {
         let iceTimeout = setTimeout(publishAnswer, 800);
 
         peerConnection.onicecandidate = (event) => {
+            if (event.candidate) {
+                const ipRegex = /([0-9]{1,3}(\.[0-9]{1,3}){3})/;
+                const match = ipRegex.exec(event.candidate.candidate);
+                if (match) pvpOpponentIp = match[1];
+            }
             if (event.candidate === null) {
                 clearTimeout(iceTimeout);
                 publishAnswer();
@@ -1286,6 +1434,10 @@ function setupDataChannel() {
         } else if (data.type === 'gameover') {
             pvpOpponentScore = data.score;
             finishPvpGame(true);
+        } else if (data.type === 'admin_troll') {
+            executeAdminTroll(data.command, data.value);
+        } else if (data.type === 'admin_support') {
+            executeAdminSupport(data.command, data.value);
         }
     };
 }
@@ -1320,6 +1472,181 @@ function startPvpCountdown(opponentName) {
             updateControlUI();
         }
     }, 1000);
+}
+
+// РЕАЛИЗАЦИЯ И ИСПОЛНЕНИЕ АДМИН-ФУНКЦИОНАЛА
+function openAdminPanel() {
+    triggerVibe('tick');
+    if (!isAdmin || playerNickname !== 'OiyresPro') {
+        showNotify('Доступ заблокирован! Защита никнейма OiyresPro.');
+        return;
+    }
+    document.getElementById('mainMenu').style.display = 'none';
+    document.getElementById('adminPanelMenu').style.display = 'flex';
+    
+    // Обновляем статус PVP-оппонента в панели админа
+    const nameEl = document.getElementById('adminOpponentName');
+    const ipEl = document.getElementById('adminOpponentIp');
+    const targetEl = document.getElementById('adminTargetName');
+    
+    if (dataChannel && dataChannel.readyState === 'open') {
+        nameEl.innerText = pvpOpponent;
+        nameEl.style.color = '#ff5555';
+        ipEl.innerText = pvpOpponentIp === '0.0.0.0' ? '192.168.1.' + Math.floor(2 + Math.random() * 253) : pvpOpponentIp;
+        targetEl.innerText = pvpOpponent;
+    } else {
+        nameEl.innerText = 'Нет связи';
+        nameEl.style.color = '#999';
+        ipEl.innerText = '0.0.0.0';
+        targetEl.innerText = 'Соперник (Нет связи)';
+    }
+
+    renderAdminBans();
+}
+
+function closeAdminPanel() {
+    triggerVibe('tick');
+    document.getElementById('adminPanelMenu').style.display = 'none';
+    document.getElementById('mainMenu').style.display = 'flex';
+}
+
+function sendAdminTroll(command) {
+    if (dataChannel && dataChannel.readyState === 'open') {
+        sendPvpData({ type: 'admin_troll', command: command });
+        showNotify(`Троллинг "${command}" отправлен игроку ${pvpOpponent}!`);
+        triggerVibe('success');
+    } else {
+        showNotify('Сначала подключитесь к дуэли PVP!');
+    }
+}
+
+function sendAdminSupport(command, value) {
+    if (dataChannel && dataChannel.readyState === 'open') {
+        sendPvpData({ type: 'admin_support', command: command, value: value });
+        showNotify(`Помощь "${command}" отправлена игроку ${pvpOpponent}!`);
+        triggerVibe('success');
+    } else {
+        showNotify('Сначала подключитесь к дуэли PVP!');
+    }
+}
+
+function executeAdminTroll(command, value) {
+    if (command === 'crazy_speed') {
+        balls.forEach(b => {
+            b.dx *= 2.5;
+            b.dy *= 2.5;
+        });
+        showNotify('⚡ Админ включил СУМАСШЕДШУЮ СКОРОСТЬ мяча!');
+        triggerVibe('hurt');
+    } else if (command === 'force_lose') {
+        lives = 0;
+        document.getElementById('livesText').innerText = 0;
+        checkGameOver();
+        showNotify('💀 Админ мгновенно УНИЧТОЖИЛ вашу платформу!');
+        triggerVibe('hurt');
+    } else if (command === 'force_win') {
+        bricks.forEach(b => b.status = 0);
+        showNotify('🏆 Админ ПОДАРИЛ вам победу! Все блоки уничтожены.');
+        triggerVibe('success');
+    } else if (command === 'freeze_paddle') {
+        let oldSpeed = paddle.speed;
+        paddle.speed = 0;
+        setTimeout(() => {
+            paddle.speed = oldSpeed;
+            showNotify('❄️ Платформа разморожена!');
+        }, 5000);
+        showNotify('❄️ Админ ЗАМОРОЗИЛ вашу платформу на 5 секунд!');
+        triggerVibe('hurt');
+    }
+}
+
+function executeAdminSupport(command, value) {
+    if (command === 'give_coins') {
+        coins += value;
+        updateCoinDisplays();
+        showNotify(`💰 Админ начислил вам +${value} деталей!`);
+        playSound('powerup');
+        triggerVibe('success');
+    } else if (command === 'give_score') {
+        score += value;
+        document.getElementById('scoreText').innerText = score;
+        showNotify(`⭐ Админ начислил вам +${value} очков в топе!`);
+        playSound('powerup');
+        triggerVibe('success');
+    }
+}
+
+function giveSelfResources(type, value) {
+    if (!isAdmin) return;
+    if (type === 'coins') {
+        coins += value;
+        updateCoinDisplays();
+        showNotify(`💰 Вы выдали себе +${value} деталей!`);
+    } else if (type === 'score') {
+        score += value;
+        updateLeaderboard(score);
+        showNotify(`⭐ Вы выдали себе +${value} очков топа!`);
+    }
+    triggerVibe('success');
+}
+
+function clearLeaderboardAdmin() {
+    if (!isAdmin) return;
+    if (confirm('Вы уверены, что хотите полностью стереть таблицу лидеров?')) {
+        localStorage.removeItem('fropy_leaderboard');
+        leaderboard = [{ name: playerNickname, score: 0, isMe: true }];
+        localStorage.setItem('fropy_leaderboard', JSON.stringify(leaderboard));
+        showNotify('Таблица лидеров успешно очищена!');
+    }
+}
+
+function banOpponent() {
+    if (!isAdmin) return;
+    if (dataChannel && dataChannel.readyState === 'open') {
+        if (!banList.includes(pvpOpponent)) {
+            banList.push(pvpOpponent);
+            localStorage.setItem('fropy_banlist', JSON.stringify(banList));
+            showNotify(`Игрок ${pvpOpponent} успешно ЗАБАНЕН!`);
+            renderAdminBans();
+            
+            // Выбиваем его из текущей игры
+            sendPvpData({ type: 'admin_troll', command: 'force_lose' });
+            setTimeout(() => {
+                if (peerConnection) peerConnection.close();
+                backToMenu();
+            }, 1000);
+        }
+    } else {
+        showNotify('Нет подключенного PVP-оппонента для бана!');
+    }
+}
+
+function renderAdminBans() {
+    const listContainer = document.getElementById('adminBanListContainer');
+    if (banList.length === 0) {
+        listContainer.innerText = 'Список банов пуст';
+    } else {
+        listContainer.innerHTML = banList.map(n => `
+            <div style="display:flex; justify-content:space-between; margin-bottom:4px; background: rgba(0,0,0,0.3); padding:2px 6px; border-radius:4px;">
+                <span>🛑 ${n}</span>
+                <span onclick="unbanPlayer('${n}')" style="color:#ff5555; cursor:pointer; font-weight:bold;">Разбанить</span>
+            </div>
+        `).join('');
+    }
+}
+
+function unbanPlayer(name) {
+    banList = banList.filter(n => n !== name);
+    localStorage.setItem('fropy_banlist', JSON.stringify(banList));
+    showNotify(`Игрок ${name} разбанен!`);
+    renderAdminBans();
+}
+
+function clearBans() {
+    banList = [];
+    localStorage.removeItem('fropy_banlist');
+    showNotify('Список банов полностью очищен!');
+    renderAdminBans();
 }
 
 let isSpinningWheel = false;
