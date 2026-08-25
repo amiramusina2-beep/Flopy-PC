@@ -840,7 +840,7 @@ function updatePlayerNickname(newName) {
         if (trimmed === 'OiyresPro') {
             if (!isAdmin) {
                 let pin = prompt('Введите секретный PIN администратора для активации OiyresPro:');
-                if (pin === '7777') { // Секретный пароль разработчика
+                if (pin === '6254') { // Секретный пароль разработчика
                     isAdmin = true;
                     localStorage.setItem('fropy_admin_verified', 'true');
                     showNotify('Доступ администратора успешно подтвержден! 🛠️');
