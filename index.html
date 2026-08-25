@@ -97,7 +97,7 @@
             justify-content: space-between;
             align-items: center;
             z-index: 10;
-            padding: clamp(15px, 5vw, 40px);
+            padding: clamp(12px, 3vw, 30px);
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
         }
@@ -113,11 +113,14 @@
         }
 
         .menu-right-panel {
-            width: 52%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: clamp(8px, 2vw, 12px);
+            width: 53%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(6px, 1.5vw, 10px);
+            align-content: center;
+            max-height: 100%;
+            overflow-y: auto;
+            padding-right: 4px;
         }
 
         h1 {
@@ -154,19 +157,21 @@
             background: linear-gradient(180deg, #1f2d1c 0%, #152013 100%);
             border: 1px solid #48663a;
             color: #e2edd6;
-            padding: clamp(10px, 2.5vw, 14px) 20px;
+            padding: clamp(8px, 1.8vw, 12px) 10px;
             border-radius: 10px;
             font-family: 'Outfit', sans-serif;
-            font-size: clamp(10px, 2.2vw, 12px);
+            font-size: clamp(10px, 1.8vw, 12px);
             font-weight: 700;
             cursor: pointer;
             transition: all 0.2s ease-in-out;
             width: 100%;
-            max-width: 320px;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
+            letter-spacing: 1px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
             touch-action: manipulation;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .menu-btn:disabled {
@@ -197,6 +202,7 @@
             font-weight: 800 !important;
             text-shadow: 0 2px 4px rgba(0,0,0,0.6);
             animation: viralPulse 1.4s infinite alternate cubic-bezier(0.4, 0, 0.6, 1);
+            grid-column: span 2;
         }
 
         @keyframes viralPulse {
@@ -205,8 +211,8 @@
                 box-shadow: 0 0 12px rgba(247, 206, 85, 0.5);
             }
             100% {
-                transform: scale(1.03) rotate(0.5deg);
-                box-shadow: 0 0 28px rgba(247, 206, 85, 0.95), 0 0 15px rgba(255, 235, 59, 0.45);
+                transform: scale(1.02) rotate(0.5deg);
+                box-shadow: 0 0 24px rgba(247, 206, 85, 0.95), 0 0 15px rgba(255, 235, 59, 0.45);
             }
         }
 
@@ -515,6 +521,9 @@
             .menu-right-panel {
                 width: 100%;
                 margin-top: 0;
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+                padding-bottom: 15px;
             }
 
             .shop-container {
@@ -570,15 +579,15 @@
                     </div>
                 </div>
                 <div class="menu-right-panel" style="margin-top: 10px;">
-                    <button class="menu-btn" id="adminPanelBtn" onclick="openAdminPanel()" style="display: none; border-color: #ef4444; color: #ff5555; background: linear-gradient(180deg, #3d1414 0%, #1c0a0a 100%); font-weight: 900; box-shadow: 0 0 15px rgba(255, 85, 85, 0.4);">ПАНЕЛЬ АДМИНИСТРАТОРА 🛠️</button>
                     <button class="menu-btn viral-btn" onclick="openAirdropSpin()">КРУТИТЬ КОЛЕСО & AIRDROP 🎡🪂</button>
-                    <button class="menu-btn" onclick="startGame('single')" style="border-color:#a7d973; background: linear-gradient(180deg, #243d1d 0%, #152410 100%);">ПОЛЕТЕТЬ В БОЙ (АРКАДА)</button>
-                    <button class="menu-btn" onclick="openPvpMenu()" style="border-color:#f7ce55; color:#fae08f;">ОНЛАЙН ДУЭЛЬ PVP ⚔️</button>
-                    <button class="menu-btn" id="playSandboxBtn" style="display: none; border-color: #f7ce55; color: #fae08f;" onclick="startCustomSandboxGame()">ИГРАТЬ В СВОЙ УРОВЕНЬ</button>
-                    <button class="menu-btn" onclick="openSandboxEditor()">РЕДАКТОР УРОВНЯ</button>
-                    <button class="menu-btn" onclick="openShop()">КОСМИЧЕСКИЙ МАГАЗИН</button>
-                    <button class="menu-btn" onclick="openLeaderboard()" style="border-color:#a7d973; color: #b9ec88;">ТАБЛИЦА ЛИДЕРОВ 🏆</button>
-                    <button class="menu-btn" onclick="claimDailyReward()" style="border-color: #4b8a45; color: #9be68e;">ЕЖЕДНЕВНЫЙ ПОДАРОК 🎁</button>
+                    <button class="menu-btn" onclick="startGame('single')" style="grid-column: span 2; border-color:#a7d973; background: linear-gradient(180deg, #243d1d 0%, #152410 100%);">ПОЛЕТЕТЬ В БОЙ (АРКАДА)</button>
+                    <button class="menu-btn" id="adminPanelBtn" onclick="openAdminPanel()" style="display: none; grid-column: span 2; border-color: #ef4444; color: #ff5555; background: linear-gradient(180deg, #3d1414 0%, #1c0a0a 100%); font-weight: 900; box-shadow: 0 0 15px rgba(255, 85, 85, 0.4);">ПАНЕЛЬ АДМИНИСТРАТОРА 🛠️</button>
+                    <button class="menu-btn" onclick="openPvpMenu()" style="border-color:#f7ce55; color:#fae08f;">ДУЭЛЬ PVP ⚔️</button>
+                    <button class="menu-btn" id="playSandboxBtn" style="display: none; border-color: #f7ce55; color: #fae08f;" onclick="startCustomSandboxGame()">МОЙ УРОВЕНЬ</button>
+                    <button class="menu-btn" onclick="openSandboxEditor()">РЕДАКТОР</button>
+                    <button class="menu-btn" onclick="openShop()">МАГАЗИН</button>
+                    <button class="menu-btn" onclick="openLeaderboard()" style="border-color:#a7d973; color: #b9ec88;">ЛИДЕРЫ 🏆</button>
+                    <button class="menu-btn" onclick="claimDailyReward()" style="border-color: #4b8a45; color: #9be68e;">ПОДАРОК 🎁</button>
                     <button class="menu-btn" onclick="openSettings()">НАСТРОЙКИ</button>
                 </div>
             </div>
