@@ -82,6 +82,7 @@
             width: 100%;
             height: 100%;
             background: #060a05;
+            cursor: none; /* Скрытие курсора мыши над игровым холстом */
         }
         
         /* СТИЛЬНОЕ АДАПТИВНОЕ МЕНЮ */
@@ -460,7 +461,7 @@
                 border: 3px solid #33472b;
                 flex-grow: 0;
                 width: 100%;
-                aspect-ratio: 800 / 500; /* Строгие правильные пропорции аркады */
+                aspect-ratio: 800 / 500;
                 box-shadow: inset 0 0 30px rgba(0,0,0,0.95);
             }
 
@@ -497,7 +498,6 @@
                 gap: 12px;
             }
 
-            /* Включение нижнего пульта контроллеров на сенсорных экранах */
             .mobile-controls-panel.touch-active {
                 display: flex;
             }
@@ -1364,6 +1364,8 @@ function handleInteractionStart(e) {
         }
     } else if (gameState === 'PLAYING') {
         releaseBalls();
+    } else if (gameState === 'PAUSED') {
+        gameState = 'PLAYING';
     }
 }
 
@@ -1425,6 +1427,15 @@ window.addEventListener('keydown', (e) => {
     if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = true;
     if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = true;
     if (e.code === 'Space') { e.preventDefault(); releaseBalls(); fireLaser(); }
+
+    if (e.code === 'Escape' || e.code === 'KeyP') {
+        e.preventDefault();
+        if (gameState === 'PLAYING') {
+            gameState = 'PAUSED';
+        } else if (gameState === 'PAUSED') {
+            gameState = 'PLAYING';
+        }
+    }
 });
 window.addEventListener('keyup', (e) => {
     if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = false;
@@ -1734,6 +1745,18 @@ function draw() {
     for (let ball of balls) {
         ctx.fillStyle = ball.fireball ? '#ff4500' : '#f8fdf6';
         ctx.beginPath(); ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2); ctx.fill();
+    }
+
+    if (gameState === 'PAUSED') {
+        ctx.fillStyle = 'rgba(6, 10, 5, 0.9)';
+        ctx.fillRect(0, 0, virtualWidth, virtualHeight);
+        ctx.fillStyle = '#a7d973';
+        ctx.font = 'bold 24px "Outfit"';
+        ctx.textAlign = 'center';
+        ctx.fillText('ИГРА НА ПАУЗЕ', virtualWidth / 2, virtualHeight / 2 - 10);
+        ctx.font = '13px "Outfit"';
+        ctx.fillStyle = '#9cb299';
+        ctx.fillText('Нажмите ESC или кликните для продолжения', virtualWidth / 2, virtualHeight / 2 + 25);
     }
 
     ctx.restore();
